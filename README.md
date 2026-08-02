@@ -1,0 +1,91 @@
+# psm-incident-ml
+
+A public, reproducible dataset and baseline models for **process-safety incident
+investigation** ML, built from US federal offshore incident reports published by
+the Bureau of Safety and Environmental Enforcement (**BSEE**).
+
+Records are mapped toward the Energy Institute PSM Framework **Element 19**
+(Incident Reporting & Investigation) investigation-report structure.
+
+> **Status: Stage 1 — data acquisition and vocabulary induction. No models yet.**
+> Numbers marked _(pending)_ below are filled in by the pipeline, not by hand.
+
+---
+
+## What is real and what is generated
+
+This is the first thing to read. The project deliberately mixes verbatim source
+data, deterministic derivations, model output, and fully synthetic filler — and
+**every column name says which it is.**
+
+| Prefix  | Origin | Real? | May you score against it? |
+|---------|--------|-------|---------------------------|
+| `src_`  | Extracted verbatim from a BSEE PDF or CSV | **Real** — traceable to a source document | It is the input, not a label |
+| `xw_`   | Deterministic crosswalk from a `src_` field via [`schema/crosswalk.yaml`](schema/crosswalk.yaml) | **Derived** — reproducible, but encodes an opinion | Only as a baseline to beat |
+| `llm_`  | Assigned by a language model | **Not ground truth** | **No. Never.** |
+| `gold_` | Assigned by a human annotator | **Real** — hand-labelled | **Yes — this is the only valid target** |
+| `syn_`  | Fully generated administrative wrapper | **Not real.** Corresponds to nothing | No |
+
+Concretely:
+
+| Artifact | Status |
+|---|---|
+| `data/manifest.csv` — URLs + SHA256 of every source PDF | **Real**, committed, verifiable |
+| `data/processed/investigations_index.csv` — BSEE structured listing | **Real**, committed |
+| `data/raw/` — the PDFs themselves | **Real**, gitignored, rebuildable from the manifest |
+| `data/processed/incidents.csv` — extracted fields | **Real** (`src_`) + **derived** (`xw_`) |
+| `gold/gold_labels.csv` — hand-labelled evaluation set | **Real**, human-assigned, the only scoring target |
+| Administrative wrapper fields (reporter names, internal IDs, sign-offs) | **Synthetic** (`syn_`) — the E19 template needs them; BSEE does not publish them |
+
+**Why any synthetic data at all?** The E19 investigation-report structure
+includes administrative fields (who reported it, internal tracking IDs,
+sign-off chains) that BSEE reports do not contain and that no public source
+provides. Those are generated so the schema is complete and demonstrable. They
+are never used as features or labels, and they are always `syn_`-prefixed.
+
+## The reproducibility contract
+
+`data/raw/` is gitignored — the repo does not redistribute BSEE PDFs. Instead
+`data/manifest.csv` is **committed** with a SHA256 per file. From a fresh clone
+you can rebuild byte-identical inputs and verify you got what we got:
+
+```bash
+uv run python -m psm.harvest && uv run python -m psm.fetch && uv run python -m psm.extract
+```
+
+If a SHA mismatches, the pipeline says so loudly rather than proceeding.
+
+## Data sources and licensing
+
+See **[DATA_SOURCES.md](DATA_SOURCES.md)** for per-source provenance, retrieval
+dates, and licence basis.
+
+- **Code** in this repo is MIT licensed (see [LICENSE](LICENSE)).
+- **Source data** carries its own terms, documented per source in `DATA_SOURCES.md`.
+- The Energy Institute PSM Framework is referenced for its element structure;
+  no EI publication or workbook is reproduced here.
+
+## Findings
+
+The running verification log — including the induced cause vocabulary, where the
+report-typing boundary actually falls, and extraction failure rate by year —
+lives in **[docs/findings.md](docs/findings.md)**, as dated append-only entries.
+
+## Repo layout
+
+```
+schema/     e19_target.yaml   target schema (hand-written, no workbook)
+            bsee_form2010.yaml  source field map incl. bbox hints
+            crosswalk.yaml    BSEE cause -> E19. Versioned, human-readable, arguable
+src/psm/    harvest -> fetch -> extract -> causes -> crosswalk -> synth
+data/       manifest.csv (committed) | raw, interim (gitignored) | processed (committed)
+gold/       hand-labelled evaluation set
+docs/       findings.md — dated verification log
+```
+
+## Contributing / arguing with us
+
+The crosswalk in `schema/crosswalk.yaml` is an **opinion** about how BSEE cause
+categories map onto EI PSM elements. It is deliberately kept in one readable
+screen of YAML so you can disagree with it in a pull request. If you think a
+mapping is wrong, that is the file to change — not the Python.

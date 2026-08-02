@@ -1,0 +1,78 @@
+# Source field map for MMS Form 2010 (BSEE Accident Investigation Report).
+#
+# Field numbers are stable across eras; LABEL WORDING IS NOT. Patterns are
+# therefore deliberately loose — they anchor on the field number at a line start
+# and use `label_hint` only to confirm, never to locate. Typos below are BSEE's
+# own and are reproduced on purpose (e.g. "RECURRANCE").
+#
+# `region` tells the extractor where to look:
+#   form_face  - page 0, two-column, may carry checkbox sets
+#   narrative  - continuation pages, single column, free prose
+#   admin      - final page, two-column again
+
+version: 1
+form: "MMS Form 2010"
+anchor_regex: '^\s*(\d{1,2})\s*\.\s*(.{0,80})$'
+
+fields:
+  1:  {name: occurred,               region: form_face, label_hint: "OCCURRED",                    kind: datetime_block}
+  2:  {name: operator,               region: form_face, label_hint: "OPERATOR",                    kind: text}
+  # Hint is the first line only: "ON SITE AT TIME OF INCIDENT" wraps to the
+  # next line, so matching on it never fires.
+  3:  {name: rep_on_site,            region: form_face, label_hint: "OPERATOR/CONTRACTOR",         kind: text}
+  4:  {name: lease_area_block,       region: form_face, label_hint: "LEASE",                       kind: composite}
+  5:  {name: platform_rig,           region: form_face, label_hint: "PLATFORM",                    kind: composite}
+  6:  {name: activity,               region: form_face, label_hint: "ACTIVITY",                    kind: checkbox_set}
+  7:  {name: type,                   region: form_face, label_hint: "TYPE",                        kind: checkbox_set}
+  8:  {name: operation,              region: form_face, label_hint: "OPERATION",                   kind: checkbox_set}
+  9:  {name: cause_checkbox,         region: form_face, label_hint: "CAUSE",                       kind: checkbox_set}
+  10: {name: water_depth,            region: form_face, label_hint: "WATER DEPTH",                 kind: measure}
+  11: {name: distance_from_shore,    region: form_face, label_hint: "DISTANCE FROM SHORE",         kind: measure}
+  12: {name: wind,                   region: form_face, label_hint: "WIND DIRECTION",              kind: measure}
+  13: {name: current,                region: form_face, label_hint: "CURRENT DIRECTION",           kind: measure}
+  14: {name: sea_state,              region: form_face, label_hint: "SEA STATE",                   kind: measure}
+  15: {name: pictures,               region: form_face, label_hint: "PICTURES",                    kind: text}
+  16: {name: statement,              region: form_face, label_hint: "STATEMENT",                   kind: text}
+
+  # --- the fields this project exists for ---
+  17: {name: investigation_findings, region: narrative, label_hint: "INVESTIGATION FINDINGS",      kind: prose
+       , subheads: ["INCIDENT SUMMARY", "SEQUENCE OF EVENTS", "BSEE INVESTIGATION", "IN CONCLUSION", "CONCLUSION"]}
+  18: {name: probable_cause,         region: narrative, label_hint: "PROBABLE CAUSE",              kind: cause_statements}
+  19: {name: contributing_cause,     region: narrative, label_hint: "CONTRIBUTING CAUSE",          kind: cause_statements}
+
+  20: {name: additional_information, region: narrative, label_hint: "ADDITIONAL INFORMATION",      kind: prose}
+  21: {name: property_damaged,       region: narrative, label_hint: "PROPERTY DAMAGED",            kind: composite}
+  22: {name: recommendations,        region: narrative, label_hint: "RECURRANCE",                  kind: prose}
+  23: {name: possible_ocs_violations, region: narrative, label_hint: "POSSIBLE OCS VIOLATIONS",    kind: yesno}
+  24: {name: violations_narrative,   region: narrative, label_hint: "SPECIFY VIOLATIONS",          kind: prose}
+
+  25: {name: onsite_investigation_date, region: admin, label_hint: "DATE OF ONSITE INVESTIGATION", kind: date}
+  26: {name: team_members,           region: admin,     label_hint: "Team Members",                kind: text}
+  27: {name: operator_report_on_file, region: admin,    label_hint: "OPERATOR REPORT ON FILE",     kind: yesno}
+  28: {name: accident_classification, region: admin,    label_hint: "ACCIDENT CLASSIFICATION",     kind: text}
+  29: {name: panel_formed,           region: admin,     label_hint: "PANEL FORMED",                kind: yesno}
+  30: {name: district_supervisor,    region: admin,     label_hint: "DISTRICT SUPERVISOR",         kind: text}
+
+# Lines matching these are page furniture, dropped before field segmentation.
+# The bare-date pattern matters more than it looks: BSEE stamps an approval date
+# as free-floating text that lands *inside* field 18 in visual order, e.g. a
+# stray "15-JUN-2021" between a cause category and its description.
+furniture_patterns:
+  - '^(MMS\s*-?\s*)?FORM\s*2010\b'   # "MMS -" is sometimes split off by column detection
+  - '^EV\s*2010\s*R?\b'
+  - '^PAGE:?\s*\d+\s*OF\s*\d+'
+  - '^For Public Release\.?$'
+  - '^UNITED STATES DEPARTMENT OF THE INTERIOR$'
+  - '^BUREAU OF SAFETY AND ENVIRONMENTAL ENFORCEMENT$'
+  - '^GULF OF (MEXICO|AMERICA) REGION$'
+  - '^ACCIDENT INVESTIGATION REPORT$'
+  - '^\d{1,2}-[A-Z]{3}-\d{4}$'          # bare approval-date stamp
+  - '^APPROVED$'
+  - '^DATE:$'
+  - '^OCS REPORT:$'
+
+# Removed wherever they appear *within* a line, not just as a whole line. The
+# "For Public Release" watermark sits on the same visual row as field labels
+# ("17. INVESTIGATION FINDINGS: For Public Release") so a whole-line rule misses it.
+inline_strip_patterns:
+  - '\s*For Public Release\s*'

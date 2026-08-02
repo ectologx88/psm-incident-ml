@@ -1,0 +1,98 @@
+# Target schema: incident investigation record, shaped after the Energy
+# Institute PSM Framework Element 19 (Incident Reporting & Investigation).
+#
+# HAND-WRITTEN. No workbook was opened, copied, or derived from to produce this
+# file. It contains only field names and the picklist vocabularies needed as ML
+# targets - no formulas, no scoring logic, no rollup structure.
+#
+# Elements are referenced BY NUMBER. See schema/crosswalk.yaml for why.
+
+version: 1
+scope: "single incident investigation record"
+
+# --- Fields populated from BSEE source documents (src_ / xw_) ---
+sourced_fields:
+  incident_date:        {from: "form2010.f01", type: date,   required: true}
+  incident_time:        {from: "form2010.f01", type: time,   required: false}
+  operator:             {from: "form2010.f02", type: string, required: true}
+  lease_number:         {from: "form2010.f04", type: string, required: true}
+  area_block:           {from: "form2010.f04", type: string, required: true}
+  platform_or_rig:      {from: "form2010.f05", type: string, required: false}
+  activity:             {from: "form2010.f06", type: enum,   vocab: activity}
+  incident_type:        {from: "form2010.f07", type: multi_enum, vocab: incident_type}
+  operation:            {from: "form2010.f08", type: enum,   vocab: operation}
+  water_depth_ft:       {from: "form2010.f10", type: number, required: false}
+  narrative_summary:    {from: "form2010.f17", type: text,   required: true}
+  sequence_of_events:   {from: "form2010.f17", type: text,   required: false}
+  probable_causes:      {from: "form2010.f18", type: cause_statement_list}
+  contributing_causes:  {from: "form2010.f19", type: cause_statement_list}
+  property_damage_usd:  {from: "form2010.f21", type: number, required: false}
+  recommendations:      {from: "form2010.f22", type: text,   required: false}
+  regulatory_violations: {from: "form2010.f24", type: text,  required: false}
+
+# --- Fields the E19 structure expects that BSEE does not publish ---
+# Generated, never used as features or labels, always syn_ prefixed.
+synthetic_fields:
+  report_id:            {type: string, note: "internal tracking id - no public equivalent"}
+  reported_by:          {type: string, note: "reporter identity is not published"}
+  reported_datetime:    {type: datetime}
+  investigation_lead:   {type: string}
+  investigation_closed_date: {type: date}
+  actions_assigned_to:  {type: string}
+  action_due_date:      {type: date}
+  action_status:        {type: enum, vocab: action_status}
+  signed_off_by:        {type: string}
+
+# --- Target label, the thing models predict ---
+target:
+  cause_category:
+    type: multi_enum
+    vocab: cause_category
+    note: >
+      Induced from the corpus 2026-08-02 (n=63, 82 typed statements). 82% of
+      typed statements fall in this closed set. Level-2 subcategories are NOT
+      yet shown to be closed and are deliberately absent from this schema.
+  psm_element:
+    type: multi_enum
+    vocab: psm_element_number
+    note: "Derived via schema/crosswalk.yaml. An opinion - see that file."
+  cause_status:
+    type: enum
+    vocab: cause_status
+    note: "Required. Governs whether a record is usable as a labelled example."
+
+vocabularies:
+
+  # Induced, not assumed. See docs/findings.md.
+  cause_category:
+    - Equipment Failure
+    - Human Performance Error   # dominant label; "Human error" is a variant
+    - Management Systems
+    - Communication
+    - Supervision
+    - Work Environment
+
+  cause_status:
+    - typed              # controlled-vocabulary category present
+    - freetext           # prose present, no controlled category
+    - absent_legitimate  # field present and genuinely empty (valid record)
+    - parse_failed       # could not locate or read the field
+
+  # Referenced by number only - see the header note.
+  psm_element_number:
+    values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    note: "Element 19 is Incident Reporting & Investigation, this schema's subject."
+
+  activity: [Exploration, Development/Production, Decommissioning]
+
+  operation:
+    [Production, Drilling, Workover, Completion, Helicopter, Motor Vessel,
+     Pipeline Segment, Temp Abandonment, Perm Abandonment, Decom Pipeline,
+     Decom Facility, Site Clearance, Other]
+
+  incident_type:
+    [Structural Damage, Crane, Other Lifting, Damaged/Disabled Safety System,
+     Incident >$25K, H2S/15min/20ppm, Required Muster, Shutdown from Gas Release,
+     Injury, Fatality, Pollution, Fire, Explosion, LWC, Blowout, Collision, Other]
+
+  action_status: [open, in_progress, closed, superseded]

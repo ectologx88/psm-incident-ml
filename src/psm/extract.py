@@ -1,0 +1,225 @@
+"""Field extraction from MMS Form 2010 PDFs -> per-report JSON.
+
+Reads PDFs from ``data/raw/``, writes one JSON per report to ``data/interim/``.
+All positional work lives in :mod:`psm.layout`; this module only segments the
+reconstructed line stream into numbered fields.
+
+Run:  ``uv run python -m psm.extract``
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import sys
+from pathlib import Path
+
+import pdfplumber
+import yaml
+
+from psm.layout import Line, checkbox_labels, document_lines
+
+REPO = Path(__file__).resolve().parents[2]
+SCHEMA_PATH = REPO / "schema" / "bsee_form2010.yaml"
+DEFAULT_RAW = REPO / "data" / "raw"
+DEFAULT_INTERIM = REPO / "data" / "interim"
+
+# A field anchor: a number, a dot, then a label. Anchors can appear mid-line
+# because the admin block is two-column ("25. DATE ...   28. ACCIDENT CLASS...").
+ANCHOR_RE = re.compile(r"(?:(?<=^)|(?<=\s))(\d{1,2})\s*\.\s+(?=[A-Z(])")
+
+
+def load_schema(path: Path = SCHEMA_PATH) -> dict:
+    with open(path, encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
+
+def _furniture(schema: dict) -> list[re.Pattern]:
+    return [re.compile(p, re.IGNORECASE) for p in schema.get("furniture_patterns", [])]
+
+
+def _inline_strips(schema: dict) -> list[re.Pattern]:
+    return [re.compile(p, re.IGNORECASE) for p in schema.get("inline_strip_patterns", [])]
+
+
+def _label_matches(field_no: int, tail: str, schema: dict) -> bool:
+    """Confirm an anchor by its label, tolerating era-to-era wording drift."""
+    spec = schema["fields"].get(field_no)
+    if not spec:
+        return False
+    hint = spec.get("label_hint", "")
+    if not hint:
+        return True
+    return hint.upper() in tail.upper()
+
+
+def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
+    """Split visual-order lines into ``{field_number: text}``.
+
+    Returns the field map plus a list of anomaly records. Anchors are accepted
+    only when the field number is plausible (monotonically advancing) AND the
+    label hint matches, so a stray "21. " inside prose does not open a field.
+    """
+    furn = _furniture(schema)
+    strips = _inline_strips(schema)
+    anomalies: list[dict] = []
+
+    kept = []
+    for ln in lines:
+        text = ln.text.strip()
+        for p in strips:
+            text = p.sub(" ", text)
+        text = re.sub(r"\s{2,}", " ", text).strip()
+        if not text or any(p.match(text) for p in furn):
+            continue
+        kept.append(Line(ln.page, ln.top, ln.x0, text, ln.column))
+
+    # Pass 1: locate accepted anchors.
+    #
+    # Acceptance rests on the label hint, NOT on field numbers arriving in
+    # ascending order. The form face and the closing admin block are both
+    # two-column, so a stream can legitimately read 25, 26, 27, 28 down the left
+    # column then jump back. An earlier strict-ascending rule silently discarded
+    # fields 4-7, 26, 27 and 29 on most reports. Duplicates keep the first hit.
+    anchors: list[tuple[int, int, int]] = []  # (line_idx, char_offset, field_no)
+    seen: set[int] = set()
+    highest = 0
+    for i, ln in enumerate(kept):
+        for m in ANCHOR_RE.finditer(ln.text):
+            num = int(m.group(1))
+            if not (1 <= num <= 30):
+                continue
+            tail = ln.text[m.end(): m.end() + 90]
+            if not _label_matches(num, tail, schema):
+                continue
+            if num in seen:
+                anomalies.append({
+                    "type": "duplicate_anchor", "field": num,
+                    "line": ln.text[:120], "page": ln.page,
+                })
+                continue
+            if num < highest:
+                # Informational only: a real signal of column reordering, but
+                # not a reason to drop a field whose label matched.
+                anomalies.append({
+                    "type": "out_of_order_anchor", "field": num, "after": highest,
+                    "line": ln.text[:120], "page": ln.page,
+                })
+            anchors.append((i, m.start(), num))
+            seen.add(num)
+            highest = max(highest, num)
+
+    if not anchors:
+        return {}, anomalies + [{"type": "no_anchors_found"}]
+
+    # Pass 2: content runs from one anchor to the next.
+    fields: dict[int, str] = {}
+    for a, (li, ci, num) in enumerate(anchors):
+        if a + 1 < len(anchors):
+            lj, cj, _ = anchors[a + 1]
+        else:
+            lj, cj = len(kept) - 1, len(kept[-1].text)
+
+        if li == lj:
+            chunk = [kept[li].text[ci:cj]]
+        else:
+            chunk = [kept[li].text[ci:]]
+            chunk += [kept[k].text for k in range(li + 1, lj)]
+            chunk.append(kept[lj].text[:cj])
+
+        body = "\n".join(chunk)
+        # Drop the label itself: everything up to and including the first colon
+        # on the first line, when a colon is present there.
+        first, _, rest = body.partition("\n")
+        if ":" in first:
+            first = first.split(":", 1)[1]
+        fields[num] = (first + ("\n" + rest if rest else "")).strip()
+
+    missing = [n for n in schema["fields"] if n not in fields]
+    if missing:
+        anomalies.append({"type": "fields_not_located", "fields": missing})
+    return fields, anomalies
+
+
+def sha256_of(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for block in iter(lambda: fh.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def extract_report(pdf_path: Path, schema: dict) -> dict:
+    """Extract one report. Never raises on bad input — records the failure."""
+    rec: dict = {
+        "src_source_file": pdf_path.name,
+        "src_sha256": sha256_of(pdf_path),
+        "src_extract_status": "ok",
+        "anomalies": [],
+    }
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            rec["src_page_count"] = len(pdf.pages)
+            lines = document_lines(pdf)
+            rec["src_line_count"] = len(lines)
+            if not lines:
+                rec["src_extract_status"] = "no_text_layer"
+                rec["anomalies"].append({
+                    "type": "no_text_layer",
+                    "note": "zero words extracted; likely a scanned image requiring OCR",
+                })
+                return rec
+            fields, anomalies = segment_fields(lines, schema)
+            rec["anomalies"].extend(anomalies)
+            for num, text in sorted(fields.items()):
+                name = schema["fields"][num]["name"]
+                rec[f"src_f{num:02d}_{name}"] = text
+            rec["src_fields_found"] = sorted(fields)
+            if pdf.pages:
+                rec["src_checkboxes_page0"] = [
+                    lbl for lbl, _, _ in checkbox_labels(pdf.pages[0], 0)
+                ]
+            if not fields:
+                rec["src_extract_status"] = "parse_failed"
+    except Exception as exc:  # noqa: BLE001 - a corrupt PDF must not kill the run
+        rec["src_extract_status"] = "parse_failed"
+        rec["anomalies"].append({"type": "exception", "error": f"{type(exc).__name__}: {exc}"})
+    return rec
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--raw", type=Path, default=DEFAULT_RAW)
+    ap.add_argument("--out", type=Path, default=DEFAULT_INTERIM)
+    ap.add_argument("--limit", type=int, default=None)
+    args = ap.parse_args(argv)
+
+    schema = load_schema()
+    args.out.mkdir(parents=True, exist_ok=True)
+    pdfs = sorted(args.raw.rglob("*.pdf"))[: args.limit]
+    if not pdfs:
+        print(f"no PDFs under {args.raw} — run `python -m psm.fetch` first", file=sys.stderr)
+        return 1
+
+    counts: dict[str, int] = {}
+    anomaly_log = args.out / "anomalies.jsonl"
+    with open(anomaly_log, "w", encoding="utf-8") as alog:
+        for path in pdfs:
+            rec = extract_report(path, schema)
+            counts[rec["src_extract_status"]] = counts.get(rec["src_extract_status"], 0) + 1
+            out = args.out / (path.stem + ".json")
+            out.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+            for a in rec["anomalies"]:
+                alog.write(json.dumps({"file": path.name, **a}, ensure_ascii=False) + "\n")
+
+    print(f"extracted {len(pdfs)} reports -> {args.out}")
+    for status, n in sorted(counts.items()):
+        print(f"  {status}: {n}")
+    print(f"anomalies -> {anomaly_log}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

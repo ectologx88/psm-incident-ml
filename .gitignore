@@ -1,0 +1,22 @@
+# Reproducibility contract: raw + interim are rebuildable from data/manifest.csv
+data/raw/
+data/interim/
+
+# Never commit the source workbook or any derivative (workplace document)
+*.xlsx
+*.xlsm
+*E19*Investigation*Report*
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.uv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store
+.env

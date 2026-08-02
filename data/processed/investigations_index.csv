@@ -1,0 +1,2015 @@
+src_date_occurred,src_military_time,src_lease_number,src_area_block,src_accident_type,src_panel_district,src_status
+4/28/2007,20:30,G01034,SS 266,- Explosion ,DISTRICT,Complete
+11/3/2007,20:15,G01034,SS 266,- Crane ,DISTRICT,Complete
+1/5/2017,2:00,G01034,SS 266,- Required Evacuation - Fire - Incident >$25K ,DISTRICT,Complete
+4/15/2008,15:00,G01036,SS 269,- Other Injury - Fire ,DISTRICT,Complete
+10/23/2014,11:00,G01039,SS 274,- Required Muster ,DISTRICT,Complete
+4/12/2003,9:15,G16395,SS 279,- Blowout - Pollution ,DISTRICT,Complete
+10/6/2002,8:00,G02923,SS 291,- Injury ,DISTRICT,Complete
+9/7/2012,19:50,G07760,SS 300,- Fire ,DISTRICT,Complete
+3/28/2022,8:30,G07760,SS 300,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/10/2001,20:25,G04877,SS 322,- Fire ,DISTRICT,Complete
+7/29/2005,1:50,G12008,SS 349,- Injury - dropped rig traveling block,DISTRICT,Complete
+3/21/2009,20:00,G12008,SS 349,- Extended Kick Control,DISTRICT,Complete
+1/16/2010,4:00,G12008,SS 349,Damaged/Disabled Safety Sys. ,DISTRICT,Complete
+2/15/2010,6:25,G12008,SS 349,- Fire ,DISTRICT,Complete
+8/25/2018,3:45,G12008,SS 349,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/22/2004,13:00,G19822,SS 358,- Blowout - Pollution ,DISTRICT,Complete
+5/4/2013,20:30,G19822,SS 358,- Fire ,DISTRICT,Complete
+6/5/2014,17:00,G19822,SS 358,- Fire - oil controller level,DISTRICT,Complete
+2/22/2020,15:30,G19822,SS 358,- Crane ,DISTRICT,Complete
+10/30/2001,7:30, 00263,ST 21,- Pollution ,DISTRICT,Complete
+1/10/2002,4:30, 00263,ST 21,- Pollution ,DISTRICT,Complete
+1/16/2002,23:00, 00263,ST 21,- Well Collapse,DISTRICT,Complete
+5/21/2002,8:40, 00263,ST 21,- Fire - Injury ,DISTRICT,Complete
+3/23/2005,23:00, 00263,ST 21,- Fire ,DISTRICT,Complete
+10/30/2005,15:00, 00263,ST 21,- Fire - Injury ,DISTRICT,Complete
+2/22/2006,8:25, 00263,ST 21,- Fire ,DISTRICT,Complete
+3/14/2007,2:00, 00263,ST 21,- Other Injury - Gas Bubble to Surface,DISTRICT,Complete
+7/8/2024,19:08, 00166,ST 23,- Other Lifting Device ,DISTRICT,Complete
+1/29/2024,19:00, 00386,ST 23,- Fire - Incident >$25K ,DISTRICT,Complete
+8/22/2013,15:45,G01870,ST 26,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+5/2/2021,10:11,G01361,ST 26,- Fire - Incident >$25K ,DISTRICT,Complete
+6/10/2017,15:15,G01361,ST 26,- LTA (>3 days) - Required Evacuation - Fire - Incident >$25K ,DISTRICT,Complete
+3/14/2021,10:50,G01870,ST 26,- Crane ,DISTRICT,Complete
+3/25/2026,15:50,G01870,ST 26,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+9/30/2001,6:00,G01442,ST 27,- Pollution ,DISTRICT,Complete
+1/23/2015,4:30,G01443,ST 27,- Collision >$25K - Fire - Incident >$25K - Structural Damage ,DISTRICT,Complete
+10/11/2017,:15,G01362,ST 28,- Fire - Required Muster ,DISTRICT,Complete
+9/15/2017,11:50,G04842,ST 34,- Incident >$25K - Crane ,DISTRICT,Complete
+10/15/2008,14:00,G03336,ST 35,- Crane ,DISTRICT,Complete
+8/2/2005,13:00,G02625,ST 37,- Fire ,DISTRICT,Complete
+4/11/2005,3:55,G24954,ST 41,- Collision ,DISTRICT,Complete
+3/30/2007,9:00,G24954,ST 41,- RW/JT (>3 days) - Required Evacuation - Rough sea conditions,DISTRICT,Complete
+10/23/2002,9:45,G01240,ST 51,- Collision ,DISTRICT,Complete
+10/10/2006,9:50,G01241,ST 52,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/20/2009,9:04,G01241,ST 52,- RW/JT (1-3 days) - Other Injury - Required Evacuation - Fire ,DISTRICT,Complete
+10/7/2019,11:10,G01241,ST 52,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+3/14/2026,9:36,G01241,ST 52,- Shutdown from Gas Release - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+7/21/2001,3:25, 00421,ST 55,- Fire ,DISTRICT,Complete
+11/29/2001,15:00, 00599,ST 63,- Collision - collapse,DISTRICT,Complete
+8/22/2012,1:45, 00599,ST 63,- LTA (>3 days) - Required Evacuation - Gas Pocket Ignition,DISTRICT,Complete
+10/23/2012,11:00, 00020,ST 67,- Shear Ram Activation,DISTRICT,Complete
+7/13/2008,15:30,G10815,ST 68,- Fire ,DISTRICT,Complete
+6/2/2008,4:50,G01244,ST 72,- Fire - Required Muster ,DISTRICT,Complete
+4/5/2005,18:00,G04827,ST 77,- Crane Incident,DISTRICT,Complete
+6/4/2003,7:00, 00605,ST 86,- Fire ,DISTRICT,Complete
+8/13/2005,7:30, 00605,ST 86,- Fire - Injury ,DISTRICT,Complete
+10/14/2005,11:30,G10825,ST 99,- Injury ,DISTRICT,Complete
+5/28/2009,18:35,G05599,ST 100,- Fire ,DISTRICT,Complete
+5/7/2021,17:00,G05599,ST 100,- Incident >$25K - Crane ,DISTRICT,Complete
+12/14/2002,12:00,G10828,ST 112,- Collision - Coast Guard Jurisdiction,DISTRICT,Complete
+2/12/2013,16:00,G33109,ST 127,- LTA (>3 days) ,DISTRICT,Complete
+6/28/2015,9:55,G33109,ST 127,- LTA (>3 days) - Required Evacuation - Helicopter skirting,DISTRICT,Complete
+6/7/2015,8:40, 00457,ST 131,- Collision >$25K ,DISTRICT,Complete
+12/26/2005,10:30, 00461,ST 134,- Fire - Injury ,DISTRICT,Complete
+12/1/2005,16:00, 00462,ST 135,- Blowout - Diverter on 26-inch hole,PANEL,Complete
+2/9/2007,8:01, 00462,ST 135,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/4/2006,12:00,G01898,ST 148,"- Choke stem,Gas Buster,Piping",DISTRICT,Complete
+6/15/2002,:30, 00463,ST 151,- Explosion - Injury ,PANEL,Complete
+4/18/2003,12:00, 00463,ST 151,- Fire ,DISTRICT,Complete
+3/13/2003,18:49, 00463,ST 151,- Pollution ,DISTRICT,Complete
+6/25/2003,7:35, 00463,ST 151,- Pollution ,DISTRICT,Complete
+7/12/2012,18:00,G01250,ST 164,- Incident >$25K ,DISTRICT,Complete
+2/20/2008,9:15,G21669,ST 168,- Fatality - Crane ,DISTRICT,Complete
+12/11/2001,2:30,G22742,ST 174,- Fire ,DISTRICT,Complete
+7/12/2012,1:30,G01260,ST 177,- RW/JT (1-3 days) - Required Evacuation - leg fracture,DISTRICT,Complete
+11/13/2003,9:00,G12020,ST 179,- Fire ,DISTRICT,Complete
+5/9/2003,13:45,G01569,ST 185,- Pollution - Crane Boom Fell,DISTRICT,Complete
+4/22/2003,:1,G01899,ST 188,- Blowout - Well Control Event,PANEL,Complete
+4/1/2007,16:45,G12024,ST 193,- LTA (>3 days) - Required Evacuation - Laceration from sawzall blade,DISTRICT,Complete
+11/26/2015,1:31,G04464,ST 200,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/12/2017,18:30,G04464,ST 200,- Incident >$25K - kick occurrence,DISTRICT,Complete
+5/18/2007,17:15,G16432,ST 204,- RW/JT (>3 days) - Required Evacuation - Pinned by Wireline Unit,DISTRICT,Complete
+11/1/2013,12:15,G05612,ST 205,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/24/2003,16:45,G16435,ST 211,- Crane Failure,DISTRICT,Complete
+7/23/2013,8:45,G24980,ST 220,- Required Muster ,PANEL,Complete
+11/29/2017,20:15,G34340,ST 224,- Pollution - Incident >$25K - Crane ,DISTRICT,Complete
+8/4/2002,13:00,G13938,ST 229,- Fire ,DISTRICT,Complete
+10/13/2004,12:00,G13938,ST 229,- Fire - Injury ,DISTRICT,Complete
+5/9/2025,9:00,G13938,ST 229,- Other Injury - Required Evacuation - Crane ,DISTRICT,Complete
+11/30/2005,20:00,G27169,ST 230,- Blowout - Diverter flow after cementing,PANEL,Complete
+9/26/2003,11:00,G14544,ST 235,- Fire - Injury ,DISTRICT,Complete
+3/8/2005,20:15,G23933,ST 242,- Blowout ,DISTRICT,Complete
+2/8/2007,21:45,G05625,ST 245,- Crane ,DISTRICT,Complete
+7/12/2009,20:30,G05625,ST 245,- Incident >$25K - Crane - Structural Damage ,DISTRICT,Complete
+10/3/2002,8:01,G22756,ST 248,- Hurricane Damage To SS Well #1,DISTRICT,Complete
+8/11/2007,18:20,G23936,ST 254,- Pollution - Malfunctioning LSH,DISTRICT,Complete
+1/7/2003,9:00,G12037,ST 260,- Collision - Explosion - Fire - Pollution ,DISTRICT,Complete
+3/29/2004,1:30,G12037,ST 260,- Collision ,DISTRICT,Complete
+12/20/2013,3:00,G32224,ST 285,- Other,DISTRICT,Complete
+5/17/2014,8:30,G32224,ST 285,- LTA (>3 days) - RW/JT (1-3 days) - Flash of gas ignited,DISTRICT,Complete
+9/7/2002,12:00,G16455,ST 291,- Blowout ,DISTRICT,Complete
+4/29/2011,9:00,G16455,ST 291,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+6/9/2009,10:01,G05646,ST 295,- Incident >$25K ,DISTRICT,Complete
+11/23/2006,19:50,G04240,ST 300,- LTA (>3 days) - Required Evacuation - Explosion ,DISTRICT,Complete
+2/13/2009,10:12,G04240,ST 300,- Shutdown from Gas Release - Crane - Required Muster ,DISTRICT,Complete
+11/7/2001,10:35,G21685,ST 308,- Pollution ,DISTRICT,Complete
+2/10/2005,4:30,G21685,ST 308,- Crane/Helicopter,DISTRICT,Complete
+11/2/2005,23:30,G21685,ST 308,- Injury ,DISTRICT,Complete
+4/23/2008,8:01,G21685,ST 308,- Well Control,DISTRICT,Complete
+1/8/2009,1:30,G21685,ST 308,- Fire ,DISTRICT,Complete
+9/4/2018,2:17,G31418,ST 311,- Pollution ,DISTRICT,Complete
+1/23/2020,12:00,G31418,ST 311,- Other Injury - Shutdown from Gas Release - Required Evacuation - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+6/25/2018,17:30,G12027,PL 5,- Required Muster ,DISTRICT,Complete
+2/14/2008,17:30,G02925,PL 10,- Shutdown from Gas Release ,PANEL,Complete
+9/28/2009,16:45,G02925,PL 10,- Fire ,DISTRICT,Complete
+6/3/2012,10:45, 00071,PL 11,- Required Evacuation - Fire - Chemical fire,DISTRICT,Complete
+10/10/2005,12:00, 00072,PL 12,- Collision ,DISTRICT,Complete
+6/10/2005,9:30,G03171,PL 13,- Pollution - pollution through human error.,DISTRICT,Complete
+2/15/2006,14:00,G03171,PL 13,- Crane Incident,DISTRICT,Complete
+1/26/2005,13:00,G09652,PL 15,- Fatality ,PANEL,Complete
+6/9/2001,20:30,G01238,PL 23,- Fire ,DISTRICT,Complete
+7/5/2001,21:00,G01238,PL 23,- Pollution - ruptured flowline,DISTRICT,Complete
+4/3/2008,16:30,G01238,PL 23,- Collision >$25K ,DISTRICT,Complete
+2/29/2016,19:30,G01238,PL 23,- Fire - Required Muster ,DISTRICT,Complete
+8/1/2021,10:10,G01238,PL 23,- Fire ,DISTRICT,Complete
+4/8/2019,6:00,G01238,PL 23,- Fire - Incident >$25K ,DISTRICT,Complete
+9/23/2021,10:10,G01238,PL 23,- Fire - Incident >$25K ,DISTRICT,Complete
+8/5/2025,7:40, 00370,BM 3,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+3/4/2012,19:00, 00031,GI 22,- Incident >$25K - Crane ,DISTRICT,Complete
+8/6/2013,19:25, 00031,GI 22,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/24/2013,8:50, 00031,GI 22,- LTA (1-3) days - Required Evacuation - Fire ,DISTRICT,Complete
+7/16/2019,7:00, 00031,GI 22,- Pollution ,DISTRICT,Complete
+11/2/2002,11:45, 00174,GI 32,- crane accident,DISTRICT,Complete
+2/13/2008,20:00,G01580,GI 32,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/28/2006,13:00, 00392,GI 37,- Fatality ,PANEL,Complete
+4/19/2007,10:45, 00392,GI 37,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/10/2007,15:25, 00392,GI 37,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+8/25/2011,5:00, 00392,GI 37,- Incident >$25K - Structural Damage ,DISTRICT,Complete
+12/10/2007,23:30, 00127,GI 39,- Collision >$25K - Structural Damage - TOPPLED PLATFORM,DISTRICT,Complete
+5/7/2008,18:30, 00127,GI 39,- RW/JT (>3 days) ,DISTRICT,Complete
+6/5/2008,10:15, 00129,GI 41,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/8/2012,10:30, 00175,GI 43,- LTA (>3 days) - Required Evacuation - Failed Communication,DISTRICT,Complete
+1/26/2018,6:00, 00175,GI 43,- Pollution ,DISTRICT,Complete
+8/18/2021,13:00, 00175,GI 43,- Incident >$25K - Crane ,DISTRICT,Complete
+7/11/2003,7:45, 00133,GI 47,- Collision - Rig move,DISTRICT,Complete
+8/15/2006,17:45, 00133,GI 47,- Pollution ,DISTRICT,Complete
+1/9/2008,9:30, 00133,GI 47,- Pollution ,DISTRICT,Complete
+4/18/2008,2:55, 00133,GI 47,- LTA (>3 days) ,DISTRICT,Complete
+11/13/2008,1:00, 00133,GI 47,- Pollution ,DISTRICT,Complete
+1/15/2016,15:30, 00133,GI 47,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/14/2026,6:00, 00133,GI 47,- Collision >$25K - Incident >$25K - Structural Damage ,DISTRICT,Pending
+4/25/2025,13:30, 00133,GI 47,- Other Injury - Required Evacuation ,DISTRICT,Complete
+5/5/2026,3:00, 00134,GI 48,- Collision >$25K - Collision - Incident >$25K - Structural Damage ,DISTRICT,Complete
+2/2/2004,9:25, 00177,GI 52,- Pollution ,DISTRICT,Complete
+8/25/2018,7:30,G02161,GI 76,- Pollution - Spill,DISTRICT,Complete
+9/26/2007,19:25,G12989,GI 78,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/8/2002,8:30,G04003,GI 90,- Blowout - Fire ,PANEL,Complete
+11/14/2002,2:00,G02628,GI 93,- Blowout ,PANEL,Complete
+6/28/2006,2:10,G25000,WD 20,- Fatality ,PANEL,Complete
+12/17/2007,2:00,G04473,WD 27,- Shutdown from Gas Release - Collision >$25K - Structural Damage ,DISTRICT,Complete
+12/17/2013,10:45,G04473,WD 27,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/24/2019,7:00, 00023,WD 27,- Fire ,DISTRICT,Complete
+3/31/2006,8:45, 00385,WD 29,- Crane Failure,DISTRICT,Complete
+8/22/2007,15:00, 00385,WD 29,- LTA (>3 days) - RW/JT (>3 days) - Required Evacuation - Explosion - Fire ,DISTRICT,Complete
+1/12/2004,9:00, 00026,WD 30,- Pollution ,DISTRICT,Complete
+9/26/2021,9:30, 00026,WD 30,- Other Injury - Required Evacuation ,DISTRICT,Complete
+1/24/2020,19:00, 00026,WD 30,- Material Lost Overboard,DISTRICT,Complete
+1/9/2021,8:30, 00026,WD 30,- Shutdown from Gas Release ,DISTRICT,Complete
+11/19/2022,4:30, 00016,WD 31,- Incident >$25K - Structural Damage ,DISTRICT,Complete
+11/16/2012,8:45, 00367,WD 32,- LTA (>3 days) - Required Evacuation - Explosion - Fire - Fatality - Pollution ,PANEL,Complete
+3/25/2014,22:00, 00367,WD 32,- Fire ,DISTRICT,Complete
+7/30/2014,20:30, 00367,WD 32,- Incident >$25K - Crane ,DISTRICT,Complete
+9/21/2016,8:28, 00367,WD 32,- Pollution ,DISTRICT,Complete
+5/25/2006,15:00,G03414,WD 34,- Pollution ,DISTRICT,Complete
+5/11/2008,22:50,G01072,WD 40,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/30/2008,8:00,G01072,WD 40,- Fire - Incident >$25K ,DISTRICT,Complete
+9/17/2011,13:55,G01073,WD 41,- Pollution - Pressure Regulator Failure,DISTRICT,Complete
+10/30/2007,14:00, 00138,WD 45,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/24/2005,11:00,G03601,WD 62,- Explosion - Injury ,DISTRICT,Complete
+9/4/2012,11:30, 00182,WD 70,- Collision >$25K - Collision - Fire - Pollution - Incident >$25K - Structural Damage ,DISTRICT,Complete
+2/10/2006,8:00, 00838,WD 71,- Injury ,DISTRICT,Complete
+8/25/2006,16:20, 00838,WD 71,- Incident >$25K - Crane - crane,DISTRICT,Complete
+2/6/2006,2:30,G01083,WD 73,- Fire ,DISTRICT,Complete
+1/6/2011,9:15,G01083,WD 73,- Pollution - Faulty Deck Drain Sump,DISTRICT,Complete
+9/13/2012,3:30,G01083,WD 73,Damaged/Disabled Safety Sys. - Incident >$25K ,DISTRICT,Complete
+9/25/2021,10:30,G01083,WD 73,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/3/2016,16:20,G01083,WD 73,- Crane ,DISTRICT,Complete
+5/27/2019,14:30,G01083,WD 73,- Incident >$25K - Crane ,DISTRICT,Complete
+3/20/2019,12:00,G01083,WD 73,- Pollution ,DISTRICT,Complete
+2/25/2022,5:30,G01083,WD 73,- Pollution ,DISTRICT,Complete
+6/19/2022,9:30,G01083,WD 73,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/17/2023,4:30,G01083,WD 73,- Shutdown from Gas Release - Pollution - Incident >$25K - Required Muster ,DISTRICT,Complete
+5/13/2022,:11,G01084,WD 74,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/29/2022,9:00,G01084,WD 74,- Shutdown from Gas Release ,DISTRICT,Complete
+6/21/2003,6:30,G01874,WD 79,- Pollution - 1.2 barrel spill,DISTRICT,Complete
+7/10/2013,9:40,G01449,WD 79,- Fire ,DISTRICT,Complete
+1/10/2022,6:00,G01874,WD 80,- Pollution - Required Muster ,DISTRICT,Complete
+10/23/2014,15:50,G02934,WD 86,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/6/2007,20:00,G01088,WD 89,- RW/JT (>3 days) ,DISTRICT,Complete
+4/21/2025,19:30,G01089,WD 90,- Pollution ,DISTRICT,Complete
+1/12/2002,17:15, 00839,WD 94,- Blowout - Pollution - wellhead failure,DISTRICT,Complete
+4/12/2008,12:30, 00839,WD 94,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/7/2008,7:05,G01498,WD 96,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/18/2013,8:45, 00842,WD 105,- Other Injury - Required Evacuation - Crane ,DISTRICT,Complete
+11/20/2014,14:40,,WD 105,- LTA (>3 days) - Required Evacuation - Explosion - Fatality - Pressure Release,PANEL,Complete
+11/29/2020,6:57, 00842,WD 105,- Fire ,DISTRICT,Complete
+4/25/2008,3:00,G02937,WD 109,- Collision >$25K ,DISTRICT,Complete
+4/6/2022,12:15,G02937,WD 109,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/6/2002,1:15,G01101,WD 117,- Pollution ,DISTRICT,Complete
+2/14/2003,10:00,G01101,WD 117,- Pollution ,DISTRICT,Complete
+3/18/2011,15:54,G01101,WD 117,- Pollution - P&A casing flow,DISTRICT,Complete
+9/9/2018,11:30,G01106,WD 133,- Pollution - Incident >$25K ,DISTRICT,Complete
+11/28/2003,19:00,G04475,WD 143,- Pollution ,DISTRICT,Complete
+3/21/2008,11:05,,WD 143,- LTA (>3 days) - Required Evacuation - Pollution ,DISTRICT,Complete
+7/11/2003,23:15,G01604,WD 152,- Fire ,DISTRICT,Complete
+1/17/2019,9:30,G01604,WD 152,- Fire - Incident >$25K ,DISTRICT,Complete
+8/27/2025,10:45,G37455,WD 152,- Incident >$25K - Crane ,DISTRICT,Complete
+3/30/2026,9:35, 00693,SP 27,- Crane ,DISTRICT,Complete
+7/18/2025,7:30, 00693,SP 27,- Structural Damage ,DISTRICT,Complete
+9/21/2023,7:45, 00694,SP 28,- Pollution ,DISTRICT,Complete
+12/29/2007,15:50,G21695,SP 38,- LTA (>3 days) - Required Evacuation - Fatality ,DISTRICT,Complete
+11/29/2006,8:30,G02177,SP 49,- Pollution ,DISTRICT,Complete
+11/17/2006,10:20,G02177,SP 49,- Fire ,DISTRICT,Complete
+2/5/2008,19:20,G02177,SP 49,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/8/2020,13:30,G02177,SP 49,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/30/2025,13:10,G02177,SP 49,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/22/2002,2:20,G02940,SP 57,- Pollution ,DISTRICT,Complete
+8/23/2007,15:10,G02181,SP 57,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/17/2020,4:45,G02940,SP 57,- Required Evacuation - Incident >$25K - Structural Damage - Allision,DISTRICT,Complete
+9/6/2008,4:00,G01608,SP 60,- Explosion - Fire ,DISTRICT,Complete
+8/11/2009,8:30,G01608,SP 60,- Fire ,DISTRICT,Complete
+5/18/2013,6:00,,SP 60,- Pollution ,DISTRICT,Complete
+6/5/2019,9:15,G01608,SP 60,- Other Injury ,DISTRICT,Complete
+6/17/2002,:10,G01294,SP 62,- Fatality ,PANEL,Complete
+3/17/2005,4:00,G01294,SP 62,- Fast line on crane broke.,DISTRICT,Complete
+11/3/2025,12:05,G01294,SP 62,- Shutdown from Gas Release - Incident >$25K ,DISTRICT,Complete
+9/25/2001,15:30,G01610,SP 65,- Pollution ,DISTRICT,Complete
+8/7/2014,15:40,G01610,SP 65,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+5/6/2005,9:45,G01612,SP 67,- Pollution ,DISTRICT,Complete
+2/9/2006,13:30,G05051,SP 75,- Injury - open hole,DISTRICT,Complete
+6/4/2017,19:35,G02184,SP 77,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/15/2007,5:30,G02185,SP 78,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/19/2007,:45,G05052,SP 83,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/7/2021,2:06,G05052,SP 83,- Collision >$25K - Incident >$25K - Structural Damage ,DISTRICT,Complete
+9/21/2023,15:05,G05052,SP 83,- Other Injury - Required Evacuation ,DISTRICT,Complete
+5/29/2012,12:05,G01619,SP 93,- LTA (>3 days) - Required Evacuation - Explosion - Fire - Required Muster - Loss of Well Control,DISTRICT,Complete
+10/20/2014,10:00,G01619,SP 93,- Fire ,DISTRICT,Complete
+10/9/2015,:15,G01619,SP 93,- Fire - Required Muster ,DISTRICT,Complete
+1/27/2017,8:00,G01619,SP 93,- RW/JT (1-3 days) - Other Injury - Required Evacuation - Crane ,DISTRICT,Complete
+8/11/2002,16:00,G02650,EB 110,- Fire ,DISTRICT,Complete
+9/18/2013,16:00,,EB 110,- Structural Damage ,DISTRICT,Complete
+9/21/2016,19:15,G02650,EB 110,- Incident >$25K - Crane ,DISTRICT,Complete
+8/10/2017,13:50,G02650,EB 110,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+11/3/2013,16:35,G02646,EB 159,- Fire ,DISTRICT,Complete
+1/5/2014,17:45,G02646,EB 159,- Fire - Generator Fire.,DISTRICT,Complete
+1/18/2017,4:00,G02646,EB 159,- Casing weld failure,DISTRICT,Complete
+1/7/2003,10:00,G02647,EB 160,- Pollution ,DISTRICT,Complete
+11/3/2015,16:40,G02647,EB 160,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+12/1/2015,22:00,G02647,EB 160,- Incident >$25K - Crane ,DISTRICT,Complete
+2/5/2016,6:40,,EB 160,- Crane ,DISTRICT,Complete
+12/9/2019,7:00,G02647,EB 160,- Crane ,DISTRICT,Complete
+9/29/2010,18:45,G17232,EB 164,- Pollution - TA'd Well Leak,DISTRICT,Complete
+6/7/2006,11:30,G06280,EB 165,- Fire - Injury ,DISTRICT,Complete
+12/15/1995,8:00,G03265,WC 198,- Pollution ,PANEL,Complete
+8/24/1995,10:45, 00374,MP 41,- Fatality ,PANEL,Complete
+8/31/1997,3:20,G01367,MP 42,- Explosion - Fire ,DISTRICT,Complete
+9/1/1998,9:10, 00378,MP 58,- Pollution ,DISTRICT,Complete
+9/9/1997,1:00,G03194,MP 59,- Fire - Injury - Pollution ,DISTRICT,Complete
+1/16/1997,3:10,G01366,MP 92,- Fire - Pollution ,DISTRICT,Complete
+1/19/1995,19:15,G12088,MP 123,- Injury - Fatality ,DISTRICT,Complete
+1/5/1997,14:50,G02193,MP 140,- Dropped load,DISTRICT,Complete
+8/11/1999,5:45,G02193,MP 140,- Pollution ,DISTRICT,Complete
+5/10/1998,15:30,G01967,MP 153,- Fatality - Falling object,DISTRICT,Complete
+7/17/1998,12:10,G01967,MP 153,- Injury - Fatality ,PANEL,Complete
+6/25/1998,12:00,G05705,MP 165,- Fire ,DISTRICT,Complete
+6/28/1998,19:00,G12096,MP 223,- Pollution ,DISTRICT,Complete
+4/14/1999,4:30,G15387,MP 250,- Pollution ,DISTRICT,Complete
+8/3/1999,5:15,G14585,MP 264,- Fire ,DISTRICT,Complete
+9/19/1997,21:10,G01665,MP 288,- Fire ,DISTRICT,Complete
+10/26/1997,1:15,G01665,MP 288,- Fire ,DISTRICT,Complete
+3/4/1997,9:00,G01670,MP 293,- Fire ,DISTRICT,Complete
+4/18/1995,6:00,G12362,MP 299,- Pollution ,DISTRICT,Complete
+5/21/1997,22:30,G01316,MP 299,- Explosion - Injury ,DISTRICT,Complete
+10/20/1997,24:00,G09372,MP 299,- Blowout ,DISTRICT,Complete
+8/11/1999,12:30,G09372,MP 299,- Blowout ,DISTRICT,Complete
+12/5/1999,12:15,G09372,MP 299,- Blowout ,DISTRICT,Complete
+6/8/1998,2:45,G01676,MP 305,- Injury ,DISTRICT,Complete
+12/2/1997,13:30,G01677,MP 306,- Explosion - Fire - Pollution ,DISTRICT,Complete
+3/3/1997,19:00,G06842,CA 40,- Fire ,DISTRICT,Complete
+12/24/1997,10:45,G03275,WC 331,- Fatality - See OCS Report MMS 99-0009,PANEL,Complete
+7/21/1995,10:45,G05322,WC 421,- Collision ,DISTRICT,Complete
+1/4/1995,15:00,G10605,EC 2,- Fire ,DISTRICT,Complete
+12/20/1997,16:00,G03288,EC 46,- Fire ,DISTRICT,Complete
+3/8/1996,17:00,G03289,EC 57,- Fire ,DISTRICT,Complete
+6/26/1995,11:15,G05359,EC 60,- Fire ,DISTRICT,Complete
+4/9/1999,13:55,G05359,EC 60,- Fire - Injury - Fatality - Pollution ,PANEL,Complete
+7/8/1998,14:30, 00161,EC 67,- Blowout - Pollution -   (WELL B-7),DISTRICT,Complete
+5/31/1997,20:00,G08641,EC 83,- Blowout ,DISTRICT,Complete
+2/21/1996,7:15,G08418,EC 189,- Fatality ,DISTRICT,Complete
+7/6/1995,11:15,G07652,EC 219,- Pollution ,DISTRICT,Complete
+4/3/1996,21:00,G03323,EC 220,- Fire - Injury ,DISTRICT,Complete
+6/9/1997,10:45,G03323,EC 220,- Fire ,DISTRICT,Complete
+9/30/1996,14:15,G02038,EC 231,- Fire - Injury ,DISTRICT,Complete
+4/28/1998,8:30,G00971,EC 261,- Injury ,DISTRICT,Complete
+6/15/1996,17:00,G02047,EC 272,- Fire ,DISTRICT,Complete
+3/26/1996,3:30,G02047,EC 272,- Fire ,DISTRICT,Complete
+8/31/1996,12:16,G02047,EC 272,- Fire ,DISTRICT,Complete
+3/22/1997,18:00,G02047,EC 272,- Fire ,DISTRICT,Complete
+2/9/1999,6:00,G02047,EC 272,- Pollution ,DISTRICT,Complete
+9/30/1996,10:20,G00974,EC 278,- Fire ,DISTRICT,Complete
+9/17/1996,10:00,G00974,EC 278,- Injury ,DISTRICT,Complete
+8/25/1995,6:16,G02050,EC 281,- Fire ,DISTRICT,Complete
+9/23/1997,13:50,G05391,EC 299,- Fire ,DISTRICT,Complete
+8/21/1997,21:00,G06643,EC 300,- WELLHEAD SEAL LEAK,DISTRICT,Complete
+4/2/1996,6:10,G10638,EC 328,- Pollution ,DISTRICT,Complete
+6/29/1995,19:45,G10638,EC 328,- Fire ,DISTRICT,Complete
+4/1/1997,1:10,G10638,EC 328,- Blowout - Fire ,PANEL,Complete
+7/30/1997,15:15,G10638,EC 328,- Fire ,DISTRICT,Complete
+5/12/1998,24:00,G03540,EC 330,- Pollution ,DISTRICT,Complete
+2/20/1997,14:01,G09478,EC 332,- Injury ,DISTRICT,Complete
+6/1/1995,12:00,G09478,EC 332,- Fire ,DISTRICT,Complete
+6/4/1996,3:30,G09478,EC 332,- Fatality ,PANEL,Complete
+1/26/1998,14:00,G02062,EC 334,- Pollution ,DISTRICT,Complete
+12/24/1997,3:00,G02062,EC 334,- PIPELINE DAMAGE,DISTRICT,Complete
+12/24/1997,3:30,G02063,EC 338,- Pollution - PIPELINE DAMAGE,DISTRICT,Complete
+1/22/1998,21:15,G02063,EC 338,- Fire ,DISTRICT,Complete
+3/4/1998,2:00,G06655,EC 346,- Fire ,DISTRICT,Complete
+2/11/1996,9:00,G02865,VR 22,- Pollution ,DISTRICT,Complete
+5/14/1996,15:45, 00297,VR 26,- Injury ,DISTRICT,Complete
+4/16/1997,14:00, 00297,VR 26,- Fire ,DISTRICT,Complete
+6/2/1998,2:00, 00297,VR 26,- Collision ,DISTRICT,Complete
+6/14/1998,18:15, 00297,VR 26,- Explosion - Fire ,DISTRICT,Complete
+3/15/1996,19:00,G02868,VR 31,- Fire ,DISTRICT,Complete
+3/15/1995,7:30, 00205,VR 38,- Fire - Pollution ,DISTRICT,Complete
+4/26/1998,6:45, 00204,VR 38,- Explosion - Fire ,DISTRICT,Complete
+7/7/1996,17:00, 00206,VR 39,- Collision ,DISTRICT,Complete
+9/5/1995,14:00,G03393,VR 102,- Fire ,DISTRICT,Complete
+4/11/1997,:15, 00775,VR 131,- Explosion - Fire ,DISTRICT,Complete
+9/30/1997,17:00,G03394,VR 146,- Fire ,DISTRICT,Complete
+5/30/1997,6:00,G03394,VR 146,- Fire ,DISTRICT,Complete
+3/25/1996,14:00,G15183,VR 189,- Pollution ,DISTRICT,Complete
+3/8/1995,23:30,G09500,VR 200,- Pollution ,DISTRICT,Complete
+7/4/1995,6:15,G09500,VR 200,- Pollution ,DISTRICT,Complete
+7/9/1995,2:30,G09500,VR 200,- Pollution ,DISTRICT,Complete
+9/12/1995,19:00,G09500,VR 200,- Fire ,DISTRICT,Complete
+7/19/1995,10:30,G02076,VR 214,- Fire ,DISTRICT,Complete
+2/6/1998,8:10,G02076,VR 214,- Fatality ,DISTRICT,Complete
+11/10/1996,15:45,G13885,VR 216,- Blowout ,DISTRICT,Complete
+2/19/1997,5:01,G04424,VR 221,- Fire ,DISTRICT,Complete
+1/27/1996,7:30,G01146,VR 245,- Fire ,DISTRICT,Complete
+11/22/1995,15:00,G01146,VR 245,- Fire ,DISTRICT,Complete
+12/20/1995,3:00,G01146,VR 245,- Fire ,DISTRICT,Complete
+1/31/1997,6:40,G01147,VR 246,- Fire ,DISTRICT,Complete
+5/4/1996,10:20,G02873,VR 251,- Fire ,DISTRICT,Complete
+11/25/1995,9:30,G01177,SM 6,- Injury - Fatality ,DISTRICT,Complete
+9/9/1997,10:45,G01181,SM 10,- Fire ,DISTRICT,Complete
+6/24/1996,11:45, 00778,SM 23,- Fire ,DISTRICT,Complete
+2/20/1998,2:00, 00780,SM 33,- Fire ,DISTRICT,Complete
+4/24/1998,12:40, 00780,SM 33,- Pollution ,DISTRICT,Complete
+6/2/1998,21:30, 00780,SM 33,- Injury - Fatality ,DISTRICT,Complete
+2/7/1999,9:00,G13607,SM 40,- Fire - Injury ,DISTRICT,Complete
+9/21/1997,8:15, 00786,SM 48,- Fire ,DISTRICT,Complete
+6/26/1995,14:15, 00787,SM 49,- Fire ,DISTRICT,Complete
+5/29/1995,10:11,G13608,SM 50,- Fire ,DISTRICT,Complete
+9/16/1996,19:30,G01193,SM 57,- Fire ,DISTRICT,Complete
+12/2/1999,14:25,G01194,SM 58,- Blowout - Injury ,DISTRICT,Complete
+1/28/1997,21:00,G01196,SM 61,- Fire ,DISTRICT,Complete
+7/4/1995,1:00,G01196,SM 61,- Fire ,DISTRICT,Complete
+3/13/1997,9:30,G01198,SM 66,- Fire ,DISTRICT,Complete
+11/27/1997,6:30,G01152,VR 255,- Pollution ,DISTRICT,Complete
+1/12/1995,3:30,G01153,VR 256,- Pollution ,DISTRICT,Complete
+2/15/1996,5:30,G03135,VR 267,- Explosion - Injury ,DISTRICT,Complete
+7/16/1999,7:55,G03135,VR 267,- Injury ,DISTRICT,Complete
+4/2/1997,6:05,G11881,VR 279,- Injury ,DISTRICT,Complete
+3/22/1999,16:00,G11881,VR 279,- Injury ,DISTRICT,Complete
+5/21/1998,18:15,G02087,VR 320,- Injury ,DISTRICT,Complete
+1/18/1997,9:20,G02271,VR 348,- Fatality ,DISTRICT,Complete
+6/26/1995,10:30,G02275,VR 370,- Pollution ,DISTRICT,Complete
+11/12/1995,19:40,G02278,VR 386,- Fire ,DISTRICT,Complete
+6/10/1997,7:45,G09529,VR 398,- Fire ,DISTRICT,Complete
+3/8/1997,9:25,G09529,VR 398,- Piping parted,DISTRICT,Complete
+7/25/1997,6:45,G09529,VR 398,- Fire ,DISTRICT,Complete
+7/4/1997,1:00,G04109,SM 99,- Fire - Injury ,DISTRICT,Complete
+12/18/1996,14:30,G02280,SM 130,- Fire ,DISTRICT,Complete
+7/23/1995,16:30,G02280,SM 130,- Pollution ,DISTRICT,Complete
+11/5/1995,11:30,G02885,SM 141,- Fire - Injury ,DISTRICT,Complete
+2/16/1997,13:30,G13614,SM 204,- Fire ,DISTRICT,Complete
+9/15/1997,:10, 00310,SM 217,- Fire ,DISTRICT,Complete
+9/1/1995,5:10, 00310,SM 229,- Collision ,DISTRICT,Complete
+9/20/1996,1:30, 00310,SM 236,- Collision - Explosion - Fire ,DISTRICT,Complete
+10/18/1995,23:30, 00310,SM 239,- Pollution ,DISTRICT,Complete
+2/1/1995,18:25,G14450,SM 245,- Pollution ,DISTRICT,Complete
+9/10/1997,18:20,G02310,SM 268,- Fire ,DISTRICT,Complete
+4/6/1996,9:05,G02600,SM 281,- Fire - Injury ,DISTRICT,Complete
+6/10/1995,9:30,G02316,SM 288,- Fire ,DISTRICT,Complete
+10/10/1995,15:00,G05479,EI 28,- Injury ,DISTRICT,Complete
+5/6/1997,11:00, 00078,EI 51,- Pollution ,DISTRICT,Complete
+12/9/1998,19:30,G12906,EI 71,- Blowout ,DISTRICT,Complete
+7/17/1996,18:15,G10721,EI 88,- Fire ,DISTRICT,Complete
+7/3/1997,7:15, 00796,EI 100,- Collision ,DISTRICT,Complete
+12/23/1998,16:15,G03811,EI 108,- Fire - Injury - Fatality ,PANEL,Complete
+7/18/1997,17:30, 00049,EI 119,- Fire - Pollution ,DISTRICT,Complete
+6/26/1998,1:08,G10726,EI 142,- Fire ,DISTRICT,Complete
+7/31/1996,20:00, 00423,EI 189,- Fire ,DISTRICT,Complete
+7/19/1996,21:30,G13821,EI 196,- Crane failure,DISTRICT,Complete
+1/5/1996,8:40, 00437,EI 199,- Explosion - Fire - Injury ,DISTRICT,Complete
+4/14/1995,20:00, 00806,EI 206,- Fire ,DISTRICT,Complete
+12/3/1996,17:30,G05504,EI 224,- Blowout ,DISTRICT,Complete
+3/20/1995,16:00,G05504,EI 224,- Fire ,DISTRICT,Complete
+12/17/1997,12:00,G03331,EI 251,- Fire ,DISTRICT,Complete
+4/7/1997,18:30,G02103,EI 257,- Fatality ,DISTRICT,Complete
+4/19/1998,17:45,G00987,EI 273,- Injury ,DISTRICT,Complete
+7/26/1997,13:40,G00989,EI 276,- Casing Burst,DISTRICT,Complete
+4/22/1997,20:00,G02105,EI 296,- Crane Boom Collapse,DISTRICT,Complete
+3/4/1997,6:30,G02109,EI 306,- Pollution ,DISTRICT,Complete
+5/30/1998,15:30,G02608,EI 313,- Fire ,DISTRICT,Complete
+5/22/1997,16:30,G02111,EI 314,- Fire ,DISTRICT,Complete
+12/9/1996,17:10,G02116,EI 331,- Fatality ,DISTRICT,Complete
+6/8/1997,10:00,G02116,EI 331,- Fire ,DISTRICT,Complete
+1/9/1998,12:05,G02319,EI 342,- Fire ,DISTRICT,Complete
+8/7/1997,16:40,G02322,EI 349,- Fire ,DISTRICT,Complete
+5/20/1996,7:15,G02323,EI 360,- Fire ,DISTRICT,Complete
+3/28/1998,6:00,G03157,EI 365,- Fire - Construction,DISTRICT,Complete
+8/2/1997,15:05, 00060,SS 72,- Explosion - Pollution ,DISTRICT,Complete
+8/29/1995,6:00,G02919,SS 91,- Pollution ,DISTRICT,Complete
+12/11/1996,6:30, 00064,SS 114,- Pollution ,DISTRICT,Complete
+10/16/1997,10:00, 00068,SS 118,- Explosion ,DISTRICT,Complete
+12/7/1996,2:30,G04228,SS 133,- Fire - Injury - Fatality ,DISTRICT,Complete
+12/10/1997,16:00,G01014,SS 145,- Fatality ,DISTRICT,Complete
+9/29/1997,:45, 00434,SS 149,- Fire ,DISTRICT,Complete
+9/9/1999,5:00, 00420,SS 154,- Pollution ,DISTRICT,Complete
+11/23/1997,10:00, 00820,SS 169,- Fire ,DISTRICT,Complete
+12/5/1998,17:30,G05551,SS 178,- Drilled into a producing well.,DISTRICT,Complete
+7/18/1998,16:45,G04231,SS 181,- Fire ,DISTRICT,Complete
+4/21/1997,10:58,G03998,SS 182,- Explosion - Injury ,DISTRICT,Complete
+10/25/1997,3:30,G03998,SS 182,- Fire ,DISTRICT,Complete
+11/15/1998,7:40,G01019,SS 182,- Fire ,DISTRICT,Complete
+12/15/1999,16:30,G03998,SS 182,- Fire ,DISTRICT,Complete
+5/5/1995,16:05,G12355,SS 198,- Fire ,DISTRICT,Complete
+10/17/1997,8:00,G12355,SS 198,- Fire ,DISTRICT,Complete
+8/4/1998,9:00,G12355,SS 198,- Pollution ,DISTRICT,Complete
+8/20/1996,10:30,G01520,SS 204,- Fire ,DISTRICT,Complete
+7/9/1996,16:30,G01520,SS 204,- Explosion - Fire ,DISTRICT,Complete
+9/8/1995,10:45,G01523,SS 207,- Fire - Injury ,DISTRICT,Complete
+3/5/1997,11:45,G01523,SS 207,- Pollution ,DISTRICT,Complete
+4/22/1997,7:15,G01523,SS 207,- Pollution ,DISTRICT,Complete
+8/12/1998,5:00,G01523,SS 207,- Pollution ,DISTRICT,Complete
+2/9/1998,15:00, 00827,SS 209,- Fire ,DISTRICT,Complete
+3/20/1998,12:00,G01524,SS 216,- Fire - Injury ,DISTRICT,Complete
+7/29/1996,14:05,G01526,SS 223,- Injury - Crane accident,DISTRICT,Complete
+4/3/1997,13:30,G01023,SS 224,- Injury - crane accident,DISTRICT,Complete
+7/16/1998,5:20,G01023,SS 224,- Fire ,DISTRICT,Complete
+1/24/1999,8:45,G01025,SS 239,- Collision ,DISTRICT,Complete
+1/31/1998,9:00,G01031,SS 253,- Fire ,DISTRICT,Complete
+7/30/1997,17:15,G07757,SS 268,- Crane Failure,DISTRICT,Complete
+3/23/1995,9:00,G09627,SS 277,- Pollution ,DISTRICT,Complete
+8/14/1995,6:00,G09627,SS 277,- Pollution ,DISTRICT,Complete
+10/12/1997,1:20,G09627,SS 277,- Fire ,DISTRICT,Complete
+1/12/2000,11:30,G15307,SS 320,"- Blowout - Pollution - 20"" x 13-5/8"" annular pressure",DISTRICT,Complete
+10/22/1998,12:00,G04826,SS 332,- Fire ,DISTRICT,Complete
+5/18/1998,16:15,G15312,SS 354,- Fire ,DISTRICT,Complete
+9/9/1999,15:45,G15312,SS 354,- Blowout - Fire - Pollution ,PANEL,Complete
+4/26/1998,22:50,G14539,ST 220,- Pollution ,DISTRICT,Complete
+1/10/1997,9:30,G14550,ST 299,- Blowout ,DISTRICT,Complete
+8/30/1997,15:30, 00072,PL 12,- Explosion - Fire ,DISTRICT,Complete
+9/29/1997,9:45,G03171,PL 13,- Fire ,DISTRICT,Complete
+7/20/1998,7:30,G03171,PL 13,- Fire ,DISTRICT,Complete
+7/29/1996,15:30,G01238,PL 23,- Fire - Injury ,DISTRICT,Complete
+12/20/1997,6:10,G01238,PL 23,- Pollution ,DISTRICT,Complete
+3/11/1998,17:30,G01238,PL 23,- Fire - Injury ,DISTRICT,Complete
+9/24/1996,:, 00033,GI 19,- Fatality ,PANEL,Complete
+6/25/1997,12:45, 00031,GI 22,- Fire ,DISTRICT,Complete
+10/3/1996,13:30, 00392,GI 37,- Fire ,DISTRICT,Complete
+10/3/1996,7:00, 00392,GI 37,- Fire - Pollution ,DISTRICT,Complete
+1/30/1998,10:30, 00392,GI 37,- Fire ,DISTRICT,Complete
+1/8/2000,9:00, 00392,GI 37,- Pollution ,DISTRICT,Complete
+5/15/1995,7:10, 00129,GI 41,- Pollution ,DISTRICT,Complete
+10/9/1996,7:00, 00175,GI 43,- Pollution ,DISTRICT,Complete
+2/6/1997,12:58, 00175,GI 43,- Fire ,DISTRICT,Complete
+5/2/1998,6:30, 00175,GI 43,- Pollution ,DISTRICT,Complete
+11/19/1998,13:09, 00175,GI 43,- Fire ,DISTRICT,Complete
+1/20/1997,3:00, 00133,GI 47,- Fatality ,DISTRICT,Complete
+8/11/1997,19:41, 00133,GI 47,- Fire ,DISTRICT,Complete
+7/30/1997,13:45, 00133,GI 47,- Fire ,DISTRICT,Complete
+5/24/1996,7:20, 00134,GI 48,- Pollution ,DISTRICT,Complete
+3/11/1997,22:00,G01331,WD 23,- Fatality ,DISTRICT,Complete
+10/18/1999,1:10, 00384,WD 28,- Collision ,DISTRICT,Complete
+8/21/1997,3:15, 00016,WD 31,- Pollution ,DISTRICT,Complete
+3/31/1998,11:30, 00016,WD 31,- Injury ,DISTRICT,Complete
+6/24/1996,7:30, 00367,WD 32,- Pollution ,DISTRICT,Complete
+9/22/1998,6:30, 00367,WD 32,- Pollution ,DISTRICT,Complete
+6/11/1999,6:00,G01073,WD 41,- Pollution ,DISTRICT,Complete
+4/7/1997,19:20, 00182,WD 70,- Fire ,DISTRICT,Complete
+8/6/1997,16:00, 00182,WD 70,- Fire - Injury ,DISTRICT,Complete
+12/2/1999,6:30, 00182,WD 70,- Pollution ,DISTRICT,Complete
+6/20/1998,14:15, 00838,WD 71,- Fire ,DISTRICT,Complete
+3/18/1999,4:45,G01874,WD 79,- Explosion - Fire ,DISTRICT,Complete
+12/2/1999,9:30, 00839,WD 94,- Pollution - pipeline leak,DISTRICT,Complete
+9/8/1996,7:00,G01498,WD 96,- Fire - Injury ,DISTRICT,Complete
+6/22/1997,22:30,G08735,WD 106,- Pollution ,DISTRICT,Complete
+2/16/1998,13:30,G08735,WD 106,- Collision - Fire ,DISTRICT,Complete
+8/6/1997,17:30,G02937,WD 109,- Fire ,DISTRICT,Complete
+11/11/1997,23:10,G02937,WD 109,- Explosion - Fire ,DISTRICT,Complete
+3/12/1998,2:25,G01101,WD 117,- Injury - Pollution - Derrick fell,DISTRICT,Complete
+6/9/1997,12:45,G01604,WD 152,- Fire ,DISTRICT,Complete
+10/1/1998,10:00,G02177,SP 38,- Pollution ,PANEL,Complete
+12/24/1996,15:45,G02940,SP 57,- Fire ,DISTRICT,Complete
+8/21/1998,23:36,G01612,SP 67,- Pollution ,DISTRICT,Complete
+8/12/1995,14:00,G01614,SP 70,- Fatality ,DISTRICT,Complete
+10/12/1995,13:40,G02184,SP 77,- Pollution ,DISTRICT,Complete
+12/11/1997,10:00,G02184,SP 77,- Fire ,DISTRICT,Complete
+9/17/1997,:55,G09200,GB 70,- Fatality ,DISTRICT,Complete
+7/31/1998,18:32,G11455,GB 128,- Fire ,DISTRICT,Complete
+1/21/1996,13:00,G10342,GB 240,- Injury - piping rupture,DISTRICT,Complete
+10/14/1996,21:00,G07485,GB 387,- Collision - Pollution ,DISTRICT,Complete
+5/3/1996,16:45,G07486,GB 388,- Pollution ,DISTRICT,Complete
+1/2/1996,7:00,G07486,GB 388,- Fire - Pollution ,DISTRICT,Complete
+9/29/1996,12:35,G07486,GB 388,- Collision - Pollution ,DISTRICT,Complete
+2/22/1997,11:40,G07486,GB 388,- Pollution ,DISTRICT,Complete
+12/10/1996,12:30,G04940,GC 18,- Fire - Injury ,DISTRICT,Complete
+4/29/1998,7:30,G04940,GC 18,- Pollution ,DISTRICT,Complete
+5/16/1998,11:20,G04940,GC 18,- Pollution ,DISTRICT,Complete
+10/10/1998,15:45,G04940,GC 18,- Fire ,DISTRICT,Complete
+3/20/1999,10:08,G04940,GC 18,- Explosion - Injury ,DISTRICT,Complete
+3/11/1996,23:50,G04131,GC 19,- Fire - Pollution ,DISTRICT,Complete
+5/29/1997,13:15,G05889,GC 65,- Fire ,DISTRICT,Complete
+5/22/1997,19:00,G05889,GC 65,- Fire ,DISTRICT,Complete
+10/13/1997,5:00,G05889,GC 65,- Fire ,DISTRICT,Complete
+6/27/1998,6:40,G05889,GC 65,- Fire ,DISTRICT,Complete
+7/20/1998,14:05,G05889,GC 65,- Fire ,DISTRICT,Complete
+3/17/1999,12:20,G05889,GC 65,- Fire ,DISTRICT,Complete
+12/16/1998,12:15,G15540,GC 89,- Fire ,DISTRICT,Complete
+12/26/1998,3:00,G15540,GC 89,- Fire ,DISTRICT,Complete
+7/6/1998,19:00,G12209,GC 200,- Pollution - hydaulic fluid leak,DISTRICT,Complete
+10/23/1998,14:43,G05911,GC 205,- Fire ,DISTRICT,Complete
+2/8/1999,8:00,G07049,GC 254,- Explosion - 210 barrel atmospheric tank,DISTRICT,Complete
+8/28/1999,12:00,G11075,GC 562,- Pollution ,DISTRICT,Complete
+9/13/1998,17:00,G10005,AT 118,- Injury ,DISTRICT,Complete
+4/28/1999,11:30,G07917,EW 306,- Fire ,DISTRICT,Complete
+3/9/1996,23:30,G09762,EW 482,- Pollution ,DISTRICT,Complete
+12/31/1998,17:00,G13079,EW 910,- Platform rig movement,DISTRICT,Complete
+4/24/1998,21:30,G05803,EW 947,- Fire ,DISTRICT,Complete
+9/9/1996,1:30,G12145,EW 965,- Pollution ,DISTRICT,Complete
+11/23/1998,22:30,G12145,EW 965,- Pollution - crane operations,DISTRICT,Complete
+1/11/2000,22:15,G12145,EW 965,- Injury ,DISTRICT,Complete
+9/14/1998,11:30,G06884,VK 780,- Pollution ,DISTRICT,Complete
+11/14/1997,17:00,G09743,VK 817,- Fire ,DISTRICT,Complete
+11/15/1999,18:30,G10942,VK 823,- crane failure,DISTRICT,Complete
+7/13/1998,21:10,G06896,VK 956,- Pollution - Chemical spill,DISTRICT,Complete
+8/20/1998,10:00,G18880,MU A51,- Fatality ,DISTRICT,Complete
+11/5/1997,5:00,G06037,MI 604,- Structural failure,DISTRICT,Complete
+2/18/1997,:20,G02665,BA A133,- Fire ,DISTRICT,Complete
+10/19/1997,3:15,G06093,GA 209,- Fire ,DISTRICT,Complete
+9/21/1996,1:00,G08151,HI 207,- Explosion - Fire - Injury ,DISTRICT,Complete
+1/22/1998,7:00,G02366,HI A474,- Pollution ,DISTRICT,Complete
+10/19/1997,3:30,G02392,HI A572,- Fire ,DISTRICT,Complete
+4/30/1996,12:00,G02724,HI A270,- Fire - Fatality ,DISTRICT,Complete
+10/5/1997,7:30,G02746,HI A356,- Explosion ,DISTRICT,Complete
+1/3/1997,7:00,G10311,HI A385,- Fatality ,DISTRICT,Complete
+9/9/1999,8:30,G01666,MP 289,- Pollution ,DISTRICT,Complete
+4/21/1995,6:45,G02241,WC 643,- Collision - Pollution ,DISTRICT,Complete
+6/12/1996,9:00,G13865,EC 149,- Fire - Injury ,DISTRICT,Complete
+1/12/1997,5:45, 00560,VR 67,- Collision ,DISTRICT,Complete
+5/29/1996,23:45,G02075,VR 201,- Fire ,DISTRICT,Complete
+2/21/1995,11:45,G04213,VR 289,- Fire ,DISTRICT,Complete
+12/9/1995,17:10,G05475,SM 205,- Fatality ,DISTRICT,Complete
+5/6/1998,6:35, 00054,EI 129,- Pollution ,DISTRICT,Complete
+2/22/1998,2:20, 00438,EI 175,- Pollution ,DISTRICT,Complete
+3/9/1998,18:00, 00438,EI 175,- Fire ,DISTRICT,Complete
+5/24/1998,8:30, 00577,EI 208,- Injury ,DISTRICT,Complete
+11/14/1999,6:50,G00985,EI 259,- Fire ,DISTRICT,Complete
+1/24/1996,17:30,G02327,EI 380,- Blowout - Fire ,PANEL,Complete
+12/16/1997,16:00,G12940,SS 126,- Pollution ,DISTRICT,Complete
+7/21/1999,7:00, 00829,SS 219,- Pollution ,DISTRICT,Complete
+7/28/1996,6:30,G07759,SS 299,- Pollution ,DISTRICT,Complete
+9/21/1999,1:00,G07759,SS 299,- Fire ,DISTRICT,Complete
+8/17/1996,8:30, 00128,GI 40,- Pollution ,DISTRICT,Complete
+7/17/1997,18:30, 00128,GI 40,- Fire ,DISTRICT,Complete
+5/23/1996,6:30, 00138,WD 45,- Pollution ,DISTRICT,Complete
+1/4/1997,20:35, 00138,WD 45,- Fire ,DISTRICT,Complete
+7/18/1997,4:30, 00840,WD 103,- Fire ,DISTRICT,Complete
+4/9/1997,7:30,G01608,SP 60,- Fire ,DISTRICT,Complete
+10/19/1998,19:00,G05954,PN 976,- Fatality ,DISTRICT,Complete
+11/27/1995,4:30,G10152,MU 806,- Fatality ,DISTRICT,Complete
+10/14/1997,1:30,G02754,HI A376,- Fire ,DISTRICT,Complete
+9/2/1998,15:50,G02754,HI A376,- Fatality - Elect. during start-up oper.,DISTRICT,Complete
+7/10/1996,6:55,G01633,MP 133,- Pollution ,DISTRICT,Complete
+11/9/1997,9:30,G01633,MP 133,- Pollution ,DISTRICT,Complete
+11/9/1995,3:50,G02951,MP 151,- Fire ,DISTRICT,Complete
+9/17/1998,21:30,G02951,MP 151,- Collision - Pollution ,DISTRICT,Complete
+8/26/1997,11:15,G12845,EC 276,- Fire ,DISTRICT,Complete
+1/9/1998,14:40,G12845,EC 276,- Fire ,DISTRICT,Complete
+1/21/1997,13:30,G02439,EC 335,- Fire ,DISTRICT,Complete
+7/29/1996,13:58,G05505,EI 229,- Fire ,DISTRICT,Complete
+10/20/1997,21:30,G05505,EI 229,- Pollution ,DISTRICT,Complete
+5/18/1999,21:30,G04453,EI 240,- Fire ,DISTRICT,Complete
+11/26/1996,15:31,G00983,EI 252,- Fire ,DISTRICT,Complete
+1/16/1998,20:00,G00983,EI 252,- Blowout ,DISTRICT,Complete
+6/7/1998,6:15,G00983,EI 252,- Fire ,DISTRICT,Complete
+5/19/1998,10:30,G00983,EI 252,- Fire ,DISTRICT,Complete
+7/9/1998,16:00,G00983,EI 252,- Fatality ,DISTRICT,Complete
+5/24/1997,17:30,G02118,EI 338,- Fatality ,DISTRICT,Complete
+11/19/1996,18:40,G13084,EW 963,- Fire ,DISTRICT,Complete
+5/21/1998,7:15,G04518,GC 184,- Fire ,DISTRICT,Complete
+12/24/1998,19:00,G06032,MI 519,- Pollution - 24 Barrels of 10ppg oilbase mu,DISTRICT,Complete
+11/13/1997,6:00, 00373,MP 40,- Pollution ,DISTRICT,Complete
+3/31/1997,:30,G02947,MP 73,- Fire ,DISTRICT,Complete
+4/23/1996,20:30,G02888,SM 174,- Fire ,DISTRICT,Complete
+11/22/1998,10:30,G02596,SM 244,- Blowout ,DISTRICT,Complete
+1/2/2000,12:20,G16337,SM 261,- Blowout - Fire ,DISTRICT,Complete
+5/25/1995,7:30,G05041,SS 37,- Pollution ,DISTRICT,Complete
+12/15/1996,20:45,G05646,ST 295,- Fire ,DISTRICT,Complete
+3/4/1997,4:00,G05646,ST 295,- Blowout - DIVERTER,DISTRICT,Complete
+1/5/2000,20:30,G05646,ST 295,- Blowout - Annular Casing Flow Well A-31,DISTRICT,Complete
+2/8/1998,24:00,G04261,VR 330,- Fire ,DISTRICT,Complete
+5/24/1996,19:30,G02572,VR 331,- Fire ,DISTRICT,Complete
+2/28/1997,20:30,G02572,VR 331,- Fire ,DISTRICT,Complete
+4/18/1995,20:40,G02572,VR 331,- Fire ,DISTRICT,Complete
+6/28/1995,2:00,G03969,WC 478,- Collision - Pollution ,DISTRICT,Complete
+11/27/1996,21:05, 00146,WD 58,- Blowout - Explosion - Fire - Injury ,DISTRICT,Complete
+4/24/1997,13:45, 00146,WD 58,- Pollution ,DISTRICT,Complete
+12/17/1996,6:55, 00386,ST 23,- Pollution ,DISTRICT,Complete
+10/4/1998,10:30, 00386,ST 23,- Pollution ,DISTRICT,Complete
+6/1/1996,6:25, 00595,ST 24,- Pollution ,DISTRICT,Complete
+2/2/1997,14:00, 00595,ST 24,- DAMAGED PIPELINE,DISTRICT,Complete
+11/6/1998,5:20, 00387,ST 24,- Pollution ,DISTRICT,Complete
+9/3/1998,6:50,G01241,ST 52,- Pollution ,DISTRICT,Complete
+6/26/1996,16:05, 00019,ST 54,- Fire ,DISTRICT,Complete
+9/3/1999,18:34,G14528,ST 145,- Fire ,DISTRICT,Complete
+2/15/1997,22:20,G01960,ST 148,- Injury ,DISTRICT,Complete
+1/25/1999,9:15,G01898,ST 148,- Collision ,DISTRICT,Complete
+5/21/1997,:30,G01255,ST 171,- Fatality ,DISTRICT,Complete
+8/1/1996,6:30,G01260,ST 177,- Pollution ,DISTRICT,Complete
+6/17/1996,19:10,G01572,ST 189,- Pollution ,DISTRICT,Complete
+3/28/1999,11:35,G04464,ST 200,- Explosion ,DISTRICT,Complete
+7/24/1996,4:45, 00370,BM 3,- Pollution ,DISTRICT,Complete
+4/14/1997,:40,G04000,ST 53,- Fire ,DISTRICT,Complete
+6/19/1997,14:30,G08443,ST 75,- Pollution ,DISTRICT,Complete
+6/5/1999,16:00,G10828,ST 112,- Collision ,DISTRICT,Complete
+11/11/1997,15:15,G01250,ST 164,- Injury ,DISTRICT,Complete
+11/1/1998,7:45, 00463,ST 151,- Fire ,DISTRICT,Complete
+4/9/2000,9:00,G03206,MC 63,- Crane Incident,DISTRICT,Complete
+8/16/2000,21:00,G05825,MC 109,- Fatality ,PANEL,Complete
+1/17/1998,15:30,G02640,MC 148,- Fire ,DISTRICT,Complete
+4/30/1998,21:50,G02640,MC 148,- Blowout ,DISTRICT,Complete
+9/20/1999,3:15,G02640,MC 148,- Collision - pipeline,DISTRICT,Complete
+9/8/2000,5:30,G08801,MC 167,- Fatality ,PANEL,Complete
+2/27/1999,3:15,G02638,MC 194,- Pollution ,DISTRICT,Complete
+10/28/1999,5:45,G03818,MC 280,- Fire ,DISTRICT,Complete
+2/20/2000,3:30,G21167,MC 379,- Pollution ,DISTRICT,Complete
+2/28/2000,14:45,G16614,MC 538,- Blowout - Pollution - Accidental riser disconnect,PANEL,Complete
+12/2/1999,11:15,G21175,MC 553,- Fire ,DISTRICT,Complete
+10/6/1998,21:40,G18259,MC 580,- Injury ,DISTRICT,Complete
+3/9/2001,23:30,G05863,MC 687,- FATALITY-USCG jurisdiction,DISTRICT,Complete
+2/10/1999,6:00,G14016,MC 711,- Blowout - salt water flow (broach),DISTRICT,Complete
+2/20/1998,1:30,G08852,MC 764,- Fire ,DISTRICT,Complete
+6/18/1998,10:00,G08852,MC 764,- Injury ,DISTRICT,Complete
+1/19/2000,21:09,G14658,MC 822,- Pollution - accid. marine riser disconnect,DISTRICT,Complete
+1/19/2000,23:40,G14658,MC 822,- Incident >$25K - Near Miss,DISTRICT,Complete
+3/16/2000,6:00,G14658,MC 822,- Injury ,DISTRICT,Complete
+5/4/2000,1:30,G14658,MC 822,- Injury ,DISTRICT,Complete
+7/13/1999,19:50,G07969,MC 890,- Injury ,DISTRICT,Complete
+10/22/1999,8:50,G16670,MC 1002,- dropped riser/BOP,PANEL,Complete
+5/8/1999,3:10,G01187,SM 27,- Fire ,DISTRICT,Complete
+6/16/1995,5:00,G08640,EC 82,- Fatality ,DISTRICT,Complete
+5/17/1995,10:45,G02061,EC 321,- Fire ,DISTRICT,Complete
+6/9/1995,7:00,G02061,EC 321,- Fire ,DISTRICT,Complete
+3/24/1997,12:01,G02061,EC 321,- Fire ,DISTRICT,Complete
+4/22/1998,17:00,G15161,EC 381,- Fatality ,DISTRICT,Complete
+1/6/1998,18:00,G12886,SM 17,- Blowout ,DISTRICT,Complete
+5/10/1996,7:15,G02318,EI 339,- Fire ,DISTRICT,Complete
+7/8/1998,2:30,G02318,EI 339,- Fire ,DISTRICT,Complete
+12/13/1995,5:00,G01034,SS 266,- Fire ,DISTRICT,Complete
+6/6/1996,1:00,G01034,SS 266,- Fire ,DISTRICT,Complete
+3/13/1997,7:30,G01034,SS 266,- Fire ,DISTRICT,Complete
+3/7/1997,6:45,G01034,SS 266,- Fire ,DISTRICT,Complete
+9/7/1999,12:45,G01607,SP 55,- Pollution ,DISTRICT,Complete
+11/17/1995,13:30,G08241,GB 426,- Pollution ,DISTRICT,Complete
+1/25/2000,7:20,G13114,MC 248,- Pollution ,DISTRICT,Complete
+3/22/2000,5:00,G16141,WC 317,- Blowout ,DISTRICT,Complete
+4/25/2001,1:40,G02006,WC 504,- Explosion - wireline lubricator ruptured,DISTRICT,Complete
+5/2/2001,15:15,G02234,WC 620,- crane failure,DISTRICT,Complete
+4/29/1999,14:30,G11455,GB 128,- CRANE ACCIDENT,DISTRICT,Complete
+3/20/2001,10:41,G02045,EC 270,- Fatality ,DISTRICT,Complete
+10/20/2000,15:50, 00767,EC 47,- Injury ,DISTRICT,Complete
+3/20/2001,12:20,G04126,MP 310,- Pollution ,DISTRICT,Complete
+11/14/1999,5:00,G13367,GB 161,- Fatality ,DISTRICT,Complete
+6/28/2000,4:00,G15607,GC 743,- inadvertent riser disconnect,DISTRICT,Complete
+6/3/2000,21:45,G16698,GC 155,- Injury ,DISTRICT,Complete
+1/27/2001,23:24,G19028,EB 599,- Emergency disconnect of LMRP,DISTRICT,Complete
+3/8/2001,9:00,G19028,EB 599,- Injury ,DISTRICT,Complete
+2/8/2000,6:55,G01618,SP 89,- Explosion ,DISTRICT,Complete
+9/23/2000,22:45,G01619,SP 93,- Pollution ,DISTRICT,Complete
+3/10/2000,15:40, 00385,WD 28,- Injury ,DISTRICT,Complete
+2/27/2000,2:30, 00385,WD 29,- Pollution - synthetic based mud,DISTRICT,Complete
+7/5/2000,16:45, 00146,WD 58,- Fire ,DISTRICT,Complete
+1/26/2000,10:45,G01085,WD 75,- Crane failure,DISTRICT,Complete
+4/18/2001,10:26,G01085,WD 75,- Collision ,DISTRICT,Complete
+9/5/2000,16:30,G01089,WD 90,- Pollution ,DISTRICT,Complete
+11/15/2000,1:30,G12027,PL 5,- Fire ,DISTRICT,Complete
+3/21/2000,22:25,G01569,ST 185,- Injury - Crane Accident,PANEL,Complete
+4/16/2001,9:20, 00165,ST 22,- Collision - Pollution ,DISTRICT,Complete
+8/26/2000,15:30,G02625,ST 37,- Fire ,DISTRICT,Complete
+8/15/2000,14:00, 00015,ST 53,- Fire ,DISTRICT,Complete
+4/27/2000,7:00, 00599,ST 63,- Crane slings parted,DISTRICT,Complete
+5/4/2000,22:30,G01244,ST 72,- Pollution ,DISTRICT,Complete
+5/22/2000,9:00, 00605,ST 86,- Release of H2S,DISTRICT,Complete
+7/26/2000,10:00, 00605,ST 86,- H2S release,DISTRICT,Complete
+1/21/2000,10:00,G04826,SS 332,- Pollution ,DISTRICT,Complete
+1/30/2001,5:00, 00069,SS 119,- Collision - Hit by fishing boat,DISTRICT,Complete
+3/29/2000,12:30,G01014,SS 145,- Crane/Equipment Overboard,DISTRICT,Complete
+3/7/2000,6:35, 00434,SS 149,- Fire ,DISTRICT,Complete
+12/21/2000,5:50,G03998,SS 182,- Fire ,DISTRICT,Complete
+9/13/2000,8:00,G15276,SS 76,- Collision ,DISTRICT,Complete
+3/1/2001,2:00,G00991,EI 284,- Blowout - Fire ,PANEL,Complete
+8/15/2000,6:15,G02914,EI 341,- Pollution ,DISTRICT,Complete
+2/24/2001,12:30,G02914,EI 341,- Fire ,DISTRICT,Complete
+4/1/2000,7:00, 00577,EI 208,- Pollution ,DISTRICT,Complete
+3/12/2000,6:30,G02900,EI 261,- Fire ,DISTRICT,Complete
+5/11/2000,21:35, 00811,EI 266,- Collision ,DISTRICT,Complete
+12/9/1999,5:30,G00987,EI 273,- Injury ,DISTRICT,Complete
+8/9/2000,18:35,G00988,EI 275,- Fire - Pollution ,DISTRICT,Complete
+8/1/2000,2:00, 00046,EI 95,- Collision - Injury ,DISTRICT,Complete
+6/6/2000,19:00,G14467,EI 135,- Injury ,DISTRICT,Complete
+4/18/2000,19:00,G16337,SM 261,- Collision ,DISTRICT,Complete
+5/2/2000,13:00,G09574,EI 30,- Fire ,DISTRICT,Complete
+4/2/2001,8:00,G06693,SM 147,- Blowout ,DISTRICT,Complete
+4/16/2000,19:15,G01182,SM 11,- Collision ,DISTRICT,Complete
+8/29/2000,10:00, 00559,VR 67,- Injury ,DISTRICT,Complete
+10/31/2000,14:30,G03393,VR 102,- Cut into live P/L for removal,DISTRICT,Complete
+4/5/2000,4:00,G04586,HI A472,- Pollution ,DISTRICT,Complete
+3/30/2001,14:00,G14193,HI A560,- Pollution ,DISTRICT,Complete
+4/7/2000,3:30,G02392,HI A572,- Blowout ,DISTRICT,Complete
+5/9/2001,8:00,G02433,HI A368,- Blowout - Pollution ,PANEL,Complete
+3/31/2000,5:20, 00762,WC 176,- Injury ,DISTRICT,Complete
+2/28/2001,3:58,G01971,WC 181,- Collision - Explosion - Fire ,DISTRICT,Complete
+4/4/2001,12:00, 00190,WC 192,- Blowout - Equipment overboard,DISTRICT,Complete
+7/11/2000,17:30,G09408,WC 248,- Fire - Injury ,DISTRICT,Complete
+8/14/2000,12:30,G03417,MP 72,- Pollution ,DISTRICT,Complete
+7/18/2000,9:35,G04481,MP 77,- Crane,DISTRICT,Complete
+9/26/2000,10:45,G01633,MP 133,- Pollution ,DISTRICT,Complete
+5/19/2000,7:30,G02193,MP 140,- Fatality ,PANEL,Complete
+11/16/2000,18:30,G02951,MP 151,- Fire ,DISTRICT,Complete
+5/21/2000,22:00,G01967,MP 153,- Injury ,DISTRICT,Complete
+3/4/2000,13:00,G13035,MP 261,- Injury - Hose Rupture,DISTRICT,Complete
+8/16/2000,6:45,G04834,MP 265,- Fire ,DISTRICT,Complete
+6/8/2000,10:20,G09372,MP 299,- Fire ,DISTRICT,Complete
+5/20/2000,8:00,G21153,VK 475,- Injury ,DISTRICT,Complete
+10/28/2000,7:30,G06888,VK 826,- Pollution ,DISTRICT,Complete
+2/11/2001,13:35,G06898,VK 989,- Fire - Pollution ,DISTRICT,Complete
+8/15/2000,20:30,G20605,MU 726,- Blowout ,DISTRICT,Complete
+11/18/2000,5:30,G20605,MU 726,- Blowout ,DISTRICT,Complete
+1/13/2001,16:15,G20623,GA 190,- Explosion - Fire - Injury ,DISTRICT,Complete
+6/23/2004,8:30,G24704,WC 40,- Injury ,DISTRICT,Complete
+12/4/2009,16:00, 00299,WC 45,- Incident >$25K ,DISTRICT,Complete
+1/29/2006,10:16,G25792,KC 292,- Item Lost Overboard,DISTRICT,Complete
+5/24/2001,17:30,G09384,WC 61,- Blowout - Lubricator leak,DISTRICT,Complete
+7/10/2008,10:15, 00247,WC 102,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+11/18/2006,13:15,G12761,WC 130,- Pollution ,DISTRICT,Complete
+1/27/2009,21:35,G05283,WC 168,- Crane ,DISTRICT,Complete
+11/20/2003,9:30, 00190,WC 192,- Fire ,DISTRICT,Complete
+6/24/2008,8:00,G24718,WC 202,- Fire ,DISTRICT,Complete
+11/6/2004,8:00,G02833,WC 237,- Injury ,DISTRICT,Complete
+12/1/2006,13:00,G27008,WC 240,- Fatality ,PANEL,Complete
+1/14/2005,11:45,G00911,WC 280,- Injury - Atmospheric release of gas.,DISTRICT,Complete
+4/7/2006,22:45,G04903,MP 30,- Injury ,DISTRICT,Complete
+10/1/2007,12:05,G04903,MP 30,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+3/7/2009,21:58,,MP 30,- Required Evacuation - Fatality ,PANEL,Complete
+1/29/2002,11:25, 00373,MP 40,- Fire - Injury ,DISTRICT,Complete
+7/10/2002,:44, 00374,MP 41,- Collision - Pollution ,DISTRICT,Complete
+2/17/2009,7:30, 00374,MP 41,- Pollution ,DISTRICT,Complete
+4/24/2021,19:00, 00374,MP 41,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+9/7/2006,10:00, 00375,MP 42,- Pollution ,DISTRICT,Complete
+9/29/2012,18:03,G01367,MP 42,- LTA (>3 days) - Required Evacuation - Injury,DISTRICT,Complete
+9/21/2021,16:08, 00375,MP 42,- Required Evacuation - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+9/9/2020,8:30, 00375,MP 42,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/8/2022,6:45, 00375,MP 42,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+4/27/2025,15:20, 00375,MP 42,- Explosion - Items Overboard,DISTRICT,Complete
+12/11/2007,5:40,G03338,MP 44,- Collision >$25K ,DISTRICT,Complete
+2/5/2006,11:00,G16493,MP 61,- Fire ,DISTRICT,Complete
+8/1/2007,18:15,G16493,MP 61,- Pollution ,DISTRICT,Complete
+10/13/2017,5:30,G04909,MP 64,- Collision >$25K - Incident >$25K - Structural Damage ,DISTRICT,Complete
+3/25/2022,8:35,G04909,MP 64,- Fatality - Incident >$25K - Structural Damage ,PANEL,Pending
+10/9/2021,9:10,G04909,MP 64,- Explosion - Line Failure and Rupture,DISTRICT,Complete
+12/4/2006,23:00, 00372,MP 69,- Explosion - Pollution - Incident >$25K ,DISTRICT,Complete
+7/3/2002,19:30,G03417,MP 72,- Pollution ,DISTRICT,Complete
+10/25/2007,18:30,G02947,MP 73,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/7/2007,4:15,G02947,MP 73,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/4/2017,14:40,G02947,MP 73,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+1/27/2022,16:25,G02947,MP 73,- Fire - Required Muster ,DISTRICT,Complete
+1/30/2022,5:30,G02947,MP 73,- Fire - Incident >$25K ,DISTRICT,Complete
+8/1/2006,7:30,G04481,MP 77,- Pollution - Pollution,DISTRICT,Complete
+2/22/2007,17:30,G04481,MP 77,- Fire ,DISTRICT,Complete
+8/23/2007,10:00,G14576,MP 91,- Other,PANEL,Complete
+8/12/2005,12:12,G05694,MP 98,- Injury - Fatality ,PANEL,Complete
+4/19/2004,19:00,G21703,MP 99,- Injury ,DISTRICT,Complete
+4/13/2006,7:30,G22792,MP 101,- Fire - Injury ,DISTRICT,Complete
+10/2/2002,12:00,G18088,MP 107,- Rig damage from Hurricane Lili,DISTRICT,Complete
+3/1/2009,12:00,G31435,MP 107,- Required Evacuation ,DISTRICT,Complete
+6/5/2013,16:00,G31435,MP 107,- LTA (>3 days) - Required Evacuation - Dropped Object/LiftboatStandby,DISTRICT,Complete
+8/30/2012,:0,G03419,MP 116,- Toppled Well,DISTRICT,Complete
+4/23/2006,8:30,G02193,MP 140,- Crane,DISTRICT,Complete
+1/16/2010,13:00,G02193,MP 140,- Required Evacuation - Fire ,DISTRICT,Complete
+6/9/2021,14:45,G02193,MP 140,- Pollution - Pipeline Leak,DISTRICT,Complete
+12/25/2020,18:00,G01967,MP 153,- Compressor Backfired,DISTRICT,Complete
+5/3/2025,8:30,G01967,MP 153,- Crane ,DISTRICT,Complete
+4/22/2008,14:30,G08753,MP 175,- Fire - Glycol Reboiler,DISTRICT,Complete
+10/6/2002,22:30,G07824,MP 252,- Pollution ,DISTRICT,Complete
+8/24/2025,15:30,G07824,MP 252,- Incident >$25K - Crane ,DISTRICT,Complete
+5/5/2002,8:30,G07825,MP 255,- Fatality - crane,PANEL,Complete
+3/23/2020,11:30,G07827,MP 259,- RW/JT (>3 days) - Required Evacuation - Cut wrist with knife,DISTRICT,Complete
+6/24/2022,11:47,,MP 260,- Required Evacuation - Explosion ,DISTRICT,Complete
+2/4/2007,12:25,G13035,MP 261,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/20/2003,16:45,G23992,MP 263,- Collision - Pollution - gas release,DISTRICT,Complete
+4/7/2013,17:45,G14585,MP 264,- Crane ,DISTRICT,Complete
+4/27/2013,10:30,G14585,MP 264,- Crane ,DISTRICT,Complete
+8/5/2002,18:00,G19863,MP 265,- crane accident,DISTRICT,Complete
+6/30/2022,23:46,,MP 268,- Pollution ,DISTRICT,Complete
+7/3/2023,15:45,G22812,MP 270,- RW/JT (1-3 days) - Required Evacuation - First Aid,DISTRICT,Complete
+11/24/2005,6:15,G16515,MP 280,- Pollution ,DISTRICT,Complete
+5/8/2021,11:00,G13662,MP 283,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+1/13/2004,14:00,G01665,MP 288,- Pollution ,DISTRICT,Complete
+6/23/2007,8:32,G01665,MP 288,- Pollution ,PANEL,Complete
+2/2/2015,2:30,G01665,MP 288,- Fire ,DISTRICT,Complete
+10/15/2019,7:55,G01665,MP 288,- Incident >$25K - Crane ,DISTRICT,Complete
+2/5/2013,9:00,G32263,MP 295,- Blowout,DISTRICT,Complete
+9/28/2013,8:30,G32263,MP 295,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/15/2006,12:40,G01673,MP 296,- LTA (>3 days) - Crane ,DISTRICT,Complete
+1/21/2019,6:45,G01673,MP 296,- Other Injury - Required Evacuation ,DISTRICT,Complete
+5/24/2026,11:38,G01315,MP 298,- Fire ,DISTRICT,Complete
+11/7/2001,13:10,G12362,MP 299,- Pollution ,DISTRICT,Complete
+8/30/2002,6:30,G12362,MP 299,- Pollution ,DISTRICT,Complete
+4/22/2003,10:30,G12362,MP 299,- Fire ,DISTRICT,Complete
+5/30/2003,:0,G12362,MP 299,- Fire ,DISTRICT,Complete
+12/29/2003,11:30,G12362,MP 299,- H2S Release,DISTRICT,Complete
+12/31/2003,9:35,G12362,MP 299,- Explosion ,DISTRICT,Complete
+1/14/2006,3:00,G01316,MP 299,- Explosion - Fire ,DISTRICT,Complete
+2/1/2006,8:00,G12362,MP 299,- Pollution ,DISTRICT,Complete
+2/14/2006,18:00,G12362,MP 299,- H2S,DISTRICT,Complete
+7/18/2006,8:15,G12362,MP 299,- Pollution ,DISTRICT,Complete
+9/5/2006,9:00,G12362,MP 299,- Pollution ,DISTRICT,Complete
+9/21/2006,6:30,G12362,MP 299,- LTA (1-3) days ,DISTRICT,Complete
+9/11/2012,16:35,G01316,MP 299,- RW/JT (>3 days) - Required Evacuation - Injury to hand/thumb,DISTRICT,Complete
+9/13/2012,4:30,G01316,MP 299,- RW/JT (>3 days) - Required Evacuation - Foot Injury,DISTRICT,Complete
+5/29/2016,13:10,G12362,MP 299,- Required Muster ,DISTRICT,Complete
+9/22/2019,6:55,G12362,MP 299,- Explosion - primer ignition,DISTRICT,Complete
+11/26/2025,12:39,G01317,MP 300,- Fire ,DISTRICT,Complete
+8/10/2006,7:15,G01677,MP 306,- Pollution - Pollution,DISTRICT,Complete
+12/20/2004,8:15,G04126,MP 310,- Injury ,DISTRICT,Complete
+5/26/2008,10:45,G04126,MP 310,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/8/2003,13:00,G02213,MP 311,- Injury - crane accident,DISTRICT,Complete
+3/12/2023,16:30,G02213,MP 311,- LTA (>3 days) - Required Evacuation - Pressure Release,DISTRICT,Complete
+1/16/2003,8:30,G03340,BS 53,- Explosion - Fire - Injury - Fatality - helicopter crash,DISTRICT,Complete
+10/6/2019,17:00,G01372,BS 54,- Collision >$25K - Incident >$25K ,DISTRICT,Complete
+10/13/2020,7:30,G01372,BS 55,- Incident >$25K - Structural Damage - Allision,DISTRICT,Complete
+9/2/2003,10:30,G24001,CA 27,- Blowout ,DISTRICT,Complete
+9/11/2003,16:00,G24001,CA 27,- Injury - rig collapse,DISTRICT,Complete
+7/18/2006,1:00,G27214,CA 31,- Fatality ,PANEL,Complete
+5/6/2003,11:10,G22539,WC 289,- Fire - Injury - Flash Fire,DISTRICT,Complete
+11/12/2006,7:00,G04090,WC 294,- Explosion - Incident >$25K ,DISTRICT,Complete
+5/21/2001,13:05,G10572,WC 306,- Injury ,DISTRICT,Complete
+4/7/2004,3:05,G24745,WC 424,- Fatality ,PANEL,Complete
+8/9/2003,12:00,G21059,WC 613,- Fire ,DISTRICT,Complete
+2/17/2004,3:30,G02853,EC 23,- Blowout ,PANEL,Complete
+7/30/2011,15:00,G27036,EC 34,- Pollution - Failure of ball valve,DISTRICT,Complete
+10/15/2012,14:30,G25933,EC 37,- RW/JT (>3 days) - Required Evacuation - Knee Injury,DISTRICT,Complete
+7/20/2012,22:45,G02857,EC 42,- Incident >$25K - Structural Damage ,DISTRICT,Complete
+1/25/2009,11:25, 00767,EC 47,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/28/2012,6:00, 00089,EC 64,- Fire - Incident >$25K ,DISTRICT,Complete
+5/25/2023,1:15,G13576,EC 71,- Pollution ,DISTRICT,Complete
+12/31/2002,11:20,G08640,EC 82,- Fatality ,DISTRICT,Complete
+10/23/2003,15:00,G08641,EC 83,- Injury ,DISTRICT,Complete
+10/2/2010,7:00,G08641,EC 83,- Required Evacuation - Fire - Gas venting from Gas Buster,DISTRICT,Complete
+8/30/2007,14:00,G21065,EC 109,- Pollution - Pollution. 2.7 bbls,DISTRICT,Complete
+3/5/2012,14:15,G14364,EC 129,- LTA (>3 days) - Required Evacuation - Falling Object,DISTRICT,Complete
+7/30/2014,16:20,G17858,EC 172,- Other Injury - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+12/19/2009,14:00,G22587,EC 194,- Incident >$25K - Crane ,DISTRICT,Complete
+1/6/2008,7:45,G03323,EC 220,- Other Injury - Crane ,DISTRICT,Complete
+7/21/2005,16:00,G02037,EC 222,- Injury ,DISTRICT,Complete
+7/2/2004,12:30,G00972,EC 265,- Injury ,DISTRICT,Complete
+1/28/2010,5:45,G25966,EC 266,- RW/JT (>3 days) - LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+6/18/2001,16:45,G02047,EC 272,- Explosion - Fire - Injury ,DISTRICT,Complete
+6/18/2005,23:15,G02047,EC 272,- Explosion - Fire ,DISTRICT,Complete
+1/17/2008,8:45,G02051,EC 286,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/6/2010,6:30,G02061,EC 321,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+6/17/2014,22:30,,EC 321,- Required Evacuation ,DISTRICT,Complete
+10/25/2014,19:00,G02061,EC 321,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/23/2014,10:30,G10638,EC 328,- Required Evacuation - Pollution ,DISTRICT,Complete
+7/29/2010,9:45,G02062,EC 334,- Pollution - Spill from cut process piping,DISTRICT,Complete
+12/7/2025,23:30,G02063,EC 338,- Incident >$25K - Required Muster ,DISTRICT,Complete
+3/20/2008,11:00,G06655,EC 346,- LTA (>3 days) - Open Hole,DISTRICT,Complete
+3/10/2010,1:40,G06655,EC 346,- Explosion - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+2/21/2015,4:00,G06655,EC 346,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/12/2009,6:30,G14391,EC 373,- Fire - Fire in AC Evap. Enclosure,DISTRICT,Complete
+8/10/2012,10:00,G15161,EC 381,- LTA (>3 days) - Required Evacuation - Crane - Arm Injury due to Fall,DISTRICT,Complete
+10/14/2009,9:45, 00205,VR 38,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+7/12/2025,15:30, 00204,VR 38,- LTA (>3 days) - Required Evacuation - Incident >$25K - Crane ,DISTRICT,Complete
+5/31/2013,12:30,G22606,VR 52,- Fire - Incident >$25K ,DISTRICT,Complete
+10/17/2002,1:05, 00487,VR 119,- Fire ,DISTRICT,Complete
+5/27/2009,12:00,G22620,VR 122,- Underwater gas release,DISTRICT,Complete
+9/29/2012,4:55, 00495,VR 124,- LTA (>3 days) - Required Evacuation - Finger Injury,DISTRICT,Complete
+9/17/2012,13:30, 00775,VR 131,- Incident >$25K - Crane ,DISTRICT,Complete
+4/9/2004,23:30,G06668,VR 164,- Injury ,DISTRICT,Complete
+8/28/2007,14:30,G27858,VR 167,- Pollution ,DISTRICT,Complete
+9/7/2007,6:15,G27858,VR 167,- Shutdown from Gas Release - Evacuated 78 people from rig,DISTRICT,Complete
+10/31/2007,22:45,G27858,VR 167,- LTA (>3 days) - Required Evacuation - FALLING OBJECT,DISTRICT,Complete
+8/11/2024,19:10,,VR 170,- LTA (>3 days) - Required Evacuation - Explosion - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+7/3/2023,15:00,,VR 170,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+10/27/2013,19:30,G09500,VR 200,- Fatality ,PANEL,Complete
+5/12/2013,13:45,G02076,VR 214,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/17/2006,10:00,G01142,VR 218,- Crane boom failure,DISTRICT,Complete
+3/6/2006,11:30,G01142,VR 218,- Explosion - Fire - Injury ,DISTRICT,Complete
+10/23/2013,19:00,G01144,VR 226,- Crane ,DISTRICT,Complete
+10/31/2008,14:30,G01146,VR 245,- Wellhead Leak,DISTRICT,Complete
+6/12/2012,4:20,G01181,SM 10,- RW/JT (>3 days) - Required Evacuation - Stepping into Open Hole,DISTRICT,Complete
+1/8/2006,10:30,G01182,SM 11,- Injury ,DISTRICT,Complete
+6/15/2009,9:00,G08680,SM 18,- RW/JT (>3 days) - Required Evacuation - Explosion - Fire ,DISTRICT,Complete
+8/5/2012,7:30, 00778,SM 23,- Required Evacuation - Incident >$25K - Crane - Boom Winch,DISTRICT,Complete
+12/5/2014,7:30,G01187,SM 27,- Pollution ,DISTRICT,Complete
+3/18/2003,2:00,G07699,SM 36,- Collision ,DISTRICT,Complete
+12/13/2006,17:50, 00787,SM 49,- Fire ,DISTRICT,Complete
+6/20/2012,12:55,G27083,SM 50,- LTA (>3 days) - Required Evacuation - Open hole,DISTRICT,Complete
+11/21/2003,7:00,G01193,SM 57,- Fire ,DISTRICT,Complete
+9/11/2019,13:30,G01194,SM 58,- Other Lifting Device ,DISTRICT,Complete
+10/7/2019,15:30,G01194,SM 58,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+4/12/2013,13:25,G01198,SM 66,- RW/JT (>3 days) - Required Evacuation - RW/JT Arm Injury,DISTRICT,Complete
+10/31/2004,1:55,G01201,SM 69,- Fire - Pollution ,DISTRICT,Complete
+11/1/2012,21:35,G01201,SM 69,- LTA (>3 days) - Required Evacuation - Back Reaming Injury,DISTRICT,Complete
+9/9/2019,23:00,G05431,VR 252,Damaged/Disabled Safety Sys. - Fire - Incident >$25K ,DISTRICT,Complete
+4/25/2018,17:00,G05431,VR 252,- Crane ,DISTRICT,Complete
+4/11/2006,14:00,G01153,VR 256,- Fire - Injury ,DISTRICT,Complete
+12/16/2015,18:45,,VR 261,- Incident >$25K - Crane ,DISTRICT,Complete
+8/15/2008,12:00,G03135,VR 267,- LTA (>3 days) - Required Evacuation - lubricator blew off well.,DISTRICT,Complete
+8/26/2009,13:11,G03135,VR 267,- Pollution ,DISTRICT,Complete
+6/13/2014,18:30,G11881,VR 279,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+6/19/2015,6:05,G11881,VR 279,- Pollution ,DISTRICT,Complete
+11/20/2002,12:55,G15201,VR 281,- Explosion - Fire - Injury ,DISTRICT,Complete
+2/2/2008,15:45,G03137,VR 287,- Pollution ,DISTRICT,Complete
+4/13/2008,7:30,G04427,VR 318,- Fatality ,DISTRICT,Complete
+8/7/2021,15:00,G02572,VR 331,- Man Overboard,DISTRICT,Complete
+7/21/2012,10:48,G02091,VR 340,- Incident >$25K - Crane ,DISTRICT,Complete
+12/16/2012,18:00,G33608,VR 342,- LTA (1-3) days - Required Evacuation - Head Injury,DISTRICT,Complete
+11/13/2014,19:30,G33608,VR 342,- Pollution - Chemical Release,DISTRICT,Complete
+4/10/2013,4:15,G17921,VR 356,- Other,DISTRICT,Complete
+1/30/2014,9:48,G17921,VR 356,- Well control,PANEL,Complete
+7/31/2011,7:49,G02274,VR 369,- Crane ,DISTRICT,Complete
+4/18/2014,19:00,G02274,VR 369,- Fire ,DISTRICT,Complete
+7/1/2019,14:00,G02274,VR 369,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/24/2022,13:00,G02274,VR 369,- Crane ,DISTRICT,Complete
+4/4/2024,22:30,G02274,VR 369,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/10/2020,17:45,G09524,VR 371,- Crane ,DISTRICT,Complete
+3/21/2009,11:10,G14428,VR 376,- Pollution ,DISTRICT,Complete
+2/29/2012,3:45,G14428,VR 376,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+6/8/2014,10:30,G13606,VR 379,- Required Evacuation - Crane ,DISTRICT,Complete
+12/16/2002,14:00,G02580,VR 380,- Fire - Injury ,DISTRICT,Complete
+5/26/2008,18:15,G02580,VR 380,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+9/2/2010,8:45,G02580,VR 380,- Fire - Incident >$25K - Required Muster - Platform abandoned,PANEL,Complete
+5/21/2010,16:00,G09529,VR 398,- Explosion - Pollution - Incident >$25K ,DISTRICT,Complete
+8/1/2012,:20,G09529,VR 398,- Structural Damage - Required Muster ,DISTRICT,Complete
+8/8/2007,21:18,G15212,VR 408,- RW/JT (>3 days) - Required Evacuation - Fire - Pollution ,DISTRICT,Complete
+10/13/2001,3:20,G21618,SM 93,- Injury - Fatality ,PANEL,Complete
+11/14/2017,12:15,G21618,SM 93,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+5/26/2005,10:45,G04109,SM 99,- Fire - Pollution ,DISTRICT,Complete
+10/6/2018,9:30,G04109,SM 99,- RW/JT (1-3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+7/7/2018,11:15,G17938,SM 105,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/29/2006,15:30,G03776,SM 106,- Injury - Fall,DISTRICT,Complete
+6/23/2007,7:30,G02279,SM 106,- RW/JT (1-3 days) - Explosion - Fire - Pollution ,DISTRICT,Complete
+8/22/2012,8:30,G02279,SM 106,- RW/JT (1-3 days) - Required Evacuation - Required evacuation-LTA>3days,DISTRICT,Complete
+10/24/2012,8:30,G03776,SM 106,- LTA (>3 days) - Required Evacuation - Shoulder Injury,DISTRICT,Complete
+3/8/2008,8:15,G02130,SM 107,- Crane ,DISTRICT,Complete
+10/18/2010,16:00,G02587,SM 128,- RW/JT (>3 days) - Required Evacuation - Lack of Fall Protection,DISTRICT,Complete
+2/25/2014,15:00,G02587,SM 128,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/16/2024,2:52,G02587,SM 128,Damaged/Disabled Safety Sys. - Fire - Incident >$25K ,DISTRICT,Complete
+2/28/2002,:50,G02280,SM 130,- Pollution ,DISTRICT,Complete
+10/15/2002,17:30,G02280,SM 130,- Pollution ,DISTRICT,Complete
+12/6/2003,21:00,G02280,SM 130,- Fatality ,PANEL,Complete
+2/22/2004,3:00,G02280,SM 130,- Pollution ,DISTRICT,Complete
+10/23/2008,17:30,G02280,SM 130,- Required Evacuation - Injury to person,DISTRICT,Complete
+10/17/2011,3:30,G02280,SM 130,- LTA (>3 days) - Required Evacuation - Water blast puncture to foot,DISTRICT,Complete
+9/11/2017,11:38,G02280,SM 130,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/20/2019,14:00,G02280,SM 130,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/12/2023,16:05,G02280,SM 130,- Incident >$25K - Crane ,DISTRICT,Complete
+12/15/2023,5:20,G02280,SM 130,- Shutdown from Gas Release Damaged/Disabled Safety Sys. - Fire - Incident >$25K - Structural Damage - Required Muster ,DISTRICT,Complete
+11/14/2022,8:40,G02280,SM 130,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/4/2023,14:05,G02280,SM 130,- Fire ,DISTRICT,Complete
+2/25/2024,9:30,G02280,SM 130,- Incident >$25K - Crane ,DISTRICT,Complete
+7/7/2012,14:15,G02282,SM 132,- Required Evacuation - Puncture Wound,DISTRICT,Complete
+6/22/2014,8:45,G02282,SM 132,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/22/2009,10:00,G02588,SM 136,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/5/2003,22:00,G01216,SM 142,- Injury ,DISTRICT,Complete
+9/4/2013,5:00,G06693,SM 147,- Equipment Damage,DISTRICT,Complete
+9/17/2014,22:30,G06693,SM 147,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/28/2004,8:00,G02592,SM 149,- Injury ,DISTRICT,Complete
+12/3/2008,19:30,,SM 149,- Pollution ,DISTRICT,Complete
+1/7/2021,13:30,G02592,SM 149,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/17/2020,8:00,G02592,SM 149,- Required Evacuation - Crane ,DISTRICT,Complete
+9/21/2024,16:30,G04433,SM 160,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/29/2014,11:45,G24878,SM 192,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/7/2022,16:00,G24878,SM 192,- Incident >$25K - Crane ,DISTRICT,Complete
+8/4/2008,1:30, 00310,SM 212,- Other Lifting Device - Incident >$25K - TBA hit Crown Block,DISTRICT,Complete
+7/6/2002,8:30, 00310,SM 217,- Fire ,DISTRICT,Complete
+5/5/2013,:1, 00310,SM 217,- LTA (>3 days) - Required Evacuation - Chemical Release,DISTRICT,Complete
+3/21/2020,12:00, 00310,SM 223,- Other Injury - Required Evacuation - Crane ,DISTRICT,Complete
+1/13/2015,14:55,G27896,SM 234,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/9/2006,18:30, 00310,SM 236,- Collision >$25K - Structural Damage ,DISTRICT,Complete
+1/18/2008,5:00, 00310,SM 236,- Collision >$25K - Pollution ,DISTRICT,Complete
+11/21/2012,13:20, 00310,SM 236,- LTA (>3 days) - Required Evacuation - Water Blasting Injury,DISTRICT,Complete
+8/2/2022,11:30, 00310,SM 237,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/19/2013,14:15,G02310,SM 268,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+2/26/2007,14:00,G05477,SM 275,- RW/JT (>3 days) ,DISTRICT,Complete
+9/9/2023,16:00,G02600,SM 281,- Shutdown from Gas Release ,DISTRICT,Complete
+9/20/2010,19:50,G31362,EI 11,- LTA (>3 days) - Required Evacuation - Fire - Failure to bleed gas,DISTRICT,Complete
+10/19/2017,20:00,G31362,EI 11,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/28/2017,14:00,G02893,EI 24,- Required Evacuation - Fire ,DISTRICT,Complete
+12/3/2007,12:00,G05479,EI 28,- Other,PANEL,Complete
+12/9/2002,7:25, 00196,EI 32,- Pollution ,DISTRICT,Complete
+2/3/2003,22:00, 00196,EI 32,- EQUIPMENT COLLAPSE,DISTRICT,Complete
+11/24/2003,1:30, 00196,EI 32,- Fire ,DISTRICT,Complete
+12/27/2004,2:50, 00196,EI 32,- Pollution ,DISTRICT,Complete
+3/1/2008,3:10,G17958,EI 43,- Structural Damage ,DISTRICT,Complete
+4/16/2018,11:45, 00479,EI 53,- RW/JT (>3 days) ,DISTRICT,Complete
+2/14/2019,7:30, 00479,EI 53,- Required Evacuation - Fire - Required Muster ,DISTRICT,Complete
+6/10/2008,22:45,G23857,EI 56,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+7/13/2008,22:50,G02601,EI 57,- RW/JT (>3 days) - Required Evacuation - Connection made-up hand tight,DISTRICT,Complete
+4/5/2008,7:25, 00425,EI 63,- LTA (>3 days) - Required Evacuation - High Press. Gas Meter Release,DISTRICT,Complete
+11/11/2006,15:00,G10721,EI 88,- Collision >$25K - Pollution - Incident >$25K - Structural Damage - Hydr oil leak f/safety panel,DISTRICT,Complete
+11/19/2008,3:00,G26023,EI 98,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/11/2008,19:30,G26023,EI 98,- Incident >$25K - Crane ,DISTRICT,Complete
+4/3/2005,21:30, 00796,EI 100,- Top Drive Quill Shaft Failure,DISTRICT,Complete
+7/20/2013,18:30, 00796,EI 100,- RW/JT (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+3/1/2014,22:15, 00796,EI 100,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/13/2014,9:00, 00796,EI 100,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+7/20/2019,8:30, 00796,EI 100,- Required Evacuation ,DISTRICT,Complete
+3/8/2003,23:30,G15241,EI 107,- Blowout - Pollution ,PANEL,Complete
+4/17/2012,4:30,G15241,EI 107,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/15/2012,7:30, 00050,EI 120,- RW/JT (>3 days) - Required Evacuation - Wireline Operations,DISTRICT,Complete
+10/21/2017,14:15, 00050,EI 120,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/11/2019,16:40, 00050,EI 120,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/17/2010,15:00, 00442,EI 128A,- Fire ,DISTRICT,Complete
+5/22/2011,23:15, 00054,EI 129,- LTA (>3 days) - Required Evacuation - Crane - Eight fall 70 feet into Gulf,DISTRICT,Complete
+8/2/2013,14:30,G33092,EI 133,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/5/2006,18:00,G01220,EI 158,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+7/5/2007,21:00,G01220,EI 158,- Other Injury - Fire - Flash fire with two injured.,DISTRICT,Complete
+5/15/2021,8:10,G01220,EI 158,- Required Evacuation - Explosion - Fatality ,PANEL,Pending
+9/21/2023,1:00,,EI 158,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/7/2007,16:30, 00438,EI 175,- Other Injury - Required Evacuation - Fire - Fire with one injury.,DISTRICT,Complete
+5/10/2011,9:30, 00438,EI 175,- Crane ,DISTRICT,Complete
+8/25/2017,9:05,G04452,EI 182,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/30/2013,17:15, 00572,EI 193,- Required Evacuation ,DISTRICT,Complete
+7/31/2008,16:45,G13821,EI 196,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+5/28/2005,4:30, 00805,EI 205,- Blowout ,PANEL,Complete
+4/2/2010,13:22, 00577,EI 208,- Fire - Incident >$25K ,DISTRICT,Complete
+8/19/2012,13:00, 00577,EI 208,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/14/2014,14:45, 00577,EI 208,- RW/JT (>3 days) ,DISTRICT,Complete
+4/12/2018,15:30, 00577,EI 208,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+10/4/2009,15:15,G00982,EI 238,- Required Evacuation - Crane ,DISTRICT,Complete
+1/19/2020,14:00,,EI 238,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/1/2011,11:00,G04453,EI 240,- RW/JT (>3 days) - Required Evacuation - Fire - Fire from Condensate Release,DISTRICT,Complete
+8/2/2009,9:30,G02899,EI 243,- Casing Jack,DISTRICT,Complete
+12/31/2008,10:45,G03331,EI 251,- Incident >$25K - Crane ,DISTRICT,Complete
+7/20/2017,16:45,G03331,EI 251,- Other Lifting Device ,DISTRICT,Complete
+11/16/2011,10:30,G00983,EI 252,- LTA (>3 days) - Required Evacuation - Master manual valve failure,DISTRICT,Complete
+1/16/2020,5:30,,EI 252,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+8/20/2023,10:00,G00983,EI 252,- Incident >$25K - Crane ,DISTRICT,Complete
+11/29/2010,12:45,G02103,EI 257,- LTA (>3 days) - Incident >$25K - Crane ,DISTRICT,Complete
+8/8/2019,9:30,G02103,EI 257,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/28/2013,7:00,G01959,EI 258,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+8/22/2008,9:26,,EI 259,- Crane ,DISTRICT,Complete
+4/22/2009,14:00,G00985,EI 259,- Fire - Nylon Sling,DISTRICT,Complete
+3/4/2012,13:30,G00985,EI 259,- LTA (>3 days) - Trip Hazard,DISTRICT,Complete
+10/17/2013,:0,G00985,EI 259,- Fire - compressor,DISTRICT,Complete
+4/6/2015,6:30,G00985,EI 259,- Other Injury ,DISTRICT,Complete
+10/21/2020,6:47,G00985,EI 259,- Fire ,DISTRICT,Complete
+10/13/2023,17:45,G00985,EI 259,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/3/2025,12:30,G00985,EI 259,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/25/2005,10:43,G02900,EI 261,- Pollution ,DISTRICT,Complete
+6/29/2012,8:30,G00989,EI 276,- Crane ,DISTRICT,Complete
+6/5/2014,14:00,G00989,EI 276,- Required Evacuation ,DISTRICT,Complete
+7/6/2001,15:01,G10744,EI 277,- Blowout ,PANEL,Complete
+6/2/2001,11:00,G10744,EI 277,- Explosion - Fire ,DISTRICT,Complete
+2/9/2004,23:30,G10744,EI 277,- Blowout - Explosion - Pollution ,PANEL,Complete
+3/1/2006,8:00,G10744,EI 277,- Injury ,DISTRICT,Complete
+6/3/2009,12:00,G02104,EI 295,- Crane ,DISTRICT,Complete
+3/16/2013,13:00,G02104,EI 295,- LTA (>3 days) - Required Evacuation - Fall Injury,DISTRICT,Complete
+10/4/2002,12:01,G17991,EI 300,- Natural Occurrence,DISTRICT,Complete
+3/17/2025,21:40,G02110,EI 307,- Crane ,DISTRICT,Complete
+10/25/2012,9:00,G02111,EI 314,- LTA (1-3) days - Required Evacuation - Knee Injury,DISTRICT,Complete
+1/18/2016,21:35,G02111,EI 314,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+9/24/2018,8:00,G02111,EI 314,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/25/2024,4:30,G24912,EI 315,- Required Evacuation ,DISTRICT,Pending
+7/1/2026,19:45,G36211,EI 320,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Pending
+8/3/2012,10:14,G05517,EI 325,- LTA (>3 days) - Required Evacuation - Fire - Flash Burn,DISTRICT,Complete
+12/23/2004,14:20,G02910,EI 327,- Explosion - Fire ,DISTRICT,Complete
+5/30/2008,14:00,G02910,EI 327,- Crane ,DISTRICT,Complete
+11/23/2008,3:35,G02910,EI 327,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+10/11/2006,23:45,G02115,EI 330,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/9/2006,10:15,G02115,EI 330,- Crane ,DISTRICT,Complete
+3/16/2007,13:45,G02115,EI 330,- LTA (>3 days) - Required Evacuation - Fall through open deck grating,DISTRICT,Complete
+8/2/2006,16:45,G02116,EI 331,- Crane ,DISTRICT,Complete
+5/29/2019,:0,G02116,EI 331,- Fatality ,PANEL,Complete
+5/24/2019,16:00,G02317,EI 333,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+2/17/2007,10:00,G03332,EI 337,- Crane ,DISTRICT,Complete
+8/9/2013,19:15,G02118,EI 338,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/28/2017,16:51,G02118,EI 338,- Incident >$25K - Crane ,DISTRICT,Complete
+5/31/2017,14:10,G02118,EI 338,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+3/13/2008,7:15,G02318,EI 339,- LTA (1-3) days - Required Evacuation - Crane ,DISTRICT,Complete
+5/6/2008,22:30,G02319,EI 342,- Required Muster ,DISTRICT,Complete
+11/25/2006,7:15,G02322,EI 349,- Pollution ,DISTRICT,Complete
+2/7/2007,9:00,G02322,EI 349,- Pollution ,DISTRICT,Complete
+8/7/2010,17:47,G10752,EI 354,- LTA (>3 days) - Required Evacuation - Air tuggers for suspension,DISTRICT,Complete
+10/1/2014,17:00,G19797,EI 355,- Incident >$25K - Structural Damage - Equipment damage,DISTRICT,Complete
+4/27/2006,5:30,G02323,EI 360,- Fire ,DISTRICT,Complete
+7/5/2011,15:30,G02323,EI 360,- LTA (>3 days) - Required Evacuation - Potable water tank rupture,DISTRICT,Complete
+2/12/2021,9:10,G02323,EI 360,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/16/2021,20:30,G02323,EI 360,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/9/2021,10:30,G02323,EI 360,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+4/3/2012,13:01,G02324,EI 361,- Crane - Load line severed by crane,DISTRICT,Complete
+9/26/2020,13:00,G02324,EI 361,- Crane ,DISTRICT,Complete
+2/2/2018,7:50,G02324,EI 361,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/22/2012,9:00,G19799,EI 364,- LTA (>3 days) - Required Evacuation - Electrical Shock,DISTRICT,Complete
+6/16/2006,8:30,G22688,EI 391,- Crane Incident,DISTRICT,Complete
+11/9/2001,16:30,G01441,SS 26,- Fire ,DISTRICT,Complete
+9/6/2006,8:00, 00336,SS 33,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/21/2004,12:55,G24916,SS 52,- Pollution ,DISTRICT,Complete
+9/23/2004,15:00,G07746,SS 58,- Injury ,DISTRICT,Complete
+7/29/2004,10:00, 00057,SS 63,- Crane Failure,DISTRICT,Complete
+11/2/2001,6:00, 00060,SS 72,- Fire ,DISTRICT,Complete
+6/30/2002,1:15, 00060,SS 72,- Fire ,DISTRICT,Complete
+12/26/2003,7:00, 00060,SS 72,- Pollution ,DISTRICT,Complete
+11/5/2014,10:15, 00060,SS 72,- Fire ,DISTRICT,Complete
+3/22/2018,12:30, 00060,SS 72,- Fire - Required Muster ,DISTRICT,Complete
+12/13/2021,11:15, 00060,SS 72,- Incident >$25K - Crane ,DISTRICT,Complete
+8/16/2004,10:00,G15277,SS 79,- Fire - Injury ,DISTRICT,Complete
+8/20/2005,9:00,G05537,SS 80,- Fire ,DISTRICT,Complete
+3/7/2025,8:15,G05537,SS 80,- LTA (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+2/4/2002,9:46,G02919,SS 91,- Fire ,DISTRICT,Complete
+2/2/2002,14:30,G02919,SS 91,- Fire ,DISTRICT,Complete
+1/19/2005,9:00,G05541,SS 92,- Collision ,DISTRICT,Complete
+9/17/2007,8:45,G05541,SS 92,- LTA (>3 days) - Required Evacuation - Supply boat open manway,DISTRICT,Complete
+7/29/2001,10:00,G07750,SS 100,- Fire ,DISTRICT,Complete
+11/21/2001,10:45,G07750,SS 100,- Fatality ,DISTRICT,Complete
+10/3/2001,12:00,G09614,SS 105,- Fire ,DISTRICT,Complete
+3/18/2009,4:30,G09614,SS 105,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+12/27/2001,3:30, 00814,SS 108,- Fire ,DISTRICT,Complete
+7/25/2005,19:30, 00064,SS 114,- Crane Failure,DISTRICT,Complete
+4/1/2011,12:30, 00064,SS 114,- Fire - Gas compressor fire,DISTRICT,Complete
+9/28/2011,8:15, 00064,SS 114,- LTA (>3 days) - Trapped well pressure,DISTRICT,Complete
+3/30/2012,7:15, 00064,SS 114,- LTA (>3 days) ,DISTRICT,Complete
+7/20/2018,8:55, 00064,SS 114,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/25/2018,:20, 00064,SS 114,- Pollution - Required Muster ,DISTRICT,Complete
+12/30/2007,8:44, 00068,SS 118,- Fire - Incident >$25K - Fire from gas/condensate leak,DISTRICT,Complete
+10/3/2002,20:00, 00069,SS 119,- Blowout - Pollution - hurricane damage,DISTRICT,Complete
+8/16/2012,12:50,G33640,SS 121,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+7/2/2001,12:00,G12940,SS 126,- Injury ,DISTRICT,Complete
+3/13/2001,18:15,G12940,SS 126,- Fire ,DISTRICT,Complete
+10/3/2002,9:00,G12940,SS 126,- Pollution - Capsized during Hurricane Lili,DISTRICT,Complete
+12/9/2006,6:00,G12941,SS 129,- Pollution ,DISTRICT,Complete
+12/17/2004,14:15, 00453,SS 130,- Injury - Fatality - Helicopter Crash,DISTRICT,Complete
+5/19/2004,11:15,G22701,SS 134,- Pollution ,DISTRICT,Complete
+8/20/2006,3:30,G27127,SS 138,- Pollution ,DISTRICT,Complete
+7/25/2009,17:54,G23900,SS 142,- Pollution - Incident >$25K - Hurricanes Katrina and Rita,DISTRICT,Complete
+5/29/2003,8:15,G24929,SS 145,- Fire - Pollution ,DISTRICT,Complete
+10/26/2005,5:05, 00434,SS 149,- Injury - Fall,DISTRICT,Complete
+12/23/2016,15:50, 00420,SS 154,- Fire ,DISTRICT,Complete
+9/27/2002,8:00,G08709,SS 157,- Fire - Injury ,DISTRICT,Complete
+1/26/2013,17:00,G33644,SS 170,- Required Evacuation - Fatality ,PANEL,Complete
+8/2/2017,15:15, 00590,SS 177,- Fire ,DISTRICT,Complete
+6/15/2004,9:00,G04231,SS 181,- dropped drilling block,DISTRICT,Complete
+5/14/2010,7:30,G04231,SS 181,- Pollution - Heater Treater Dump Valve,DISTRICT,Complete
+10/17/2001,21:00,G03998,SS 182,- Fire ,DISTRICT,Complete
+12/19/2003,15:00,G01019,SS 182,- Explosion ,DISTRICT,Complete
+7/30/2006,14:45,G03998,SS 182,- Collision >$25K - Structural Damage ,DISTRICT,Complete
+9/15/2013,16:30,G04232,SS 189,- Fire ,DISTRICT,Complete
+3/13/2024,20:10,G04232,SS 189,- Crane ,DISTRICT,Complete
+2/8/2002,11:45,G13917,SS 193,- Pollution ,DISTRICT,Complete
+5/7/2022,9:10,G13917,SS 193,- Fire ,DISTRICT,Complete
+7/10/2013,21:15,G12355,SS 198,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/16/2017,16:30,G12355,SS 198,- Required Evacuation - Explosion - Incident >$25K ,DISTRICT,Complete
+4/26/2010,14:45,G31394,SS 202,- Incident >$25K - Crane ,DISTRICT,Complete
+7/19/2008,12:48,G01520,SS 204,- Shutdown from Gas Release - Pollution ,DISTRICT,Complete
+11/22/2001,9:00,G01523,SS 207,- Pollution ,DISTRICT,Complete
+10/3/2002,10:30,G01523,SS 207,- Pollution - Jack-up rig capsized,DISTRICT,Complete
+10/27/2002,12:00,G01523,SS 207,- Injury ,DISTRICT,Complete
+2/17/2003,7:30,G01523,SS 207,- Pollution ,DISTRICT,Complete
+3/4/2003,13:00,G01228,SS 208,- Fire - Injury ,DISTRICT,Complete
+10/15/2003,10:20,G01228,SS 208,- Fire ,DISTRICT,Complete
+1/19/2005,18:00, 00827,SS 209,- Fire ,DISTRICT,Complete
+10/3/2007,13:45, 00827,SS 209,- Crane ,DISTRICT,Complete
+2/9/2008,15:15, 00827,SS 209,- Fire ,DISTRICT,Complete
+9/14/2010,5:00, 00827,SS 209,- Pollution - Heater treater fire tube leak,DISTRICT,Complete
+1/16/2010,14:15, 00829,SS 219,- Fire ,DISTRICT,Complete
+2/26/2013,7:45,G01525,SS 222,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/23/2018,6:45,G01023,SS 224,- Pollution ,DISTRICT,Complete
+7/20/2024,22:00,G01023,SS 224,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/31/2023,10:45,G01023,SS 224,- Structural Damage ,DISTRICT,Complete
+7/7/2013,18:30,G01984,SS 225,- Pollution - Loss of Well Control,DISTRICT,Complete
+7/20/2004,18:15,G12951,SS 227,- Collision ,DISTRICT,Complete
+9/11/2011,17:00,G12951,SS 227,- LTA (>3 days) - Required Evacuation - Manifold releases mud/debris,DISTRICT,Complete
+7/8/2012,6:00, 00830,SS 229,- Pollution - Pollution,DISTRICT,Complete
+11/30/2012,8:50, 00830,SS 229,- Incident >$25K - Survival Capsule Overboard,DISTRICT,Complete
+12/12/2014,9:00, 00830,SS 229,- Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+6/18/2015,15:00, 00830,SS 229,- Incident >$25K - Crane ,DISTRICT,Complete
+4/18/2026,6:40, 00830,SS 229,- Other Injury - Required Evacuation - Crane ,DISTRICT,Complete
+9/26/2012,10:00,G01528,SS 233,- Other Injury - Fire - Pollution ,DISTRICT,Complete
+7/27/2008,:45,G03169,SS 238,- Fire ,DISTRICT,Complete
+12/6/2002,12:00,G01025,SS 239,- Blowout - Pollution ,DISTRICT,Complete
+9/25/2014,13:50,G01026,SS 241,- Other Injury - Required Evacuation ,DISTRICT,Complete
+11/15/2006,18:00, 00832,SS 242,- Collision >$25K - Structural Damage ,DISTRICT,Complete
+2/14/2007,9:45,G01031,SS 253,- Fire ,DISTRICT,Complete
+10/5/2005,12:30,G05560,SS 258,- Injury ,DISTRICT,Complete
+2/28/2009,4:15,G05044,SS 259,- Required Evacuation - Fire ,DISTRICT,Complete
+7/5/2013,5:00,G27927,SS 263,- Fire ,DISTRICT,Complete
+2/21/2014,21:10,G31474,MC 26,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/7/2007,19:30,G13997,MC 29,- RW/JT (1-3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/12/2014,19:10,G13997,MC 29,- Pollution ,DISTRICT,Complete
+4/19/2009,15:30,G08483,MC 72,- Pollution - Incident >$25K - Required Muster ,DISTRICT,Complete
+8/17/2014,8:30,G27259,MC 79,- Incident >$25K ,DISTRICT,Complete
+12/3/2021,13:00,G35313,MC 82,- Crane ,DISTRICT,Complete
+12/1/2010,:55,G05825,MC 109,- Pollution - Opened overboard shunt line,DISTRICT,Complete
+12/29/2011,:0,G05825,MC 109,- Wireline Tool Overboard,DISTRICT,Complete
+2/14/2019,1:00,G05825,MC 109,- Explosion ,DISTRICT,Complete
+11/23/2005,19:30,G18194,MC 126,- Pollution ,DISTRICT,Complete
+7/2/2015,4:00,G18194,MC 126,- Pollution ,DISTRICT,Complete
+1/24/2007,12:00,G19925,MC 127,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/21/2023,13:04,G19925,MC 127,- Crane ,DISTRICT,Complete
+5/9/2025,15:30,G19925,MC 127,Damaged/Disabled Safety Sys. - Incident >$25K - Required Muster - Dropped Objects,DISTRICT,Complete
+8/18/2015,12:45,G10977,MC 129,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/12/2002,12:30,G02640,MC 148,- Explosion - Fire ,DISTRICT,Complete
+9/11/2009,11:00,G09789,MC 173,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/19/2006,10:00,G02638,MC 194,- H2S detected excess of 20 ppm,DISTRICT,Complete
+1/20/2020,10:00,G02638,MC 194,- Required Evacuation - Crane ,DISTRICT,Complete
+4/1/2019,:55,G32301,MC 199,- Pollution ,DISTRICT,Complete
+3/17/2006,8:00,G24054,MC 204,- Injury ,DISTRICT,Complete
+11/12/2019,12:00,G32303,MC 208,Damaged/Disabled Safety Sys. ,DISTRICT,Complete
+10/12/2017,8:55,,MC 209,- Pollution - leaking pipeline,PANEL,Complete
+5/7/2008,8:00,G19931,MC 243,- Collision >$25K ,DISTRICT,Complete
+3/31/2011,22:20,G19931,MC 243,- Fire - Incident >$25K - TSE shut-down from fire,DISTRICT,Complete
+4/29/2012,14:00,G19931,MC 243,- LTA (>3 days) - Required Evacuation - Electrical Arc Flash,DISTRICT,Complete
+6/3/2013,6:30,G19931,MC 243,- Pollution ,DISTRICT,Complete
+10/18/2020,8:20,G19931,MC 243,- RW/JT (>3 days) - Other Injury - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+4/9/2026,8:00,G19931,MC 243,- Incident >$25K - Structural Damage ,DISTRICT,Complete
+11/15/2009,5:30,G32306,MC 252,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/26/2003,22:05,G03818,MC 280,- Collision - Injury ,DISTRICT,Complete
+6/26/2010,:15,G03818,MC 280,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+4/18/2013,10:10,G22868,MC 300,- Incident >$25K - Nitrogen release on deck,DISTRICT,Complete
+3/28/2025,16:43,G22868,MC 300,- Pollution - Incident >$25K - BLACK OUT– DRIFT OFF- EDS,DISTRICT,Complete
+5/29/2025,10:46,G22868,MC 300,- Pollution - Emergency Disconnect Sequence,DISTRICT,Complete
+11/9/2010,6:00,G02968,MC 311,- Fire - Compressor building fire,DISTRICT,Complete
+12/18/2011,8:00,G19939,MC 348,- Pollution - 319 BBL SBM Discharge,DISTRICT,Complete
+3/5/2024,4:15,G26252,MC 391,- Pollution - Incident >$25K - List of damages in remarks.,DISTRICT,Complete
+11/23/2020,7:00,G26253,MC 392,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/30/2005,14:00,G07944,MC 429,- Pollution ,DISTRICT,Complete
+5/6/2019,7:48,G33733,MC 437,Damaged/Disabled Safety Sys. ,DISTRICT,Complete
+4/17/2021,14:15,G33733,MC 437,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/29/2020,14:00,G33733,MC 437,- Incident >$25K - Mooring line,DISTRICT,Complete
+7/15/2020,14:11,G33733,MC 437,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+11/30/2021,19:17,G33733,MC 437,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+1/30/2016,16:00,G33735,MC 471,- Incident >$25K - Pressurized Riser String,DISTRICT,Complete
+6/7/2021,14:15,,MC 474,- Other Injury ,DISTRICT,Complete
+5/4/2019,14:00,,MC 474,Damaged/Disabled Safety Sys. - Incident >$25K - Loss of power,DISTRICT,Complete
+7/11/2018,12:00,,MC 474,- Pollution - Ethylene Glycol,DISTRICT,Complete
+2/8/2025,7:00,,MC 474,- Pollution ,DISTRICT,Complete
+3/25/2014,6:10,G27277,MC 503,- Pollution ,DISTRICT,Complete
+6/27/2020,17:25,G27277,MC 503,- Pollution - Incident >$25K ,DISTRICT,Complete
+10/31/2020,18:00,G27277,MC 503,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/12/2020,4:30,G27278,MC 519,- Incident >$25K - Crane - Dropped Object Gantry Crane,DISTRICT,Complete
+5/13/2009,19:36,G09821,MC 520,- Incident >$25K ,DISTRICT,Complete
+6/7/2023,11:00,G09821,MC 520,- Other Lifting Device ,DISTRICT,Complete
+3/22/2002,15:40,G08823,MC 522,- Injury ,DISTRICT,Complete
+2/21/2008,12:10,G08823,MC 522,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/11/2008,19:21,G08823,MC 522,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/12/2010,13:30,G26265,MC 540,- Pollution - Kill Line Gooseneck Disconnect,DISTRICT,Complete
+8/14/2012,6:50,G32334,MC 547,- Fire ,DISTRICT,Complete
+7/14/2019,21:50,G32334,MC 547,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+12/24/2023,7:43,G32334,MC 547,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+8/23/2001,23:45,G21770,MC 555,- Pollution - loss of drilling fluid (mud),DISTRICT,Complete
+11/4/2006,11:00,G08831,MC 566,- Pollution ,DISTRICT,Complete
+11/13/2007,10:00,G19967,MC 568,- Crane ,DISTRICT,Complete
+4/16/2025,15:00,G16623,MC 582,- Crane ,DISTRICT,Complete
+7/13/2022,20:45,G16623,MC 582,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+12/1/2018,3:39,G34451,MC 607,- Pollution - EDS,DISTRICT,Complete
+3/19/2024,13:30,G34451,MC 607,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+12/17/2011,10:00,G34905,MC 650,- Required Evacuation - Crane ,DISTRICT,Complete
+4/15/2004,16:12,G08496,MC 657,- Pollution ,DISTRICT,Complete
+7/9/2020,15:15,G08496,MC 657,- Pollution ,DISTRICT,Complete
+10/20/2007,22:50,G16636,MC 683,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/23/2007,3:20,G16636,MC 683,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device - Foot - Equip Set Down,DISTRICT,Complete
+4/5/2007,18:00,G16641,MC 696,- Pollution - Slip Joint Packer failure,DISTRICT,Complete
+1/4/2008,11:15,G16641,MC 696,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/2/2012,23:30,G28022,MC 698,- Pollution ,DISTRICT,Complete
+10/12/2012,7:00,G28022,MC 698,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/27/2007,18:00,G25103,MC 707,- Pollution ,DISTRICT,Complete
+10/24/2007,18:15,G14016,MC 711,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/21/2004,21:50,G18278,MC 722,- Blowout - Pollution ,DISTRICT,Complete
+9/13/2019,15:30,G22897,MC 724,- Required Evacuation ,DISTRICT,Complete
+3/12/2016,10:06,G35137,AC 475,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+3/16/2018,16:30,G31195,AC 728,- Other Lifting Device ,DISTRICT,Complete
+12/8/2023,8:45,,AC 735,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+2/25/2017,4:30,G35153,AC 772,- Incident >$25K ,DISTRICT,Complete
+7/17/2021,10:30,G19409,AC 815,- Incident >$25K - Total Power Loss,DISTRICT,Complete
+3/18/2022,18:00,G19409,AC 815,- Pollution ,DISTRICT,Complete
+4/1/2022,8:15,G19409,AC 815,- Other Lifting Device ,DISTRICT,Complete
+2/6/2016,18:15,G17565,AC 857,- RW/JT (>3 days) - LTA (1-3) days ,DISTRICT,Complete
+11/12/2015,1:00,G17565,AC 857,- Incident >$25K - Lifting Device,DISTRICT,Complete
+2/8/2016,13:15,G17565,AC 857,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+7/12/2018,22:15,G17565,AC 857,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/26/2021,1:00,G17565,AC 857,- Other Lifting Device ,DISTRICT,Complete
+5/25/2016,15:00,G17565,AC 857,- Pollution ,DISTRICT,Complete
+5/5/2016,13:39,,AC 857,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+10/3/2024,9:00,G17565,AC 857,- Fire - Incident >$25K ,DISTRICT,Complete
+9/4/2023,13:20,G17565,AC 857,- Pollution ,DISTRICT,Complete
+1/3/2023,22:17,G17565,AC 857,- Fire - Incident >$25K - Required Muster - Damaged UPS 7560,DISTRICT,Complete
+5/24/2026,3:00,G17565,AC 857,- Crane ,DISTRICT,Pending
+6/21/2023,9:20,G17565,AC 857,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+10/29/2021,10:00,G17565,AC 857,- Pollution ,DISTRICT,Complete
+10/20/2015,10:15,G33531,KC 96,- Other Lifting Device - Fatality ,PANEL,Complete
+5/2/2016,23:00,G33531,KC 96,- Crane ,DISTRICT,Complete
+4/1/2015,13:30,G30926,KC 147,- Pollution ,DISTRICT,Complete
+8/7/2019,4:30,G33341,KC 686,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/6/2016,8:10,G25804,KC 770,"- Deck damage 5"" hole",DISTRICT,Complete
+11/23/2025,5:57,G25806,KC 785,- Other Lifting Device ,DISTRICT,Complete
+3/7/2024,15:00,G25806,KC 785,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+4/26/2019,3:55,G21444,KC 875,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/21/2018,9:00,G21444,KC 875,- LTA (>3 days) ,DISTRICT,Complete
+5/28/2019,21:00,G21444,KC 875,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+11/16/2018,15:30,G32654,KC 918,- Other Injury - Required Evacuation ,DISTRICT,Complete
+5/21/1996,11:00,,Not Applicable,"- St water fire,explosion,injury",DISTRICT,Complete
+7/18/2006,12:05,,Not Applicable,- Fatality ,PANEL,Complete
+12/24/2006,5:30,,Not Applicable,- Pollution - Anchor drag,PANEL,Complete
+6/30/2003,10:16,G22898,MC 725,- Pollution ,DISTRICT,Complete
+8/3/2003,22:45,G22898,MC 725,- Pollution ,DISTRICT,Complete
+5/2/2014,1:18,G22898,MC 725,- Pollution ,DISTRICT,Complete
+3/29/2019,19:25,G22898,MC 725,- Other Lifting Device - Incident >$25K - Dropped Tubing,DISTRICT,Complete
+3/30/2007,6:50,G24101,MC 726,- Other Lifting Device ,DISTRICT,Complete
+2/13/2015,11:15,G24101,MC 726,- Pollution ,DISTRICT,Complete
+3/6/2008,11:30,G24102,MC 727,- LTA (>3 days) - Required Evacuation - Motor Vessel Injury,DISTRICT,Complete
+1/9/2021,6:00,G24102,MC 727,- Other,DISTRICT,Complete
+1/24/2021,13:30,G24102,MC 727,- Fatality ,PANEL,Complete
+6/5/2024,15:38,G24102,MC 727,- Explosion - Incident >$25K - Required Muster - Rupture of nitrogen bottle,DISTRICT,Complete
+3/16/2004,11:15,G21778,MC 734,- Pollution ,DISTRICT,Complete
+6/6/2004,8:10,G21778,MC 734,- Pollution ,DISTRICT,Complete
+2/25/2005,11:00,G21778,MC 734,- Pollution ,DISTRICT,Complete
+1/18/2006,17:45,G21778,MC 734,- Injury ,DISTRICT,Complete
+5/15/2009,16:00,G27306,MC 736,- Incident >$25K ,DISTRICT,Complete
+3/6/2015,16:15,G27306,MC 736,- Incident >$25K - Mechanical Lifting,DISTRICT,Complete
+9/15/2015,5:10,G27306,MC 736,- Fire - Smoke/Melted Velcro,DISTRICT,Complete
+5/16/2018,10:15,G27306,MC 736,- Pollution ,DISTRICT,Complete
+10/30/2006,8:00,G16645,MC 737,- Pollution ,DISTRICT,Complete
+12/30/2009,9:00,G16645,MC 737,- Pollution - Incident >$25K - Leaking P&A'd Subsea Wellhead,DISTRICT,Complete
+5/31/2011,9:45,G33175,MC 751,- LTA (>3 days) - Required Evacuation - Other Lifting Device - Pipe Rack Handler,DISTRICT,Complete
+2/20/2026,12:46,G35833,MC 759,Damaged/Disabled Safety Sys. - Incident >$25K ,DISTRICT,Complete
+4/30/2012,7:50,G07957,MC 762,- LTA (>3 days) - Required Evacuation - Incident >$25K - Compound Fracture,DISTRICT,Complete
+5/16/2013,22:15,G07957,MC 762,- Pollution ,DISTRICT,Complete
+10/21/2014,18:05,G07957,MC 762,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/20/2021,2:15,G08852,MC 764,- Incident >$25K - Dropped Objects,DISTRICT,Complete
+11/2/2007,14:45,G12166,MC 765,- LTA (>3 days) - Binder bar striking person,DISTRICT,Complete
+10/25/2009,18:30,G12166,MC 765,- Pollution - Accolade Base Fluid,DISTRICT,Complete
+2/20/2005,11:00,G16647,MC 772,- Injury ,DISTRICT,Complete
+6/20/2015,14:05,G16647,MC 772,- Pollution - Spill,DISTRICT,Complete
+5/24/2008,14:00,G19996,MC 773,- Crane ,DISTRICT,Complete
+7/10/2021,18:15,G19996,MC 773,- Crane - dropped object,DISTRICT,Complete
+5/29/2021,5:00,G19996,MC 773,- drill line unspooled,DISTRICT,Complete
+5/27/2021,14:15,G19996,MC 773,- Required Evacuation ,DISTRICT,Complete
+7/16/2025,18:10,G19996,MC 773,- Structural Damage ,DISTRICT,Complete
+5/1/2008,8:00,G19997,MC 775,- RW/JT (>3 days) ,DISTRICT,Complete
+8/15/2006,8:00,G09866,MC 776,- Pollution - Pollution,DISTRICT,Complete
+7/7/2014,19:40,G09866,MC 776,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+11/5/2006,6:57,G09867,MC 777,- Pollution - Synthetic Oil Base Mud (SOBM),DISTRICT,Complete
+7/8/2005,15:25,G09868,MC 778,- Incident >$25K - Ballast Control Failure,DISTRICT,Complete
+9/13/2007,15:45,G09868,MC 778,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/22/2008,4:15,G09868,MC 778,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/6/2010,15:00,G09868,MC 778,- Pollution - Drilling line back-lash,DISTRICT,Complete
+7/20/2013,4:10,G09868,MC 778,- Pollution ,DISTRICT,Complete
+1/22/2015,23:15,G09868,MC 778,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/3/2016,18:45,G09868,MC 778,- Pollution ,DISTRICT,Complete
+11/6/2016,10:50,G09868,MC 778,- Pollution ,DISTRICT,Complete
+9/18/2017,11:00,,MC 778,Damaged/Disabled Safety Sys. - Fire - Incident >$25K - Required Muster - loss of power,DISTRICT,Complete
+7/13/2020,10:55,,MC 778,- Pollution ,DISTRICT,Complete
+10/16/2017,17:30,G09868,MC 778,- Other Lifting Device - Incident >$25K - Dropped Object - Riser Jt.,DISTRICT,Complete
+10/22/2020,13:59,G09868,MC 778,- Pollution - Need,DISTRICT,Complete
+8/2/2020,19:25,,MC 778,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+5/6/2021,7:00,G09868,MC 778,- Pollution ,DISTRICT,Complete
+6/7/2021,13:00,G09868,MC 778,- Pollution ,DISTRICT,Complete
+6/8/2022,13:10,G09868,MC 778,- Pollution - Subsea Leak,DISTRICT,Complete
+6/6/2022,10:30,,MC 778,- Pollution - Subsea Leak,DISTRICT,Complete
+2/18/2023,21:27,G09868,MC 778,- RW/JT (1-3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+10/3/2013,19:00,G33757,MC 782,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/7/2014,5:25,G33757,MC 782,- Incident >$25K ,DISTRICT,Complete
+2/28/2005,23:30,G07963,MC 807,- Pollution ,DISTRICT,Complete
+3/18/2005,11:15,G07963,MC 807,- Pollution ,DISTRICT,Complete
+9/23/2007,19:23,G07963,MC 807,- RW/JT (>3 days) ,DISTRICT,Complete
+6/25/2021,10:45,G07963,MC 807,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/27/2021,14:00,G07963,MC 807,- Other Injury - Required Evacuation ,DISTRICT,Complete
+9/22/2020,14:30,G07963,MC 807,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/3/2025,17:30,G07963,MC 807,- Incident >$25K - Crane ,DISTRICT,Complete
+2/24/2023,11:15,G07963,MC 807,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/6/2023,13:00,,MC 807,- Pollution ,DISTRICT,Complete
+4/29/2003,21:00,G05868,MC 809,- Pollution ,DISTRICT,Complete
+5/28/2003,18:00,G05868,MC 809,- Pollution - synthetic mud,DISTRICT,Complete
+7/21/2007,11:00,,MC 809,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/6/2008,10:00,G05868,MC 809,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/7/2014,19:30,G05868,MC 809,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+12/9/2020,18:06,G05868,MC 809,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+8/29/2021,3:00,G05868,MC 809,- LTA (>3 days) - Pollution - Incident >$25K - Structural Damage - Lost Object(s),DISTRICT,Complete
+1/13/2021,23:04,G05868,MC 809,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+8/20/2022,10:07,G05868,MC 809,- Fire - Required Muster ,DISTRICT,Complete
+2/23/2025,8:30,G05868,MC 809,- RW/JT (>3 days) ,DISTRICT,Complete
+7/4/2015,11:20,G34461,MC 812,- LTA (>3 days) - Other Injury - Required Evacuation ,DISTRICT,Complete
+6/6/2015,21:51,G34462,MC 814,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/12/2013,15:00,G33178,MC 816,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/2/2019,14:30,G33178,MC 816,- Pollution - Required Muster ,DISTRICT,Complete
+5/21/2003,4:00,G14658,MC 822,- Pollution ,DISTRICT,Complete
+8/6/2003,:30,G14658,MC 822,- Pollution ,DISTRICT,Complete
+8/7/2003,14:45,G14658,MC 822,- Pollution ,DISTRICT,Complete
+5/4/2004,19:55,G14658,MC 822,- Pollution - 38.6 bbls Synthetic Based Mud,DISTRICT,Complete
+3/15/2005,15:00,G14658,MC 822,- Pollution ,DISTRICT,Complete
+2/12/2006,6:30,G14658,MC 822,- Pollution ,DISTRICT,Complete
+12/4/2007,12:30,G14658,MC 822,- LTA (>3 days) ,DISTRICT,Complete
+3/21/2023,16:45,,MC 854,- LTA (>3 days) - Required Evacuation - Crane - Material Handling,DISTRICT,Complete
+5/5/2016,9:30,G33764,MC 895,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/13/2024,20:35,G09896,MC 899,"- LTA (>3 days) - Other Injury - Required Evacuation - Flushing 6"" hoses",DISTRICT,Complete
+6/7/2019,22:35,G31534,MC 940,- Collision >$25K - Incident >$25K ,DISTRICT,Complete
+5/8/2022,11:30,G31534,MC 940,- Pollution ,DISTRICT,Complete
+11/16/2004,18:55,G16661,MC 941,- Injury ,DISTRICT,Complete
+9/27/2008,21:30,G16661,MC 941,- Pollution ,DISTRICT,Complete
+2/16/2015,12:40,G16661,MC 941,- Pollution - Required Muster ,DISTRICT,Complete
+6/19/2023,8:00,G16661,MC 941,- Incident >$25K ,DISTRICT,Complete
+5/10/2023,9:33,G16661,MC 941,- Required Muster ,DISTRICT,Complete
+11/30/2015,9:15,G24130,MC 942,- RW/JT (>3 days) - LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+5/26/2008,17:30,G28030,MC 948,- Required Muster - Rig listed,DISTRICT,Complete
+1/19/2008,10:45,G05953,PN 969,- Fatality ,PANEL,Complete
+6/13/2012,14:30,G05953,PN 969,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+12/5/2005,22:00,G23125,PN 891,- Fire ,DISTRICT,Complete
+11/26/2015,10:25,G33388,PN 975,- Fire ,DISTRICT,Complete
+10/18/2013,15:38,G20605,MU 726,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/4/2003,14:15,G04064,MU 739,- Fire ,DISTRICT,Complete
+8/22/2009,10:30,G04064,MU 739,- Required Evacuation - Crane ,DISTRICT,Complete
+6/18/2005,17:00,G03019,MU 757,- Injury ,DISTRICT,Complete
+5/29/2005,8:30,G03021,MU 762,- Injury ,DISTRICT,Complete
+8/12/2012,8:25,G03021,MU 762,- LTA (>3 days) - Required Evacuation - Hand Injury,DISTRICT,Complete
+7/21/2005,:1,G11221,MU 787,- Fire ,DISTRICT,Complete
+6/22/2006,13:45,G04537,MU A31,- Injury ,DISTRICT,Complete
+7/4/2014,14:00,G04537,MU A31,- Required Muster - Voluntary Evac for Safety,DISTRICT,Complete
+7/2/2006,17:15,G03079,MI 555,- Injury - Crane ,DISTRICT,Complete
+1/8/2007,12:00,G07199,MI 605,- LTA (>3 days) ,DISTRICT,Complete
+10/27/2003,12:00,G05000,MI 622,- Injury ,DISTRICT,Complete
+1/21/2004,3:14,G05000,MI 622,- Crane Boom,DISTRICT,Complete
+11/24/2014,9:50,G05000,MI 622,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/16/2004,17:00,G03091,MI 632,- Explosion ,DISTRICT,Complete
+12/12/2006,7:40,G03096,MI 656,- Fire ,DISTRICT,Complete
+3/14/2017,23:30,G04139,MI 657,- Fire ,DISTRICT,Complete
+12/22/2004,23:00,G04065,MI 669,- Fire ,DISTRICT,Complete
+10/2/2015,20:25,G04548,MI 685,- Fire ,DISTRICT,Complete
+4/11/2013,19:30,G03733,MI 703,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+6/13/2011,10:45,G22188,MI A5,- Crane ,DISTRICT,Complete
+4/15/2011,11:40,G09010,BA 375,- Collision - Derrick/plat. NAVAIDS damage,DISTRICT,Complete
+7/13/2001,4:30,G22190,BA 417,- Blowout - Injury - Fatality ,PANEL,Complete
+11/10/2010,12:30,G27476,BA 437,- RW/JT (1-3 days) - RW/JT (>3 days) - Required Evacuation - Crane - Four fall during basket t/f,DISTRICT,Complete
+5/19/2003,1:00,G22193,BA 490,- Fatality - man overboard and missing,DISTRICT,Complete
+4/17/2007,2:00,G27483,BA A24,- LTA (>3 days) - Drill Pipe/Valve Back Out,DISTRICT,Complete
+12/18/2008,14:00,G02663,BA A70,- Tree bleeding gas,DISTRICT,Complete
+4/26/2017,8:30,G01757,BA A105,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/1/2003,18:05,G02665,BA A133,- Fire - Injury ,DISTRICT,Complete
+2/6/2014,19:00,G02665,BA A133,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/25/2021,7:00,G02665,BA A133,- Explosion ,DISTRICT,Complete
+11/18/2007,6:30,G15740,GA 151,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/28/2008,7:40,G15740,GA 151,- Fatality ,PANEL,Complete
+2/10/2011,9:45,G15740,GA 151,- Fire - Instrument Panel Fire,DISTRICT,Complete
+7/18/2004,22:30,G01777,GA 255,- Fire - Pollution ,DISTRICT,Complete
+8/26/2016,17:30,,GA 424,- Crane ,DISTRICT,Complete
+2/7/2024,8:55,,GA A244,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/18/2005,17:30,G05006,HI 22,- Fire ,DISTRICT,Complete
+4/11/2018,17:15,G05006,HI 22,- RW/JT (>3 days) - Required Evacuation - Fire ,DISTRICT,Complete
+5/19/2004,8:30,G23193,HI 47,- Fire - Injury ,DISTRICT,Complete
+5/2/2005,13:32,G02353,HI 110,- lift boat damages pipeline,DISTRICT,Complete
+10/8/2010,13:00,G02353,HI 110,- RW/JT (>3 days) - Required Evacuation - Fire - Platform ESD initiated,DISTRICT,Complete
+11/17/2015,7:00,G02353,HI 110,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/27/2022,12:00,G02353,HI 110,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/28/2006,20:30,G06156,HI 116,- Fire ,DISTRICT,Complete
+2/13/2016,13:25,G34025,HI 117,- Fire ,DISTRICT,Complete
+12/30/2014,20:30,G33409,HI 131,- LTA (>3 days) - LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+2/10/2007,12:00,G14159,HI 154,- Fire ,DISTRICT,Complete
+2/11/2007,14:00,G14159,HI 154,- Fire ,DISTRICT,Complete
+1/22/2015,14:54,G14159,HI 154,- Collision >$25K - Collision - Structural Damage - Ship Collision,DISTRICT,Complete
+8/4/2015,6:45,,HI 160,- Required Evacuation ,DISTRICT,Complete
+11/1/2001,5:30,G21343,HI 162,- Fatality ,DISTRICT,Complete
+2/27/2009,14:30,G23197,HI 165,- LTA (>3 days) ,DISTRICT,Complete
+6/23/2006,12:30,G03237,HI 193,- derrick fell on heliport,DISTRICT,Complete
+7/31/2005,8:20,G22238,HI 197,- Near Miss,DISTRICT,Complete
+7/11/2024,7:30,,HI A5,- LTA (>3 days) - Other Injury - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+5/15/2012,14:15,G15781,HI A7,- Pollution - Incident >$25K - Crane - Structural Damage - Well Control Incident,DISTRICT,Complete
+1/17/2013,18:05,G26519,HI A119,- Spill,DISTRICT,Complete
+2/15/2009,13:15,G04078,HI 39,- LTA (>3 days) - Crane ,DISTRICT,Complete
+7/25/2003,13:45,G01848,HI 129,- Pollution - OIL BASED MUD,DISTRICT,Complete
+9/22/2013,17:00,G11383,HI A442,- Fire - Required Muster ,DISTRICT,Complete
+10/1/2015,12:40,G11383,HI A442,- LTA (>3 days) ,DISTRICT,Complete
+9/27/2012,1:30,G03241,HI A443,- Blowout - Required Evacuation - Pollution - Loss of Well Control,DISTRICT,Complete
+5/4/2013,20:25,G03241,HI A443,- Required Evacuation ,DISTRICT,Complete
+5/4/2013,6:00,G03241,HI A443,- RW/JT (>3 days) ,DISTRICT,Complete
+12/28/2001,:45,G02359,HI A446,- Fire - Unknown Pollution-Occured@nite,DISTRICT,Complete
+5/13/2007,6:30,G02359,HI A446,- Required Evacuation - Carbon monoxide leak,DISTRICT,Complete
+12/4/2019,7:04,G02359,HI A446,- Crane ,DISTRICT,Complete
+2/20/2006,8:20,G03242,HI A466,- Blowout - Fatality - Pollution ,PANEL,Complete
+2/23/2004,14:00,G02688,HI A467,- Explosion ,DISTRICT,Complete
+5/6/2019,19:35,G32771,HI A469,- Other Injury - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+2/10/2012,18:15,G17182,HI A472,- Fire - Incident >$25K - Heater Treater fire tube leak,DISTRICT,Complete
+10/21/2022,9:10,G17182,HI A472,- Pollution ,DISTRICT,Complete
+10/2/2019,9:55,G02366,HI A474,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+5/29/2003,16:44,G03481,HI A517,- Fire ,DISTRICT,Complete
+4/26/2003,18:35,G03481,HI A517,- Fire ,DISTRICT,Complete
+10/13/2006,15:30,G02696,HI A531,- Fire ,DISTRICT,Complete
+6/6/2014,10:25,G02696,HI A531,- LTA (1-3) days - Required Evacuation ,DISTRICT,Complete
+9/2/2009,5:55,G02697,HI A536,- Collision >$25K - Structural Damage ,DISTRICT,Complete
+7/18/2013,12:00,G02697,HI A536,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/24/2013,7:30,G02697,HI A536,- Pollution ,DISTRICT,Complete
+7/31/2014,12:30,G02697,HI A536,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/12/2015,20:00,G02698,HI A537,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+1/6/2003,2:00,G18957,HI A538,- Fire ,DISTRICT,Complete
+10/31/2006,9:20,G22262,HI A539,- LTA (>3 days) ,DISTRICT,Complete
+5/27/2015,5:30,G02705,HI A547,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/10/2015,4:30,G02705,HI A547,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/5/2023,17:30,G02705,HI A547,- Fire ,DISTRICT,Complete
+8/16/2011,8:20,G03484,HI A557,- Fatality - Incident >$25K - Crane ,PANEL,Complete
+2/19/2004,20:45,G02388,HI A563,- Fire ,DISTRICT,Complete
+8/31/2013,3:00,G02716,HI A568,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/6/2010,13:00,,HI A571,- Incident >$25K ,DISTRICT,Complete
+2/1/2011,15:00,G02391,HI A571,- Fire - Battery Charger Fire,DISTRICT,Complete
+10/9/2011,11:00,G02391,HI A571,- Required Evacuation ,DISTRICT,Complete
+8/4/2008,14:00,G02393,HI A573,- Fire - Incident >$25K ,DISTRICT,Complete
+8/28/2016,8:00,G02393,HI A573,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/25/2003,1:30,G02719,HI A582,- Fire ,DISTRICT,Complete
+3/16/2015,16:30,G02719,HI A582,- Explosion - Structural Damage ,DISTRICT,Complete
+5/26/2022,9:00,G02719,HI A582,- Required Evacuation - Pollution - spill > 1 Bbl.,DISTRICT,Complete
+3/24/2014,16:30,G02721,HI A595,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/8/2016,14:21,,HI A595,- dropped object,DISTRICT,Complete
+10/7/2013,10:30,,HI A596,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/10/2009,11:15,G13342,HI A263,- Incident >$25K - Crane ,DISTRICT,Complete
+7/30/2008,15:15,G02404,HI A283,- Fire ,DISTRICT,Complete
+6/30/2005,12:05,G25601,HI A287,- Fire ,DISTRICT,Complete
+10/4/2004,17:20,G02735,HI A309,- Fire ,DISTRICT,Complete
+5/12/2003,11:00,G02423,HI A334,- Fire ,DISTRICT,Complete
+7/20/2005,18:00,G02423,HI A334,- Fire - Injury ,DISTRICT,Complete
+6/12/2015,12:30,G02423,HI A334,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/14/2016,2:30,G02429,HI A351,- Crane ,DISTRICT,Complete
+6/5/2003,6:45,G02433,HI A368,- Fatality ,PANEL,Complete
+8/6/2014,2:00,G02433,HI A368,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/5/2018,15:18,G02433,HI A368,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/29/2006,8:10,G02754,HI A376,- Injury ,DISTRICT,Complete
+3/7/2007,19:35,G02754,HI A376,- Fire ,DISTRICT,Complete
+4/2/2013,9:25,G02754,HI A376,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/3/2014,5:15,G13808,HI A379,- Fire - Generator Fire,DISTRICT,Complete
+4/20/2015,12:30,G13808,HI A379,- Fire - Incident >$25K ,DISTRICT,Complete
+2/21/2024,13:19,G13808,HI A379,- Fire ,DISTRICT,Complete
+9/4/2023,9:00,G13808,HI A379,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/8/2010,22:00,G02757,HI A382,- Fire - Air compressor fire,DISTRICT,Complete
+6/2/2023,12:30,G02757,HI A382,- Crane ,DISTRICT,Complete
+10/18/2012,8:25,G03316,HI A384,- LTA (>3 days) - Required Evacuation - Crane - Foot Injury,DISTRICT,Complete
+4/10/2011,8:36,G02759,HI A389,- Fire - Generator Fire,DISTRICT,Complete
+6/8/1997,13:45,G12136,EW 873,- Fire ,DISTRICT,Complete
+12/9/1998,10:00,G12136,EW 873,- Fire ,DISTRICT,Complete
+5/17/2026,15:15,G03061,MU A85,- Crane ,DISTRICT,Complete
+5/4/2013,17:31,,MU A103,- Fire - Required Muster ,DISTRICT,Complete
+7/31/2014,18:30,G03068,MU A111,- Other Injury - Required Evacuation ,DISTRICT,Complete
+10/6/2014,20:45,G03068,MU A111,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/23/2015,18:00,G03068,MU A111,- Other Injury - Required Evacuation ,DISTRICT,Complete
+6/25/2015,21:00,G03068,MU A111,- Fire ,DISTRICT,Complete
+5/25/2013,13:45,G04699,MU A121,- Incident >$25K - Crane ,DISTRICT,Complete
+3/6/2011,7:45,G05662,GI 102,- Required Evacuation - Explosion - Fire - Incident >$25K - Waiting on P&A,DISTRICT,Complete
+11/12/2016,12:00,,GI 115,- LTA (>3 days) - RW/JT (1-3 days) - Required Evacuation - Fire ,PANEL,Complete
+12/3/2017,22:15,G13944,GI 116,- Fire - Incident >$25K ,DISTRICT,Complete
+10/27/2011,1:00,G04090,WC 294,- LTA (>3 days) - Required Evacuation - Tubing hanger pin ejected,DISTRICT,Complete
+5/2/2026,2:15,G03520,WC 498,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+12/1/2008,10:00,G02006,WC 504,- Fire ,DISTRICT,Complete
+9/28/2010,16:15,G02226,WC 534,- Fire - Portable offshore office bldg.,DISTRICT,Complete
+10/24/2014,14:55,G14342,WC 544,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/13/2009,7:41,G02023,WC 593,- Fire - Required Muster ,DISTRICT,Complete
+11/1/2011,15:13,G12808,WC 616,- LTA (>3 days) - Troubleshooting Gen. Starter,DISTRICT,Complete
+5/31/2016,14:45,G12808,WC 616,- RW/JT (1-3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+5/28/2010,14:15,G02560,WC 630,- LTA (>3 days) - Required Evacuation - Fire - Cutting torch fire,DISTRICT,Complete
+2/27/2009,11:20,G02027,WC 639,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+9/28/2012,9:15,G02027,WC 639,- RW/JT (>3 days) - Required Evacuation - Hand Injury,DISTRICT,Complete
+4/18/2011,3:30,G02241,WC 643,- Fatality - Crane ,PANEL,Complete
+10/2/2008,13:50,G16224,WC 661,- LTA (>3 days) - Other Lifting Device ,DISTRICT,Complete
+8/29/2011,5:45,G13363,GB 72,- LTA (>3 days) - Required Evacuation - Open hole on crane deck.,DISTRICT,Complete
+12/26/2011,15:40,G13363,GB 72,- LTA (>3 days) - Injury while decomm. crane,DISTRICT,Complete
+5/22/2008,15:35,G11455,GB 128,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+11/18/2014,11:00,G11455,GB 128,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/2/2020,16:00,G11455,GB 128,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/19/2017,16:00,G11445,GB 128,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+11/8/2017,1:20,G11445,GB 128,- LTA (>3 days) - LTA (1-3) days - Required Evacuation - Explosion - Fire - Incident >$25K - Structural Damage - Required Muster - Platform Evacuation,DISTRICT,Complete
+3/14/2018,16:40,G13367,GB 161,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+6/29/2015,12:00,G14221,GB 172,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/10/2021,20:45,G14221,GB 172,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/31/2011,20:10,G06358,GB 189,- Fire - Incident >$25K ,DISTRICT,Complete
+12/13/2013,4:20,G06358,GB 189,- Pollution - Crane ,DISTRICT,Complete
+5/23/2014,23:00,G31613,GB 213,- Pollution ,DISTRICT,Complete
+4/25/2016,3:00,G09216,GB 215,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/17/2025,7:52,G09216,GB 215,- Other Injury - Required Evacuation ,DISTRICT,Complete
+2/17/2016,17:15,G14224,GB 216,- Pollution ,DISTRICT,Complete
+5/19/2022,21:45,G14224,GB 216,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/21/2023,12:00,G14224,GB 216,- EDS,DISTRICT,Complete
+6/2/2025,22:30,G07461,GB 259,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/4/2007,16:15,,GB 260,- LTA (>3 days) - Required Evacuation - Other Lifting Device - Crane ,DISTRICT,Complete
+2/4/2021,2:30,G07462,GB 260,- Other Injury - Other Lifting Device ,DISTRICT,Complete
+12/8/2012,21:50,G10350,GB 386,- Pollution ,DISTRICT,Complete
+12/8/2012,3:00,G10350,GB 386,- Pollution ,DISTRICT,Complete
+12/20/2012,4:20,G08241,GB 426,- RW/JT (>3 days) - Required Evacuation - Finger Injury,DISTRICT,Complete
+2/19/2014,21:40,G08241,GB 426,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/25/2016,17:20,G08241,GB 426,- Other Injury - Required Evacuation ,DISTRICT,Complete
+3/31/2019,17:45,G08241,GB 426,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/3/2021,13:10,G08241,GB 426,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/10/2021,:30,G08241,GB 426,- Other Lifting Device ,DISTRICT,Complete
+11/23/2021,15:30,G08241,GB 426,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/14/2022,:0,G08241,GB 426,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/28/2020,12:49,G07493,GB 427,- Other Lifting Device ,DISTRICT,Complete
+1/10/2021,15:35,G07493,GB 427,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/29/2017,9:30,G07493,GB 427,- LTA (>3 days) - Other Injury - Required Evacuation ,DISTRICT,Complete
+6/7/2017,9:30,G07493,GB 427,- Pollution ,DISTRICT,Complete
+6/25/2018,5:30,G07493,GB 427,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/22/2019,9:34,G35918,GB 491,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+3/20/2024,7:00,G26664,GB 506,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+2/26/2008,19:00,G17406,GB 667,- Pollution - 80 bbls SBM lost overboard,DISTRICT,Complete
+10/31/2013,13:50,G17407,GB 668,- Fire ,DISTRICT,Complete
+11/15/2024,8:37,G17407,GB 668,- Required Muster ,DISTRICT,Complete
+4/5/2016,20:20,G17408,GB 669,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+10/14/2012,5:00,G11573,GB 783,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device - Finger Injury,DISTRICT,Complete
+3/7/2026,22:00,G11573,GB 783,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+4/8/2008,10:00,G23338,GB 876,- LTA (>3 days) - Shutdown from Glycol Release,DISTRICT,Complete
+3/23/2015,5:05,G32460,GB 958,- Pollution ,DISTRICT,Complete
+10/14/2025,5:10,G30876,GB 959,- LTA (>3 days) - Required Evacuation - Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+8/3/2025,19:34,G30876,GB 959,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+3/28/2021,1:00,G34529,GB 962,- Pollution - Shallow Water Flow,DISTRICT,Complete
+10/28/2015,2:55,G26693,GB 978,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/23/2020,11:18,G36155,GB 1003,- Fatality ,PANEL,Complete
+9/18/2020,6:40,G36155,GB 1003,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+4/19/2013,:30,G25780,KC 93,- Pollution ,DISTRICT,Complete
+5/28/2009,2:50,G19545,KC 291,- Pollution ,DISTRICT,Complete
+3/31/2013,6:55,G25792,KC 292,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+12/18/2012,14:30,G22367,KC 736,- Pollution - Incident >$25K ,DISTRICT,Complete
+11/24/2012,11:30,G21444,KC 875,- Pollution ,DISTRICT,Complete
+10/17/2012,5:20,G32654,KC 918,- Required Evacuation ,DISTRICT,Complete
+1/30/2013,1:00,G27779,SE 39,- LTA (>3 days) - Required Evacuation - Other Lifting Device - Tugger,DISTRICT,Complete
+6/25/2019,20:45,G10437,DC 4,- Other Lifting Device - Dropped object,DISTRICT,Complete
+4/30/2018,22:30,G10437,DC 4,- Pollution - Chemical leak in flying lead,DISTRICT,Complete
+8/14/2014,20:20,G25854,DC 398,- Incident >$25K - Tension Ring not fully engaged,DISTRICT,Complete
+10/26/2013,22:30,G31570,DC 757,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+11/22/2023,11:30,G05753,MO 916,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/18/2012,17:00,G27973,MO 830,- Incident >$25K ,DISTRICT,Complete
+5/5/2018,7:45,G06850,MO 872,- Crane ,DISTRICT,Complete
+9/5/2012,20:30,G02832,WC 205,- LTA (>3 days) - Required Evacuation - Other Lifting Device - Injury to Fingers,DISTRICT,Complete
+2/17/2018,10:30,G04087,WC 215,- Fatality ,PANEL,Complete
+8/30/2011,16:30, 00247,WC 102,- RW/JT (1-3 days) - Required Evacuation - Eline failure - corrosion,DISTRICT,Complete
+10/13/2012,12:00, 00082,WC 111,- LTA (>3 days) - Required Evacuation - Fire - Burn Injury,DISTRICT,Complete
+5/13/2016,17:30,G12761,WC 130,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+1/1/2016,3:00,G01953,WC 144,- Collision >$25K - Collision - Structural Damage ,DISTRICT,Complete
+10/17/2016,1:00, 00763,WC 180,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/1/2013,16:10, 00680,WC 20,- Shutdown from Gas Release - Pollution ,DISTRICT,Complete
+8/10/2023,17:35,G15050,WC 33,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+4/13/2019,6:15,G09384,WC 61,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+11/27/2021,9:30,G23740,WC 96,- Fire ,DISTRICT,Complete
+10/13/2014,13:35,G21444,KC 875,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/30/2014,20:20,G25814,KC 829,- Pollution ,DISTRICT,Complete
+7/8/2014,20:35,G27698,KC 10,- Other Injury - Required Evacuation ,DISTRICT,Complete
+10/14/2014,1:05,G27698,KC 10,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+7/18/2021,9:30,G10380,AC 25,- Incident >$25K ,DISTRICT,Complete
+2/24/2026,17:15,G10380,AC 25,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+9/27/2024,2:00,G36103,AC 337,- LTA (>3 days) - Required Evacuation - Crane - Slip trip fall,DISTRICT,Complete
+10/12/2024,5:40,G36103,AC 337,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+9/29/2020,17:15,G32954,AC 380,- Crane - Load Strike,DISTRICT,Complete
+12/13/2015,16:37,G35137,AC 475,- Fire - Required Muster ,DISTRICT,Complete
+12/16/2013,20:00,G06280,EB 165,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/9/2015,17:30,G06280,EB 165,- Shutdown from Gas Release - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+1/24/2016,17:00,G06280,EB 165,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/9/2018,8:00,G06280,EB 165,- Fire - Incident >$25K ,DISTRICT,Complete
+1/16/2009,17:10,G19028,EB 599,- Collision >$25K ,DISTRICT,Complete
+11/6/2003,22:00,G14205,EB 602,- Fire ,DISTRICT,Complete
+4/1/2009,15:20,G14205,EB 602,- Fire ,DISTRICT,Complete
+2/19/2012,17:00,G14205,EB 602,- Pollution - See remarks,DISTRICT,Complete
+2/28/2013,7:30,,EB 602,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/21/2013,7:45,G14205,EB 602,- Other Injury - Required Evacuation ,DISTRICT,Complete
+6/24/2013,:15,,EB 602,"- Equipment Damage >$25,000",DISTRICT,Complete
+9/19/2014,12:00,G14205,EB 602,- RW/JT (1-3 days) - Required Evacuation ,DISTRICT,Complete
+1/10/2015,11:00,G14205,EB 602,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/21/2015,15:00,G14205,EB 602,- LTA (>3 days) - Other Injury - Required Evacuation ,DISTRICT,Complete
+5/21/2025,13:45,G14205,EB 602,- Crane ,DISTRICT,Complete
+9/10/2022,16:30,G14205,EB 602,- LTA (>3 days) - Other Lifting Device ,DISTRICT,Complete
+1/23/2022,15:45,G14205,EB 602,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/23/2003,21:15,G09184,EB 643,- Fire ,DISTRICT,Complete
+2/13/2009,22:00,G09184,EB 643,- RW/JT (>3 days) ,DISTRICT,Complete
+8/27/2009,9:00,,EB 643,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/21/2015,17:47,G09184,EB 643,- Other Lifting Device - Pollution ,DISTRICT,Complete
+12/13/2019,17:15,G09184,EB 643,- Crane ,DISTRICT,Complete
+11/2/2013,19:00,G32822,EB 645,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/16/2016,15:00,G22296,EB 690,- Pollution - Incident >$25K - Inadvertent EDS,DISTRICT,Complete
+11/16/2022,5:10,G36191,EB 699,- Pollution ,DISTRICT,Complete
+12/3/2015,4:20,G08211,EB 945,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/19/2007,20:20,G15860,GB 244,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+9/27/2002,14:00,G07462,GB 260,- Pollution ,DISTRICT,Complete
+3/2/2007,6:15,G08241,GB 426,- Explosion - Fire - Incident >$25K - Arc flash,DISTRICT,Complete
+7/3/2006,7:30,G17407,GB 668,- Pollution,DISTRICT,Complete
+10/8/2006,2:00,G17456,GB 873,- Incident >$25K ,DISTRICT,Complete
+3/10/2016,12:50,G04940,GC 18,- Other Injury - Required Evacuation - Fatality ,PANEL,Complete
+8/13/2020,16:20,G04940,GC 18,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/10/2012,10:35,G04131,GC 19,- RW/JT (>3 days) - Required Evacuation - Hand Injury,DISTRICT,Complete
+11/7/2012,1:45,G26287,GC 36,- Fingerboard Near Miss,DISTRICT,Complete
+10/10/2012,21:00,G26287,GC 36,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+7/26/2020,8:22,G34536,GC 40,- Pollution ,PANEL,Pending
+5/31/2024,1:00,G05884,GC 52,- Incident >$25K - Crane ,DISTRICT,Complete
+3/12/2008,7:50,G05889,GC 65,- Fire - Required Muster ,DISTRICT,Complete
+1/14/2009,15:30,G05889,GC 65,- Crane ,DISTRICT,Complete
+8/3/2019,5:50,G05889,GC 65,- Collision >$25K - Incident >$25K ,DISTRICT,Complete
+12/3/2009,20:00,G31694,GC 97,- Pollution ,DISTRICT,Complete
+1/2/2014,2:17,G15546,GC 113,- Incident >$25K - Structural Damage - Dropped Object,DISTRICT,Complete
+9/24/2014,6:00,G16698,GC 155,- Pollution - Inadvertent Discharge of SBM,DISTRICT,Complete
+3/11/2005,15:10,G24154,GC 157,- Pollution - Accidental Riser Disconnect,DISTRICT,Complete
+5/7/2006,4:00,G24154,GC 157,- Injury ,DISTRICT,Complete
+9/21/2002,12:00,G07995,GC 158,- Fire ,DISTRICT,Complete
+12/7/2002,8:30,G07995,GC 158,- Fire ,DISTRICT,Complete
+11/8/2005,16:00,G07995,GC 158,- Pollution ,DISTRICT,Complete
+3/26/2008,5:20,G07995,GC 158,- Crane ,DISTRICT,Complete
+4/27/2008,3:00,G07995,GC 158,- Crane ,DISTRICT,Complete
+3/31/2019,8:00,G07995,GC 158,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/22/2026,14:55,G07995,GC 158,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Pending
+2/17/2007,10:50,G16702,GC 177,- Pollution ,DISTRICT,Complete
+6/30/2001,11:00,G07998,GC 202,"- 10-3/4"" Prod. Riser Disconnect",DISTRICT,Complete
+9/10/2001,18:30,G05911,GC 205,- Fire ,DISTRICT,Complete
+11/6/2001,18:30,G05911,GC 205,- Fire ,DISTRICT,Complete
+9/29/2004,9:05,G05911,GC 205,- Injury ,DISTRICT,Complete
+2/10/2012,16:00,G05911,GC 205,- Pollution - Oil Spill,DISTRICT,Complete
+6/1/2019,23:00,G05911,GC 205,- Required Evacuation - Fatality ,PANEL,Complete
+9/13/2022,12:45,G05911,GC 205,- Crane ,DISTRICT,Complete
+5/19/2005,12:45,G15562,GC 236,- Injury ,DISTRICT,Complete
+5/16/2005,12:00,G15562,GC 236,- Well Control Event,DISTRICT,Complete
+11/19/2001,16:30,G15563,GC 237,- Pollution - Subsea choke failure/pollution,DISTRICT,Complete
+9/23/2005,6:00,G15563,GC 237,- Pollution - Capsized - Mooring Failure,DISTRICT,Complete
+7/18/2014,11:40,G15563,GC 237,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/16/2014,22:50,G15563,GC 237,- Pollution - Rig Power Loss/Disconnect,DISTRICT,Complete
+12/1/2025,18:43,G15563,GC 237,Damaged/Disabled Safety Sys. ,DISTRICT,Complete
+9/5/2004,23:30,G21788,GC 242,- Casing Parted,PANEL,Complete
+12/7/2002,4:10,G20051,GC 243,- Pollution ,DISTRICT,Complete
+4/9/2006,9:45,G20051,GC 243,- Collision ,DISTRICT,Complete
+5/18/2007,14:55,G20051,GC 243,- LTA (>3 days) - Required Evacuation - Light fixture falls.,DISTRICT,Complete
+1/14/2019,15:00,G20051,GC 243,Damaged/Disabled Safety Sys. - Incident >$25K ,DISTRICT,Complete
+12/12/2009,7:45,G11043,GC 244,- Pollution ,DISTRICT,Complete
+1/23/2010,21:45,G11043,GC 244,- Pollution ,DISTRICT,Complete
+10/8/2013,22:30,G05916,GC 245,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/26/2004,13:00,G15565,GC 248,- Anchor Contact with Wellhead,DISTRICT,Complete
+6/9/2014,16:35,G15565,GC 248,- Other Lifting Device ,DISTRICT,Complete
+5/12/2016,7:34,G15565,GC 248,- Pollution ,PANEL,Complete
+12/23/2018,18:00,G07049,GC 254,- Explosion - Incident >$25K - Required Muster - compressor end cap,DISTRICT,Complete
+6/4/2021,9:30,G33242,GC 281,- RW/JT (>3 days) ,DISTRICT,Complete
+10/20/2002,5:30,G16727,GC 282,- Pollution ,DISTRICT,Complete
+1/9/2019,2:20,G16727,GC 282,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+6/6/2009,21:30,G28066,GC 304,- Other Lifting Device ,DISTRICT,Complete
+9/3/2009,10:25,G28066,GC 304,- Other Lifting Device - Fatality ,PANEL,Complete
+5/19/2003,12:00,G15577,GC 335,- Pollution ,DISTRICT,Complete
+11/17/2002,11:30,G21790,GC 338,- Pollution ,DISTRICT,Complete
+4/22/2010,1:20,G21790,GC 338,- Fire - Hydraulic pump seal failure,DISTRICT,Complete
+6/6/2011,13:55,G21790,GC 338,- LTA (>3 days) - Required Evacuation - Hot Bolt Operations,DISTRICT,Complete
+3/3/2012,21:30,G21790,GC 338,- Fire - Flammable Materials,DISTRICT,Complete
+9/29/2012,3:45,G21790,GC 338,- RW/JT (>3 days) - Required Evacuation - Loss of fingers on left hand,DISTRICT,Complete
+10/16/2015,20:15,G21790,GC 338,- Shutdown from Gas Release - Required Evacuation - Pollution - Incident >$25K - Required Muster ,DISTRICT,Complete
+9/16/2019,17:00,G21790,GC 338,- Other Injury - Crane ,DISTRICT,Complete
+11/20/2021,13:15,G21790,GC 338,- Crane ,DISTRICT,Complete
+3/29/2003,4:30,G22948,GC 380,- Pollution ,DISTRICT,Complete
+1/15/2022,16:10,G35864,GC 389,- Pollution - EDS - Spill,DISTRICT,Complete
+4/22/2024,8:15,G35864,GC 389,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/1/2009,5:45,G32504,GC 432,- Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+5/10/2018,17:30,G32504,GC 432,- Fire ,DISTRICT,Complete
+11/10/2024,1:45,G32504,GC 432,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/17/2025,16:45,G32504,GC 432,- Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+2/9/2007,8:00,G26313,GC 468,- Pollution ,DISTRICT,Complete
+9/6/2018,20:40,G26313,GC 468,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+5/31/2023,9:00,G26313,GC 468,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+2/19/2010,19:05,G25153,GC 469,- Incident >$25K - Crane ,DISTRICT,Complete
+4/7/2017,15:00,G35662,GC 478,- Crane ,DISTRICT,Complete
+5/2/2024,16:20,G35662,GC 478,- Required Evacuation - Incident >$25K - Crane ,DISTRICT,Complete
+7/22/2022,22:03,G35662,GC 478,- Other Lifting Device ,DISTRICT,Complete
+1/18/2024,13:03,G35662,GC 478,"- Other Lifting Device - Incident >$25K - 22"" casing parted at rigfloor",DISTRICT,Complete
+10/23/2009,10:45,G26315,GC 512,- Other Lifting Device ,DISTRICT,Complete
+1/2/2016,9:10,G26315,GC 512,- Dropped Object (TD Svc Loop),DISTRICT,Complete
+11/13/2021,16:20,G21801,GC 518,- Other Lifting Device ,DISTRICT,Complete
+2/6/2017,7:40,G34986,GC 521,- Top Drive,DISTRICT,Complete
+2/10/2017,9:00,G34986,GC 521,- Incident >$25K - Moon Pool Flap,DISTRICT,Complete
+9/11/2016,8:26,G11075,GC 562,"- EDS activation, BOP stack drop",DISTRICT,Complete
+12/25/2024,13:30,G36297,GC 584,- LTA (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+11/27/2002,5:45,G16759,GC 596,- Pollution ,DISTRICT,Complete
+1/7/2016,22:45,G16759,GC 596,Damaged/Disabled Safety Sys. - Crane ,DISTRICT,Complete
+5/27/2004,8:00,G18402,GC 608,- Pollution ,DISTRICT,Complete
+7/11/2006,17:15,G18402,GC 608,- Shutdown from Gas Release - Fire - Required Muster ,DISTRICT,Complete
+12/19/2012,14:00,G18402,GC 608,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+5/15/2013,2:40,G18402,GC 608,- Other Lifting Device ,DISTRICT,Complete
+5/8/2014,2:00,G18402,GC 608,- Fire ,DISTRICT,Complete
+7/22/2016,17:25,G18402,GC 608,- LTA (>3 days) - Shutdown from Gas Release - Required Evacuation - Fire - Incident >$25K - Gas release,DISTRICT,Complete
+1/15/2025,10:00,G18402,GC 608,- Pollution - Incident >$25K ,DISTRICT,Complete
+12/20/2020,3:08,G16764,GC 609,- Other Lifting Device ,DISTRICT,Complete
+1/25/2015,1:00,G16765,GC 610,- Dropped Object,DISTRICT,Complete
+1/18/2015,21:40,G16765,GC 610,- Dropped Object,DISTRICT,Complete
+4/11/2017,7:10,G25174,GC 627,- Crane ,DISTRICT,Complete
+5/26/2017,5:30,G25174,GC 627,- Incident >$25K - Required Muster ,DISTRICT,Complete
+9/30/2009,10:55,G20082,GC 640,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+5/19/2016,20:30,G20082,GC 640,- RW/JT (>3 days) - Required Evacuation - Incident >$25K ,DISTRICT,Complete
+8/7/2016,22:25,G20082,GC 640,- LTA (1-3) days - Required Evacuation - Crane ,DISTRICT,Complete
+3/29/2011,4:00,G16770,GC 641,- Loss of Station,DISTRICT,Complete
+4/8/2015,22:52,G35001,GC 643,- Incident >$25K ,DISTRICT,Complete
+6/4/2006,7:03,G11081,GC 645,- Top Drive Unplanned Descent,DISTRICT,Complete
+3/28/2007,5:15,G11081,GC 645,"- Pollution - Rupture in 4"" take-on hose",DISTRICT,Complete
+5/19/2018,13:23,G11081,GC 645,- RW/JT (>3 days) - Required Evacuation - Incident >$25K ,DISTRICT,Complete
+2/3/2021,2:00,G11081,GC 645,- Crane ,DISTRICT,Complete
+2/14/2021,3:30,G11081,GC 645,- Other Lifting Device ,DISTRICT,Complete
+6/27/2022,17:45,G11081,GC 645,Damaged/Disabled Safety Sys. - Fire ,DISTRICT,Complete
+7/5/2005,13:00,G21810,GC 652,- Pollution ,PANEL,Complete
+6/23/2005,19:15,G21810,GC 652,- Pollution ,DISTRICT,Complete
+12/2/2007,13:30,G21810,GC 652,- Pollution - Riser Emergency Disconnect,DISTRICT,Complete
+1/28/2008,13:00,G21810,GC 652,- Pollution ,DISTRICT,Complete
+4/11/2004,19:08,G20084,GC 653,- Pollution - Riser Disconnect for weather,DISTRICT,Complete
+6/16/2008,7:16,G20084,GC 653,- Other Lifting Device - Structural Damage ,DISTRICT,Complete
+5/17/2009,9:10,G20084,GC 653,- Crane ,DISTRICT,Complete
+11/20/2009,17:30,G20084,GC 653,- Required Evacuation - Required Muster - Arc Flash,DISTRICT,Complete
+2/24/2013,22:40,G20084,GC 653,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+3/20/2016,23:43,G20085,GC 654,- Other Lifting Device - Incident >$25K - Structural Damage ,DISTRICT,Complete
+6/11/2007,2:30,G22987,GC 680,- Shutdown from Gas Release - Explosion - Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+11/23/2012,13:45,G22987,GC 680,- LTA (>3 days) - Leg Injury,DISTRICT,Complete
+1/24/2013,14:15,G22987,GC 680,- RW/JT (>3 days) - Required Evacuation - Partial loss of finger.,DISTRICT,Complete
+4/29/2017,1:12,G22987,GC 680,- Fire - Required Muster ,DISTRICT,Complete
+3/21/2017,10:00,G22987,GC 680,- Fire - Required Muster ,DISTRICT,Complete
+12/27/2017,18:45,G22987,GC 680,- Incident >$25K - Required Muster ,DISTRICT,Complete
+8/25/2024,6:00,G22987,GC 680,Damaged/Disabled Safety Sys. - Pollution - Incident >$25K ,DISTRICT,Pending
+4/3/2013,8:38,G18421,GC 683,- Pollution - Emergency Disconnect(Drift Off,DISTRICT,Complete
+10/29/2015,17:40,G18421,GC 683,- LTA (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+1/26/2010,11:00,G31744,GC 685,- Pollution ,DISTRICT,Complete
+10/21/2007,9:15,G24179,GC 726,- Pollution - Incident >$25K ,DISTRICT,Complete
+10/22/2015,5:05,G24179,GC 726,- equipment failure,DISTRICT,Complete
+2/16/2003,14:10,G15607,GC 743,- Pollution ,DISTRICT,Complete
+3/3/2003,2:00,G15607,GC 743,- Pollution ,DISTRICT,Complete
+5/30/2006,:9,G15607,GC 743,- Top Drive Unplanned Descent,DISTRICT,Complete
+2/1/2007,17:15,G15607,GC 743,- Pollution - Motor on shale shaker failed,DISTRICT,Complete
+2/28/2007,15:00,G15607,GC 743,- Other Lifting Device - Incident >$25K - Crane ,DISTRICT,Complete
+5/31/2007,19:40,G15607,GC 743,- RW/JT (>3 days) - Required Evacuation - Falling object,DISTRICT,Complete
+7/31/2007,13:00,G15607,GC 743,- Pollution - BOP ring gasket/seal area,DISTRICT,Complete
+8/15/2007,12:30,G15607,GC 743,- Pollution - Incident >$25K ,DISTRICT,Complete
+7/15/2009,21:50,G15607,GC 743,- Incident >$25K - Dropped BHA,DISTRICT,Complete
+7/4/2009,9:10,G15607,GC 743,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+11/9/2009,6:43,G15607,GC 743,- Incident >$25K ,DISTRICT,Complete
+11/10/2009,13:57,G15607,GC 743,- Pollution ,DISTRICT,Complete
+2/28/2013,2:40,G15607,GC 743,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/8/2015,20:40,G15607,GC 743,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/9/2015,10:15,G15607,GC 743,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/7/2015,21:00,G15607,GC 743,- LTA (>3 days) - Other Injury - Required Evacuation ,DISTRICT,Complete
+1/15/2021,15:26,G15607,GC 743,- Other Lifting Device ,DISTRICT,Complete
+4/15/2003,9:00,G15610,GC 782,- Pollution ,DISTRICT,Complete
+7/22/2005,15:00,G15610,GC 782,- Dropped Object,DISTRICT,Complete
+2/28/2007,20:14,G15610,GC 782,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+9/7/2009,11:45,G15610,GC 782,- Required Muster ,DISTRICT,Complete
+12/19/2009,8:05,G15610,GC 782,- Pollution ,DISTRICT,Complete
+10/16/2013,8:30,G15610,GC 782,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/16/2016,9:30,G15610,GC 782,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/13/2017,7:09,G15610,GC 782,- Pollution ,DISTRICT,Complete
+6/21/2026,13:14,G15610,GC 782,- Required Muster - Smoke with no fire,DISTRICT,Pending
+7/1/2009,13:32,,GC 787,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+8/31/2009,16:24,,GC 787,- Required Muster ,DISTRICT,Complete
+5/8/2018,9:15,,GC 787,- Shutdown from Gas Release ,DISTRICT,Complete
+12/15/2002,12:00,G24185,GC 794,- Fire ,DISTRICT,Complete
+12/10/2016,5:40,G31752,GC 807,- Fire ,DISTRICT,Complete
+2/27/2010,21:40,G31753,GC 817,- Fire - Required Muster ,DISTRICT,Complete
+8/3/2005,1:00,G16806,GC 821,- Pollution ,DISTRICT,Complete
+2/27/2021,13:30,G34561,GC 821,- Pollution ,DISTRICT,Complete
+3/9/2026,21:37,G09981,GC 825,- Required Muster ,DISTRICT,Pending
+1/23/2022,1:40,G09981,GC 825,- Other Lifting Device ,DISTRICT,Complete
+1/26/2022,1:06,G09981,GC 825,- Other Lifting Device ,DISTRICT,Complete
+10/31/2005,16:30,G09982,GC 826,- Pollution - pollution,DISTRICT,Complete
+3/9/2009,11:15,G23000,GC 847,- Item Lost Overboard,DISTRICT,Complete
+5/14/2009,15:00,G23000,GC 847,- Pollution ,DISTRICT,Complete
+8/4/2009,11:30,G32536,GC 858,- Pollution ,DISTRICT,Complete
+11/2/2014,15:35,G24194,GC 859,- Other Injury - Required Evacuation ,DISTRICT,Complete
+2/10/2017,2:23,G24194,GC 859,- Required Evacuation ,DISTRICT,Complete
+5/8/2025,4:30,G33859,GC 868,- RW/JT (>3 days) - Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+10/28/2020,11:44,G35879,GC 895,- Incident >$25K ,DISTRICT,Complete
+6/3/2013,10:00,G31765,GC 896,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+7/22/2013,17:45,G31765,GC 896,- Required Evacuation ,DISTRICT,Complete
+10/28/2009,22:00,G32547,GC 945,- Required Muster ,DISTRICT,Complete
+9/20/2007,10:00,G23005,GC 949,- Pollution - 20 bbls lost SBM,DISTRICT,Complete
+12/6/2007,16:45,G20113,GC 953,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/2/2001,14:19,G21823,GC 1001,-  Dynamically Position Failure,DISTRICT,Complete
+10/26/2001,11:32,G10380,AC 25,- Fire ,DISTRICT,Complete
+2/22/2014,16:30,G10380,AC 25,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/14/2008,21:22,G19409,AC 815,- Incident >$25K - Dropped BOPs,DISTRICT,Complete
+3/10/2006,16:30,G20870,AC 856,- Injury ,DISTRICT,Complete
+2/11/2014,19:45,G17565,AC 857,- Pollution ,DISTRICT,Complete
+6/13/2014,8:00,G17565,AC 857,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+9/30/2007,11:45,G16942,WR 29,- Incident >$25K ,DISTRICT,Complete
+1/2/2012,16:38,G16942,WR 29,- Other Lifting Device - Dropped Object,DISTRICT,Complete
+2/4/2012,4:45,G16942,WR 29,- Pollution - SBM spill,DISTRICT,Complete
+12/10/2019,12:45,G16942,WR 29,- Other Lifting Device ,DISTRICT,Complete
+7/26/2018,1:30,G16942,WR 29,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+2/16/2024,13:35,G16942,WR 29,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/8/2015,15:55,G31938,WR 51,- Pollution ,DISTRICT,Complete
+1/7/2023,19:20,G31938,WR 51,- Other Lifting Device ,DISTRICT,Complete
+3/28/2024,22:00,G31938,WR 51,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+8/13/2015,:30,G34634,WR 160,- Other Lifting Device ,DISTRICT,Complete
+8/31/2015,1:00,G34634,WR 160,- Other Lifting Device ,DISTRICT,Complete
+10/22/2015,6:00,G34634,WR 160,- RW/JT (1-3 days) - Other Injury - Other Lifting Device ,DISTRICT,Complete
+10/24/2015,23:15,G34634,WR 160,- Other Lifting Device ,DISTRICT,Complete
+9/27/2011,23:20,G16965,WR 206,- Other Lifting Device - Incident >$25K ,DISTRICT,Complete
+12/9/2013,16:04,G16969,WR 249,- Other Injury ,DISTRICT,Complete
+4/28/2025,10:22,,WR 249,- Other Injury - Explosion - Incident >$25K ,DISTRICT,Complete
+2/21/2022,12:15,G35733,WR 315,- Other Lifting Device ,DISTRICT,Complete
+1/15/2013,2:00,G16987,WR 425,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/11/2026,3:45,G16987,WR 425,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+2/14/2015,23:30,G16997,WR 469,- Dropped object,DISTRICT,Complete
+12/2/2017,4:45,G16997,WR 469,- Fatality ,PANEL,Complete
+1/20/2005,22:30,G17001,WR 508,- Fire - Incident >$25K - Fire,DISTRICT,Complete
+12/11/2014,8:13,G17001,WR 508,- Pollution ,DISTRICT,Complete
+3/26/2015,9:00,G17001,WR 508,- Incident >$25K - Item Lost Overboard,DISTRICT,Complete
+11/27/2015,11:15,G17001,WR 508,- Incident >$25K ,DISTRICT,Complete
+4/13/2016,3:15,G17001,WR 508,- Fire - Required Muster ,DISTRICT,Complete
+2/27/2021,4:20,G17001,WR 508,- Crane - Dropped Object,DISTRICT,Complete
+9/15/2009,20:00,G20341,WR 543,- Required Evacuation - Crane ,DISTRICT,Complete
+12/11/2009,9:30,G20341,WR 543,- Other Lifting Device ,DISTRICT,Complete
+12/8/2009,13:00,G20341,WR 543,- Other Lifting Device ,DISTRICT,Complete
+4/7/2010,16:00,G20341,WR 543,- Pollution - SBM lost through dump valve,DISTRICT,Complete
+4/12/2010,20:00,G20341,WR 543,- Other Lifting Device ,DISTRICT,Complete
+3/20/2006,8:22,G17003,WR 544,- Pollution - Riser Disconnect,DISTRICT,Complete
+5/9/2006,6:41,G17003,WR 544,- Pollution ,DISTRICT,Complete
+9/11/2016,10:30,G21861,WR 551,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/26/2016,14:06,G21861,WR 551,- Shutdown from Gas Release ,DISTRICT,Complete
+10/27/2014,2:10,G33379,WR 578,"- Well Control Event, shut-in",DISTRICT,Complete
+7/27/2016,5:20,G20351,WR 584,- Required Evacuation - Other Lifting Device ,DISTRICT,Complete
+3/12/2007,11:03,G20361,WR 627,- Pollution - Slip Joint leak,DISTRICT,Complete
+9/21/2020,21:00,G18745,WR 634,- Other Lifting Device ,DISTRICT,Complete
+5/17/2004,3:00,G21245,WR 678,- Power loss to thrusters.,DISTRICT,Complete
+4/27/2008,8:00,G21245,WR 678,- Fire - Required Muster ,DISTRICT,Complete
+9/20/2008,1:00,G21245,WR 678,- Pollution ,DISTRICT,Complete
+11/1/2008,15:00,G21245,WR 678,- Pollution - Compromised csg/shallow leak,DISTRICT,Complete
+11/5/2025,16:23,G32703,WR 718,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+12/23/2015,11:20,G17015,WR 758,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+6/27/2017,21:20,G17015,WR 758,- Pollution ,DISTRICT,Complete
+3/21/2023,2:30,G17015,WR 758,- Other Lifting Device ,DISTRICT,Complete
+4/20/2004,18:20,G17016,WR 759,- Injury ,DISTRICT,Complete
+7/22/2011,:15,G26419,WR 969,- Pollution - SBM Spill,DISTRICT,Complete
+3/22/2006,8:50,G16865,AT 140,- Pollution ,DISTRICT,Complete
+1/14/2005,4:30,G18537,AT 267,- Pollution ,DISTRICT,Complete
+8/17/2006,2:00,G08035,AT 574,- Pollution - Pollution,DISTRICT,Complete
+10/6/2006,1:40,G08035,AT 574,- Pollution ,DISTRICT,Complete
+4/10/2004,9:34,G08038,AT 618,- Fire - Pollution ,DISTRICT,Complete
+11/14/2009,23:50,G08038,AT 618,- Pollution ,DISTRICT,Complete
+11/2/2008,11:05,G04254,EW 305,- Other Injury ,DISTRICT,Complete
+11/3/2008,14:15,G04254,EW 305,- Required Evacuation ,DISTRICT,Complete
+4/27/2020,3:00,G35292,EW 305,- Shutdown from Gas Release ,DISTRICT,Complete
+2/22/2004,14:45,G05800,EW 826,- Fire ,DISTRICT,Complete
+8/30/2010,10:00,G05800,EW 826,- Incident >$25K - Crane - Drill pipe/wire rope overboard,DISTRICT,Complete
+5/16/2020,7:43,G05800,EW 826,- Fatality ,PANEL,Complete
+7/5/2020,10:00,G05800,EW 826,- Other Lifting Device ,DISTRICT,Complete
+7/5/2003,14:00,G18165,EW 827,- Fatality - Subsea Explosion-diving event,DISTRICT,Complete
+11/26/2017,4:05,G27982,EW 834,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+2/4/2026,17:05,G27982,EW 834,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+10/13/2008,16:20,G21738,EW 871,- Crane ,DISTRICT,Complete
+11/12/2004,8:30,G12136,EW 873,- Fire ,DISTRICT,Complete
+11/16/2020,3:30,G12136,EW 873,- Pollution - spill,DISTRICT,Complete
+3/3/2022,3:15,G12136,EW 873,- Fire - Incident >$25K - Required Muster ,DISTRICT,Complete
+2/13/2009,10:00,G13079,EW 910,- Other Lifting Device ,DISTRICT,Complete
+3/11/2015,9:00,G13079,EW 910,- Accidental Sheared Pipe,DISTRICT,Complete
+2/9/2026,6:08,G13079,EW 910,- Fire - Incident >$25K ,DISTRICT,Complete
+8/17/2012,12:00,G12142,EW 921,- Fire - Pollution ,DISTRICT,Complete
+2/2/2020,12:30,G12142,EW 921,- Collision >$25K - Incident >$25K - Crane - Structural Damage ,DISTRICT,Complete
+5/20/2007,4:30,G05803,EW 947,- Fire ,DISTRICT,Complete
+1/26/2007,8:00,G26226,EW 948,- LTA (>3 days) - Required Evacuation - Crane - offloading pipe with crane,DISTRICT,Complete
+10/24/2001,11:00,G06921,EW 958,- Blowout - Well Control on Prince TLP,DISTRICT,Complete
+3/15/2005,11:05,G12145,EW 965,- Marine Riser Disconnect,DISTRICT,Complete
+1/30/2007,9:20,G26229,EW 989,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+4/9/2014,20:30,G13091,EW 1003,- LTA (1-3) days - Required Evacuation - See below remarks,DISTRICT,Complete
+10/26/2001,11:30,G05058,MO 821,- Injury ,DISTRICT,Complete
+12/4/2003,1:00,G22820,MO 862,- Loss well control/H2S release,DISTRICT,Complete
+6/13/2007,19:48,,MO 871,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+11/29/2007,14:10,G07846,MO 914,- LTA (>3 days) - Equipment Failure,DISTRICT,Complete
+10/23/2007,7:00,G05753,MO 916,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+6/5/2007,18:30,G26183,MO 1002,- LTA (>3 days) ,DISTRICT,Complete
+8/14/2006,13:30,G26198,VK 432,- LTA (>3 days) ,DISTRICT,Complete
+10/21/2004,7:50,G06884,VK 780,- Fire - Pollution ,DISTRICT,Complete
+7/19/2009,20:00,G06886,VK 783,- Pollution ,DISTRICT,Complete
+11/2/2003,7:30,G12119,VK 786,- crane failure,DISTRICT,Complete
+6/19/2007,14:00,G12119,VK 786,- RW/JT (>3 days) - Required Evacuation - Crane ,DISTRICT,Complete
+8/7/2007,19:30,G12119,VK 786,- Other Injury - Required Evacuation ,DISTRICT,Complete
+5/22/2007,9:30,G09743,VK 817,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/3/2013,6:30,G09743,VK 817,- Pollution ,DISTRICT,Complete
+11/3/2017,13:50,G09743,VK 817,- RW/JT (>3 days) - Required Evacuation - Fire - Pressure release,DISTRICT,Complete
+8/16/2025,5:30,G09743,VK 817,- Collision >$25K - Incident >$25K - Structural Damage - Allision,DISTRICT,Complete
+7/18/2006,22:00,G10942,VK 823,- Pollution ,DISTRICT,Complete
+6/26/2018,15:15,G10942,VK 823,- LTA (>3 days) - Required Evacuation ,DISTRICT,Complete
+3/27/2008,14:00,G02445,VK 900,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+5/23/2008,2:00,G02445,VK 900,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+3/28/2021,11:15,G02445,VK 900,- Fire ,DISTRICT,Complete
+12/22/2020,15:30,G02445,VK 900,- Fire ,DISTRICT,Complete
+7/22/2023,13:00,G02445,VK 900,- Required Evacuation - Fire ,DISTRICT,Complete
+1/22/2018,23:30,G06894,VK 915,- Pollution ,DISTRICT,Complete
+11/24/2024,17:10,G06894,VK 915,- Shutdown from Gas Release - Required Muster ,DISTRICT,Complete
+5/4/2025,4:45,G06894,VK 915,- Collision >$25K - Incident >$25K - Allison,DISTRICT,Complete
+3/8/2004,2:05,G06896,VK 956,- Pollution ,DISTRICT,Complete
+3/18/2006,19:00,G06896,VK 956,- Pollution ,DISTRICT,Complete
+1/26/2007,15:00,G06896,VK 956,- Other Lifting Device ,DISTRICT,Complete
+8/5/2011,12:45,G06896,VK 956,- Fire - Incident >$25K - Required Muster - ESD,DISTRICT,Complete
+11/21/2020,19:45,G06896,VK 956,- Shutdown from Gas Release ,DISTRICT,Complete
+1/15/2020,7:15,G06896,VK 956,- Other Injury ,DISTRICT,Complete
+8/10/2004,2:00,G15445,VK 962,- Pollution ,DISTRICT,Complete
+11/21/2001,10:40,G06898,VK 989,- Blowout - Fire - KICK WITH GAS,DISTRICT,Complete
+4/18/2002,3:00,G06898,VK 989,- Collision ,DISTRICT,Complete
+1/11/2006,1:21,G06898,VK 989,- Injury ,DISTRICT,Complete
+4/7/2013,12:45,G06898,VK 989,- Fire ,DISTRICT,Complete
+1/8/2026,8:45,G06898,VK 989,- Fire ,DISTRICT,Complete
+12/2/2024,8:30,G06898,VK 989,- Shutdown from Gas Release - Incident >$25K ,DISTRICT,Complete
+12/1/2021,19:30,G06898,VK 989,- Incident >$25K - Crane ,DISTRICT,Complete
+5/1/2009,2:30,G04935,MC 20,- Fire - Drawworks Failure,DISTRICT,Complete
+12/1/2007,16:15,G15459,MC 21,- RW/JT (>3 days) - Required Evacuation ,DISTRICT,Complete
+1/9/2015,10:00,G28351,MC 21,- Incident >$25K - Crane ,DISTRICT,Complete
