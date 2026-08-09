@@ -69,3 +69,42 @@ def test_identity_tokens_do_not_collide_across_roles_in_corpus():
         out = synth_identity_fields(f"corpus-report-{i}", rules)
         names = [out[f"{role}_name"] for role in rules["identity_salts"]]
         assert len(names) == len(set(names)), f"collision in corpus-report-{i}: {names}"
+
+
+from datetime import date
+
+from psm.synth import synth_date_fields
+
+
+def test_date_offsets_are_within_documented_ranges():
+    rules = load_rules()
+    incident_date = date(2020, 1, 1)
+    for report_id in ("r1", "r2", "r3", "r4", "r5"):
+        out = synth_date_fields(report_id, incident_date, rules)
+        assert 5 <= (out["date_of_report"] - incident_date).days <= 15
+        assert 14 <= (out["approval_date"] - out["date_of_report"]).days <= 45
+        assert 30 <= (out["close_out_date"] - out["approval_date"]).days <= 90
+        assert 30 <= (out["action_due_date"] - out["approval_date"]).days <= 180
+        assert 30 <= (out["agreed_completion_date"] - out["approval_date"]).days <= 180
+
+
+def test_date_offsets_are_deterministic():
+    rules = load_rules()
+    incident_date = date(2020, 1, 1)
+    assert synth_date_fields("stable-id", incident_date, rules) == synth_date_fields(
+        "stable-id", incident_date, rules
+    )
+
+
+def test_date_offsets_vary_across_reports():
+    rules = load_rules()
+    incident_date = date(2020, 1, 1)
+    values = {synth_date_fields(f"r{i}", incident_date, rules)["date_of_report"] for i in range(20)}
+    assert len(values) > 1, "date_of_report constant across reports — salt or hashing broken"
+
+
+def test_date_offsets_raise_on_unresolvable_base():
+    rules = load_rules()
+    broken_rules = dict(rules, date_offsets={"bad_field": {"base": "nonexistent", "low": 1, "high": 2, "salt": "x"}})
+    with pytest.raises(ValueError, match="nonexistent"):
+        synth_date_fields("r1", date(2020, 1, 1), broken_rules)

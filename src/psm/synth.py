@@ -11,6 +11,7 @@ every threshold — this module must not hardcode one.
 from __future__ import annotations
 
 import hashlib
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -49,3 +50,19 @@ def synth_identity_fields(report_id: str, rules: dict[str, Any]) -> dict[str, st
         out[f"{role}_name"] = f"SYN-{label}-{digest[:hex_len]}"
         out[f"{role}_position"] = rules["identity_positions"][role]
     return out
+
+
+def synth_date_fields(report_id: str, incident_date: date, rules: dict[str, Any]) -> dict[str, date]:
+    computed: dict[str, date] = {"incident_date": incident_date}
+    for field, spec in rules["date_offsets"].items():
+        base = spec["base"]
+        if base not in computed:
+            raise ValueError(
+                f"date_offsets entry {field!r} references base {base!r} which is not "
+                "yet computed — check ordering in schema/synth_rules.yaml"
+            )
+        span = spec["high"] - spec["low"] + 1
+        offset = spec["low"] + _hash_int(report_id, spec["salt"]) % span
+        computed[field] = computed[base] + timedelta(days=offset)
+    del computed["incident_date"]
+    return computed
