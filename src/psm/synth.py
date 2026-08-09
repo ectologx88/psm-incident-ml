@@ -156,3 +156,54 @@ def synth_severity_fields(
 def synth_incident_title(incident_types: frozenset[str], area_block: str, rules: dict[str, Any]) -> str:
     label = ", ".join(sorted(incident_types)) if incident_types else "Unspecified"
     return rules["incident_title_template"].format(incident_type=label, area_block=area_block)
+
+
+SYN_COLUMN_MANIFEST: dict[str, dict[str, Any]] = {
+    "syn_investigation_lead_name": {"description": "Hash-token identity placeholder (SYN-Investigator-<hex6>)", "fabricated": True},
+    "syn_investigation_lead_position": {"description": "Fixed placeholder role title", "fabricated": True},
+    "syn_incident_classified_by_name": {"description": "Hash-token identity placeholder (SYN-Classifier-<hex6>)", "fabricated": True},
+    "syn_incident_classified_by_position": {"description": "Fixed placeholder role title", "fabricated": True},
+    "syn_investigation_acceptor_name": {"description": "Hash-token identity placeholder (SYN-Acceptor-<hex6>)", "fabricated": True},
+    "syn_investigation_acceptor_position": {"description": "Fixed placeholder role title", "fabricated": True},
+    "syn_close_out_approval_name": {"description": "Hash-token identity placeholder (SYN-Approver-<hex6>)", "fabricated": True},
+    "syn_close_out_approval_position": {"description": "Fixed placeholder role title", "fabricated": True},
+    "syn_responsible_owner_name": {"description": "Hash-token identity placeholder (SYN-Owner-<hex6>)", "fabricated": True},
+    "syn_responsible_owner_position": {"description": "Fixed placeholder role title", "fabricated": True},
+    "syn_date_of_report": {"description": "incident_date + 5-15 days (deterministic hash offset)", "fabricated": True},
+    "syn_approval_date": {"description": "date_of_report + 14-45 days", "fabricated": True},
+    "syn_close_out_date": {"description": "approval_date + 30-90 days", "fabricated": True},
+    "syn_action_due_date": {"description": "approval_date + 30-180 days", "fabricated": True},
+    "syn_agreed_completion_date": {"description": "approval_date + 30-180 days", "fabricated": True},
+    "syn_action_status": {"description": "Pending/In Progress/Completed by age vs. frozen reference_date", "fabricated": True},
+    "syn_schedule_status": {"description": "On Schedule/Behind/N-A, hash tiebreak unless Completed", "fabricated": True},
+    "syn_incident_classification": {"description": "Very Serious/Serious/Incident/Unknown from real incident_types", "fabricated": True},
+    "syn_worst_reasonable_outcome": {"description": "Mirrors incident_classification", "fabricated": True},
+    "syn_involves_fatality_or_injury": {"description": "Boolean from real incident_types", "fabricated": True},
+    "syn_hs_risk_score": {"description": "9/5/2/null encoding of incident_classification", "fabricated": True},
+    "syn_environment_reputation_classification": {"description": "Tier name / None / Unknown, gated on Pollution checkbox", "fabricated": True},
+    "syn_environment_reputation_score": {"description": "Reuses hs_risk_score value when Pollution set, else 0/null", "fabricated": True},
+    "syn_financial_classification": {"description": "Minor/Moderate/Major from real property_damage_usd", "fabricated": True},
+    "syn_financial_score": {"description": "2/5/9 encoding of financial_classification", "fabricated": True},
+    "syn_unmitigated_risk_score": {"description": "Equals hs_risk_score", "fabricated": True},
+    "syn_mitigated_risk_score": {"description": "max(unmitigated - mitigation_delta, mitigation_floor)", "fabricated": True},
+    "syn_incident_title": {"description": "Templated from real incident_types + area_block", "fabricated": True},
+}
+
+
+def synthesize_row(row: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
+    validate_row(row)
+    report_id = row["report_id"]
+
+    fields: dict[str, Any] = {}
+    fields.update(synth_identity_fields(report_id, rules))
+    fields.update(synth_date_fields(report_id, row["incident_date"], rules))
+    fields.update(synth_status_fields(report_id, row["incident_date"], rules))
+    severity_fields, anomalies = synth_severity_fields(
+        row["incident_types"], row["property_damage_usd"], rules
+    )
+    fields.update(severity_fields)
+    fields["incident_title"] = synth_incident_title(row["incident_types"], row["area_block"], rules)
+
+    out = {f"syn_{key}": value for key, value in fields.items()}
+    out["anomalies"] = anomalies
+    return out

@@ -246,3 +246,36 @@ def test_incident_title_multiple_types_sorted_for_determinism():
 def test_incident_title_empty_types_uses_fallback():
     rules = load_rules()
     assert synth_incident_title(frozenset(), "MP 298", rules) == "Unspecified incident at MP 298"
+
+
+from psm.synth import SYN_COLUMN_MANIFEST, synthesize_row
+
+
+def test_synthesize_row_output_keys_match_manifest(make_row):
+    rules = load_rules()
+    out = synthesize_row(make_row(), rules)
+    data_keys = set(out) - {"anomalies"}
+    assert data_keys == set(SYN_COLUMN_MANIFEST)
+
+
+def test_synthesize_row_is_fully_deterministic(make_row):
+    rules = load_rules()
+    row = make_row()
+    assert synthesize_row(row, rules) == synthesize_row(row, rules)
+
+
+def test_synthesize_row_validates_input(make_row):
+    rules = load_rules()
+    bad_row = make_row()
+    del bad_row["area_block"]
+    with pytest.raises(KeyError):
+        synthesize_row(bad_row, rules)
+
+
+def test_synthesize_row_date_chain_is_internally_consistent(make_row):
+    rules = load_rules()
+    out = synthesize_row(make_row(), rules)
+    assert out["syn_approval_date"] >= out["syn_date_of_report"]
+    assert out["syn_close_out_date"] >= out["syn_approval_date"]
+    assert out["syn_action_due_date"] >= out["syn_approval_date"]
+    assert out["syn_agreed_completion_date"] >= out["syn_approval_date"]
