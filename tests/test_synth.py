@@ -108,3 +108,50 @@ def test_date_offsets_raise_on_unresolvable_base():
     broken_rules = dict(rules, date_offsets={"bad_field": {"base": "nonexistent", "low": 1, "high": 2, "salt": "x"}})
     with pytest.raises(ValueError, match="nonexistent"):
         synth_date_fields("r1", date(2020, 1, 1), broken_rules)
+
+
+from datetime import timedelta
+
+from psm.synth import synth_status_fields
+
+
+def test_action_status_completed_after_two_years():
+    rules = load_rules()
+    reference = date.fromisoformat(rules["reference_date"])
+    out = synth_status_fields("r1", reference - timedelta(days=731), rules)
+    assert out["action_status"] == "Completed"
+    assert out["schedule_status"] == "N/A"
+
+
+def test_action_status_boundary_at_exactly_two_years_is_not_yet_completed():
+    rules = load_rules()
+    reference = date.fromisoformat(rules["reference_date"])
+    out = synth_status_fields("r1", reference - timedelta(days=730), rules)
+    assert out["action_status"] == "In Progress"  # age_days == 730 is NOT > 730
+
+
+def test_action_status_in_progress_between_six_months_and_two_years():
+    rules = load_rules()
+    reference = date.fromisoformat(rules["reference_date"])
+    out = synth_status_fields("r1", reference - timedelta(days=400), rules)
+    assert out["action_status"] == "In Progress"
+    assert out["schedule_status"] in {"On Schedule", "Behind"}
+
+
+def test_action_status_pending_under_six_months():
+    rules = load_rules()
+    reference = date.fromisoformat(rules["reference_date"])
+    out = synth_status_fields("r1", reference - timedelta(days=100), rules)
+    assert out["action_status"] == "Pending"
+
+
+def test_status_changes_with_reference_date_not_wall_clock():
+    """Regression test for the wall-clock bug the rev-2 review caught: the
+    bucket must change only because rules['reference_date'] changed, never
+    because of an internal date.today() call."""
+    rules = load_rules()
+    incident_date = date(2024, 1, 1)
+    rules_soon = dict(rules, reference_date="2024-06-01")
+    rules_later = dict(rules, reference_date="2026-03-01")
+    assert synth_status_fields("r1", incident_date, rules_soon)["action_status"] == "Pending"
+    assert synth_status_fields("r1", incident_date, rules_later)["action_status"] == "Completed"

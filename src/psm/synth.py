@@ -66,3 +66,24 @@ def synth_date_fields(report_id: str, incident_date: date, rules: dict[str, Any]
         computed[field] = computed[base] + timedelta(days=offset)
     del computed["incident_date"]
     return computed
+
+
+def synth_status_fields(report_id: str, incident_date: date, rules: dict[str, Any]) -> dict[str, str]:
+    reference_date = date.fromisoformat(rules["reference_date"])
+    age_days = (reference_date - incident_date).days
+    thresholds = rules["action_status_age_days"]
+
+    if age_days > thresholds["completed_after"]:
+        action_status = "Completed"
+    elif age_days > thresholds["in_progress_after"]:
+        action_status = "In Progress"
+    else:
+        action_status = "Pending"
+
+    if action_status == "Completed":
+        schedule_status = "N/A"
+    else:
+        tiebreak = _hash_int(report_id, rules["schedule_status_salt"]) % 2
+        schedule_status = "On Schedule" if tiebreak == 0 else "Behind"
+
+    return {"action_status": action_status, "schedule_status": schedule_status}
