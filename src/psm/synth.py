@@ -10,6 +10,7 @@ every threshold — this module must not hardcode one.
 """
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -33,3 +34,18 @@ def validate_row(row: dict[str, Any]) -> None:
     missing = REQUIRED_ROW_KEYS - row.keys()
     if missing:
         raise KeyError(f"row missing required keys: {sorted(missing)}")
+
+
+def _hash_int(report_id: str, salt: str) -> int:
+    return int(hashlib.sha256(f"{report_id}{salt}".encode()).hexdigest(), 16)
+
+
+def synth_identity_fields(report_id: str, rules: dict[str, Any]) -> dict[str, str]:
+    hex_len = rules["identity_token_hex_len"]
+    out: dict[str, str] = {}
+    for role, salt in rules["identity_salts"].items():
+        digest = hashlib.sha256(f"{report_id}{salt}".encode()).hexdigest()
+        label = rules["identity_token_labels"][role]
+        out[f"{role}_name"] = f"SYN-{label}-{digest[:hex_len]}"
+        out[f"{role}_position"] = rules["identity_positions"][role]
+    return out

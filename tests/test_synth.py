@@ -8,9 +8,13 @@ reference_date for why.
 """
 from __future__ import annotations
 
+import re
+
 import pytest
 
-from psm.synth import REQUIRED_ROW_KEYS, load_rules, validate_row
+from psm.synth import REQUIRED_ROW_KEYS, load_rules, synth_identity_fields, validate_row
+
+TOKEN_RE = re.compile(r"^SYN-[A-Za-z]+-[0-9a-f]{6}$")
 
 
 def test_load_rules_returns_expected_top_level_keys():
@@ -36,3 +40,32 @@ def test_required_row_keys_matches_the_documented_contract():
         "report_id", "incident_date", "incident_types",
         "property_damage_usd", "area_block",
     }
+
+
+def test_identity_fields_are_deterministic():
+    rules = load_rules()
+    first = synth_identity_fields("stable-id", rules)
+    second = synth_identity_fields("stable-id", rules)
+    assert first == second
+
+
+def test_identity_name_tokens_match_expected_format_and_positions():
+    rules = load_rules()
+    out = synth_identity_fields("some-report-id", rules)
+    for role in rules["identity_salts"]:
+        assert TOKEN_RE.match(out[f"{role}_name"]), out[f"{role}_name"]
+        assert out[f"{role}_position"] == rules["identity_positions"][role]
+
+
+def test_identity_tokens_vary_across_reports():
+    rules = load_rules()
+    leads = {synth_identity_fields(f"r{i}", rules)["investigation_lead_name"] for i in range(20)}
+    assert len(leads) > 1
+
+
+def test_identity_tokens_do_not_collide_across_roles_in_corpus():
+    rules = load_rules()
+    for i in range(50):
+        out = synth_identity_fields(f"corpus-report-{i}", rules)
+        names = [out[f"{role}_name"] for role in rules["identity_salts"]]
+        assert len(names) == len(set(names)), f"collision in corpus-report-{i}: {names}"
