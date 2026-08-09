@@ -49,6 +49,17 @@ MAX_CATEGORY_CHARS = 60
 
 CAUSE_STATUS = ("typed", "freetext", "absent_legitimate", "parse_failed")
 
+# Field-label furniture that satisfies the category-prefix shape (short,
+# title-ish, colon-separated) but is not a cause category. Confirmed leaking
+# into field 18/19 body text via continuation-page markers and cross-field
+# label bleed: report 030521-pdf (2003 EAC riser-insert failure, entirely
+# free prose) matched "NOTE: ABB Vetco has redesigned..." and
+# "LIST THE ADDITIONAL INFORMATION:" (field 20's own label) as typed
+# categories. "LIST THE ..." is BSEE's own field-label phrasing (field 18 is
+# literally "LIST THE PROBABLE CAUSE(S)"), so it generalises to any field's
+# label bleeding into another field's body, not just field 20's.
+FURNITURE_HEAD_RE = re.compile(r"^(?:NOTE|LIST\s+THE\b.*)$", re.IGNORECASE)
+
 
 @dataclass
 class CauseStatement:
@@ -133,6 +144,8 @@ def candidate_category(statement: str) -> tuple[str | None, str]:
     head = body[: m.start()].strip(" .–—-")
     if not head or not head[0].isalpha() or len(head.split()) > MAX_CATEGORY_WORDS:
         return None, "untyped_prose"
+    if FURNITURE_HEAD_RE.match(head):
+        return None, "furniture"
     sep = body[m.start(): m.end()]
     form = {":": "colon"}.get(sep, "dash")
     return head, form

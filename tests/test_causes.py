@@ -77,6 +77,38 @@ class TestFalsePositives:
         s = "The mooring chain link fractures initiated from hydrogen embrittlement."
         assert candidate_category(s)[0] is None
 
+    def test_note_marker_is_not_a_category(self):
+        # Regression: report 030521-pdf (2003 EAC riser-insert failure,
+        # entirely free prose) — "NOTE:" is a continuation-page annotation,
+        # not a typed BSEE cause category.
+        s = "NOTE: ABB Vetco has redesigned the connector to prevent this failure."
+        cat, form = candidate_category(s)
+        assert cat is None
+        assert form == "furniture"
+
+    def test_field_label_bleed_is_not_a_category(self):
+        # Regression: field 20's own label ("LIST THE ADDITIONAL
+        # INFORMATION:") bled into field 19's body text on the same report
+        # and was misread as a typed category.
+        s = "LIST THE ADDITIONAL INFORMATION: "
+        cat, form = candidate_category(s)
+        assert cat is None
+        assert form == "furniture"
+
+    def test_field_label_bleed_generalises_across_fields(self):
+        # "LIST THE ..." is BSEE's own field-label phrasing (field 18 is
+        # literally "LIST THE PROBABLE CAUSE(S)"), so the guard must not be
+        # scoped to field 20's wording alone.
+        s = "LIST THE CONTRIBUTING CAUSE(S) OF ACCIDENT: The crane was not used to control the free load."
+        assert candidate_category(s)[0] is None
+
+    def test_real_category_named_list_is_still_typed(self):
+        # The furniture guard must stay narrow: a genuine category should
+        # never collide with it just because it starts with "List".
+        s = "Listing errors: The manifest was not checked before departure."
+        cat, _ = candidate_category(s)
+        assert cat == "Listing errors"
+
 
 class TestCauseStatus:
     """`absent_legitimate` is not a parse failure — conflating them hides bugs."""
@@ -98,6 +130,20 @@ class TestCauseStatus:
 
     def test_untyped_prose_is_freetext_not_failure(self):
         s = "Sea conditions impacted conductor movement, but remained within requirements."
+        assert classify_field(s) == "freetext"
+
+    def test_furniture_only_field_is_freetext_not_typed(self):
+        # Regression: report 030521-pdf's field 19 is entirely free prose
+        # apart from a "NOTE:" continuation annotation and a bled-in field-20
+        # label, both of which previously satisfied the category heuristic
+        # and flipped the whole field to "typed".
+        s = (
+            "Three conditions must exist for EAC to propagate: the material "
+            "must be stressed, susceptible to EAC, and in an environment "
+            "with a hydrogen source.\n"
+            "LIST THE ADDITIONAL INFORMATION: \n"
+            "NOTE: ABB Vetco has redesigned the connector to prevent this failure."
+        )
         assert classify_field(s) == "freetext"
 
 

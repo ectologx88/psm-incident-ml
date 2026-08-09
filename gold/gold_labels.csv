@@ -1,5 +1,5 @@
 report_id,src_report_type,effective_year,src_operator,src_area,src_block,src_date_text,src_date_parsed,src_url,src_filename,src_extract_status,src_cause_status,src_f18_probable_cause,src_f19_contributing_cause,gold_cause_category,gold_psm_element,gold_cause_status,gold_notes,gold_labeler,gold_label_date
-d34a71a29a8cf864f4c8af727bc4249954300d2f0e7c640162aa04dc4851a9fe,district,2003,,,,030521-pdf,2003-05-21,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/summaries/030521-pdf.pdf,030521-pdf.pdf,ok,typed,"The failure originated in one of six inserts (nut) in the female connector of joint
+d34a71a29a8cf864f4c8af727bc4249954300d2f0e7c640162aa04dc4851a9fe,district,2003,,,,030521-pdf,2003-05-21,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/summaries/030521-pdf.pdf,030521-pdf.pdf,ok,freetext,"The failure originated in one of six inserts (nut) in the female connector of joint
 39. The failure of the first insert transferred additional loads to the adjacent
 inserts and bolts, which subsequently failed.
 The high tensile loads from normal operation produced high stresses which were

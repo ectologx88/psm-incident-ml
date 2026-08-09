@@ -380,3 +380,66 @@ only the `src_cause_status` reference column is.
 scaffold — 100 rows with real reference data and empty `gold_*` columns,
 not 100 labelled examples. README's status table has been updated to say so
 explicitly rather than implying the file is already labelled.
+
+## 2026-08-09 — Fixing the `candidate_category()` furniture false positive
+
+Follow-up to the caveat immediately above. Root-caused before fixing, per the
+project's debugging discipline: scanned every typed statement across the 194
+non-empty field-18/19 texts currently cached in `data/interim/` (the 100-report
+gold sample plus a few pre-existing dev files) for every head `candidate_category()`
+currently accepts. 41 distinct heads matched; two are furniture, not categories:
+
+- `NOTE` (2 occurrences, both in `030521-pdf` — a continuation-page annotation)
+- `LIST THE ADDITIONAL INFORMATION` / `LIST THE CONTRIBUTING CAUSE(S) OF ACCIDENT`
+  (3 occurrences, `030521-pdf` and `mc-194-enven-20-jan-2020`) — a field's own
+  BSEE label bleeding into another field's body text.
+
+The other 39 (Equipment Failure, Human Performance Error, Management Systems,
+Communication, Supervision, The IP, The Root Cause, Policy Violation, etc.) are
+genuine BSEE cause language and must not be touched. `(Cont.)`-style markers
+were already correctly rejected by the existing `head[0].isalpha()` check — no
+fix needed there.
+
+**Fix** (`src/psm/causes.py`): added `FURNITURE_HEAD_RE` (`^(?:NOTE|LIST\s+THE\b.*)$`,
+case-insensitive) and a check in `candidate_category()` that returns
+`(None, "furniture")` for a match, instead of treating it as a typed category.
+`LIST\s+THE\b.*` is scoped to BSEE's own field-label phrasing (field 18 is
+literally "LIST THE PROBABLE CAUSE(S)") rather than hardcoding field 20's
+exact wording, so it generalises to any field's label bleeding into another —
+confirmed by the `mc-194-enven` case above, which uses field 19's own label,
+not field 20's.
+
+**Regression tests** added to `tests/test_causes.py`: the two furniture
+patterns, a cross-field generalisation case, a field-level
+`classify_field()` case reproducing the full `030521-pdf` false positive, and
+a negative case (`"Listing errors: ..."`) confirming the guard doesn't
+collide with real categories. Full suite: 142/142 pass.
+
+**`gold/gold_labels.csv` regenerated** (`uv run python -m psm.gold_scaffold`;
+no hand-labels existed yet, all `gold_*` columns were blank, so nothing was
+at risk). Exactly one row changed — `030521-pdf` (report
+`d34a71a29a8cf864f4c8af727bc4249954300d2f0e7c640162aa04dc4851a9fe`), whose
+`src_cause_status` flips from `typed` to `freetext`, matching the diagnosis.
+New split: **28 typed, 71 freetext, 1 parse_failed** (was 29/70/1).
+
+**Effect on the two corpus-wide numbers flagged for review:**
+
+- **"82% of typed statements collapse to 6 categories" (Task 4, n=63,
+  above).** Not reproducibly affected — none of its reported categories or
+  the 14 singleton subcategories look like furniture, and the fix is scoped
+  to two patterns neither of which appears in that table. But this could not
+  be fully re-verified: the original n=63 file set for Task 4 was not
+  preserved separately from the current `data/interim/` cache, so it is
+  unclear whether it is a subset of the 194 texts scanned above. Treat the
+  82% figure as **unaffected but unverified against this specific fix** —
+  re-running Task 4's induction against its original file list, if
+  recoverable, is a follow-up, not done here.
+- **"~32% typed subset" (fork-resolution entry, above).** This was
+  approximate framing, not a precise citation of the pre-fix 29/100=29%
+  gold-sample figure. Post-fix it is **28/100 = 28%** typed by the automated
+  classifier. Read this as a **soft ceiling, not a clean number**: only two
+  furniture patterns were confirmed and fixed from one 100-report sample —
+  other BSEE field-label fragments (e.g. from fields 17, 21–24) could still
+  be bleeding into 18/19 undetected on reports outside this sample. The
+  true typed share is `<= 28%`, direction unchanged from the original
+  caveat (the bug only ever pushes reports *into* `typed`).
