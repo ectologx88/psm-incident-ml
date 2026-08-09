@@ -155,3 +155,76 @@ def test_status_changes_with_reference_date_not_wall_clock():
     rules_later = dict(rules, reference_date="2026-03-01")
     assert synth_status_fields("r1", incident_date, rules_soon)["action_status"] == "Pending"
     assert synth_status_fields("r1", incident_date, rules_later)["action_status"] == "Completed"
+
+
+from psm.synth import synth_severity_fields
+
+
+def test_fatality_maps_to_very_serious():
+    rules = load_rules()
+    fields, anomalies = synth_severity_fields(frozenset({"Fatality"}), 50000.0, rules)
+    assert fields["incident_classification"] == "Very Serious"
+    assert fields["worst_reasonable_outcome"] == "Very Serious"
+    assert fields["involves_fatality_or_injury"] is True
+    assert fields["hs_risk_score"] == 9
+    assert fields["unmitigated_risk_score"] == 9
+    assert fields["mitigated_risk_score"] == 7
+    assert anomalies == []
+
+
+def test_multiple_checkboxes_spanning_tiers_takes_highest():
+    rules = load_rules()
+    fields, _ = synth_severity_fields(frozenset({"Fire", "Fatality"}), 1000.0, rules)
+    assert fields["incident_classification"] == "Very Serious"
+
+
+def test_resolved_but_unlisted_type_falls_back_to_incident_tier():
+    rules = load_rules()
+    fields, anomalies = synth_severity_fields(frozenset({"Crane"}), 1000.0, rules)
+    assert fields["incident_classification"] == "Incident"
+    assert fields["hs_risk_score"] == 2
+    assert fields["mitigated_risk_score"] == 1  # floored, not negative
+    assert anomalies == []
+
+
+def test_empty_incident_types_is_unknown_and_logged():
+    rules = load_rules()
+    fields, anomalies = synth_severity_fields(frozenset(), 1000.0, rules)
+    assert fields["incident_classification"] == "Unknown"
+    assert fields["hs_risk_score"] is None
+    assert fields["unmitigated_risk_score"] is None
+    assert fields["mitigated_risk_score"] is None
+    assert any(a["type"] == "unresolved_incident_classification" for a in anomalies)
+
+
+def test_pollution_gates_environment_score():
+    rules = load_rules()
+    with_pollution, _ = synth_severity_fields(frozenset({"Fatality", "Pollution"}), 1000.0, rules)
+    without_pollution, _ = synth_severity_fields(frozenset({"Fatality"}), 1000.0, rules)
+    assert with_pollution["environment_reputation_classification"] == "Very Serious"
+    assert with_pollution["environment_reputation_score"] == 9
+    assert without_pollution["environment_reputation_classification"] == "None"
+    assert without_pollution["environment_reputation_score"] == 0
+
+
+def test_financial_thresholds_are_boundary_exact():
+    rules = load_rules()
+    at_25000, _ = synth_severity_fields(frozenset({"Crane"}), 25000.0, rules)
+    just_over, _ = synth_severity_fields(frozenset({"Crane"}), 25000.01, rules)
+    assert at_25000["financial_classification"] == "Minor"
+    assert just_over["financial_classification"] == "Moderate"
+
+
+def test_missing_property_damage_is_unknown_and_logged():
+    rules = load_rules()
+    fields, anomalies = synth_severity_fields(frozenset({"Crane"}), None, rules)
+    assert fields["financial_classification"] == "Unknown"
+    assert fields["financial_score"] is None
+    assert any(a["type"] == "unresolved_property_damage" for a in anomalies)
+
+
+def test_mitigated_never_exceeds_unmitigated():
+    rules = load_rules()
+    for types in (frozenset({"Fatality"}), frozenset({"Injury"}), frozenset({"Crane"})):
+        fields, _ = synth_severity_fields(types, 1000.0, rules)
+        assert fields["mitigated_risk_score"] <= fields["unmitigated_risk_score"]

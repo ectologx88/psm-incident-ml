@@ -87,3 +87,67 @@ def synth_status_fields(report_id: str, incident_date: date, rules: dict[str, An
         schedule_status = "On Schedule" if tiebreak == 0 else "Behind"
 
     return {"action_status": action_status, "schedule_status": schedule_status}
+
+
+def synth_severity_fields(
+    incident_types: frozenset[str],
+    property_damage_usd: float | None,
+    rules: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    anomalies: list[dict[str, Any]] = []
+
+    checkbox_tiers = [t for t in rules["severity_tier_order"] if t in rules["severity_tiers"]]
+    tier: str | None = None
+    for candidate in checkbox_tiers:
+        if incident_types & set(rules["severity_tiers"][candidate]):
+            tier = candidate
+            break
+    if tier is None and incident_types:
+        tier = "Incident"
+    if tier is None:
+        anomalies.append({
+            "type": "unresolved_incident_classification",
+            "note": "incident_types empty or contains no recognised label",
+        })
+
+    hs_score = rules["hs_risk_score_by_tier"][tier] if tier else None
+    pollution = rules["pollution_label"] in incident_types
+    if tier is None:
+        env_class, env_score = "Unknown", None
+    elif pollution:
+        env_class, env_score = tier, hs_score
+    else:
+        env_class, env_score = "None", 0
+
+    if property_damage_usd is None:
+        fin_class, fin_score = "Unknown", None
+        anomalies.append({
+            "type": "unresolved_property_damage",
+            "note": "property_damage_usd is None",
+        })
+    else:
+        fin_class = next(
+            t["classification"]
+            for t in rules["financial_thresholds_usd"]
+            if t["max_usd"] is None or property_damage_usd <= t["max_usd"]
+        )
+        fin_score = rules["financial_score_by_classification"][fin_class]
+
+    mitigated = (
+        max(hs_score - rules["mitigation_delta"], rules["mitigation_floor"])
+        if hs_score is not None else None
+    )
+
+    fields = {
+        "incident_classification": tier or "Unknown",
+        "worst_reasonable_outcome": tier or "Unknown",
+        "involves_fatality_or_injury": bool(set(rules["fatality_injury_labels"]) & incident_types),
+        "hs_risk_score": hs_score,
+        "environment_reputation_classification": env_class,
+        "environment_reputation_score": env_score,
+        "financial_classification": fin_class,
+        "financial_score": fin_score,
+        "unmitigated_risk_score": hs_score,
+        "mitigated_risk_score": mitigated,
+    }
+    return fields, anomalies
