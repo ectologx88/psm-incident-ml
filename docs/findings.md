@@ -302,3 +302,81 @@ page furniture at parse time, and the filter is declared in
   implausible rather than ruled out.
 - Form-face fields 8–16 on ~16% of reports and field 29 on ~63%.
 - The 2003–2013 archive has not been extracted, only counted.
+
+## 2026-08-09 — Resolving the coverage fork (labeling vs. free-text handling)
+
+**The fork was a false dichotomy.** Since the vocabulary induction (Task 4,
+above) confirmed the extraction premise but left ~68% of the corpus as
+free-text prose with no controlled cause vocabulary, the open question was
+whether to (a) hand-label the gold set now against the ~32% typed subset, or
+(b) first build an LLM-assisted path for the free-text majority. Gold-set
+construction does not actually depend on that answer: a human labeller reads
+the source PDF directly and assigns `gold_` fields regardless of whether
+field 18/19 happened to use the controlled vocabulary. `src_cause_status` is
+recorded per report for reference, not as a gate on whether a report is
+eligible for the gold set. Building the gold set first is also the right
+sequencing on its own merits — it is the fixed yardstick any future
+extraction approach (crosswalk-only or LLM-assisted) gets evaluated against;
+designing the extraction approach before the eval set exists risks shaping
+the eval set around whatever the approach happens to handle well.
+
+**Resolution:** proceed with gold-set construction now, stratified across
+the full 2003–2026 corpus (typed and free-text eras alike), not just the
+typed subset. The LLM-assisted free-text path is deferred, to be built and
+scored against this gold set once it exists — not before.
+
+**What was built**, per Task 5 of the original brief (100 reports,
+stratified across years):
+
+- `src/psm/gold_sample.py` — deterministic, year-stratified sampling from
+  `data/manifest.csv`. District reports only (`src_report_type ==
+  "district"`); panel reports are excluded because they are a structurally
+  different, unverified document type (see "not yet verified" below) that
+  this project's extraction pipeline was never built against. Selection
+  within each year is by ascending `sha256(src_url)` — no stored seed, same
+  determinism pattern as `src/psm/synth.py`'s hash offsets. Allocation is
+  `target_n // n_years` per year, floored at 1 and capped by that year's
+  availability, remainder distributed to the years with the most spare
+  capacity. Run against the real manifest: **100 of 1,302 rows selected**,
+  every year 2003–2026 represented (2003 capped at 3 — only 3 district
+  reports exist for that year), the rest 4–5 each.
+- `src/psm/gold_scaffold.py` — assembles `gold/gold_labels.csv` from the
+  sampled manifest plus `extract.py`'s per-report JSON: one row per sampled
+  report with `src_` reference fields (operator, area/block, date, url,
+  field 18/19 raw text) pre-filled, and `gold_cause_category` /
+  `gold_psm_element` / `gold_cause_status` / `gold_notes` / `gold_labeler` /
+  `gold_label_date` left **blank by design**. This module never writes a
+  `gold_` value — doing so would collapse the `gold_`/`llm_` distinction the
+  whole provenance convention exists to protect. `src_cause_status` is
+  computed per row (typed wins if either field 18 or 19 is typed; freetext
+  wins over absent/parse_failed; `absent_legitimate` only when both fields
+  are genuinely blank) purely as a reference hint for the labeller, with the
+  caveat below.
+- Fetched the 100 sampled PDFs (`uv run python -m psm.fetch --manifest
+  data/interim/gold_sample_manifest.csv`) — 100/100 downloaded, 0 failures.
+  Extracted all of them (`extract.py`) — 104/105 `ok` (105 = 100 sample + 5
+  pre-existing dev-sample files already in `data/raw/`), 1 `parse_failed`.
+  `gold/gold_labels.csv` now has 100 rows: **29 typed, 70 freetext, 1
+  parse_failed** by the automated classifier — see the caveat immediately
+  below before treating that split as authoritative.
+
+**Caveat — `src_cause_status` on this sample has a known false-positive
+mode, do not cite the 29/70/1 split as clean.** Verifying a 2003 report
+flagged `typed` found the actual field-19 text was 100% free prose;
+`candidate_category()` (`src/psm/causes.py`) matched on `"NOTE:"` and
+`"LIST THE ADDITIONAL INFORMATION:"` — continuation-page furniture bleeding
+into the field-19 text run from a multi-page narrative, not real BSEE cause
+categories. Reproduced directly:
+`candidate_category("NOTE: ABB Vetco has redesigned...")` returns
+`("NOTE", "colon")` instead of `(None, "untyped_prose")`. This means the
+true free-text share of this sample (and likely the corpus) is **at least
+70%, plausibly higher** — the bug only pushes reports *into* `typed`, never
+out of it. Flagged as a follow-up task, not fixed here, to keep this session
+scoped to resolving the fork rather than re-opening the vocabulary-induction
+parser. `gold_cause_status` (human-assigned) is not affected by this bug —
+only the `src_cause_status` reference column is.
+
+**Not yet done:** the actual hand-labeling. `gold/gold_labels.csv` is a
+scaffold — 100 rows with real reference data and empty `gold_*` columns,
+not 100 labelled examples. README's status table has been updated to say so
+explicitly rather than implying the file is already labelled.

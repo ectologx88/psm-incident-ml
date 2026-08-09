@@ -34,7 +34,7 @@ Concretely:
 | `data/processed/investigations_index.csv` — BSEE structured listing | **Real**, committed |
 | `data/raw/` — the PDFs themselves | **Real**, gitignored, rebuildable from the manifest |
 | `data/processed/incidents.csv` — extracted fields | **Real** (`src_`) + **derived** (`xw_`) |
-| `gold/gold_labels.csv` — hand-labelled evaluation set | **Real**, human-assigned, the only scoring target |
+| `gold/gold_labels.csv` — evaluation-set scaffold, 100 reports stratified 2003–2026 | `src_*` reference columns are **real**; `gold_*` columns are **blank, not yet hand-labelled**. See [`docs/findings.md`](docs/findings.md) (2026-08-09) |
 | Administrative + risk-matrix fields (reporter names, approval chain, incident severity/risk scores, recommendation tracking) | **Synthetic** (`syn_`) — the E19 template needs them; BSEE does not publish them. See [`docs/_synth.md`](docs/_synth.md) |
 
 **Why any synthetic data at all?** The E19 investigation-report structure
