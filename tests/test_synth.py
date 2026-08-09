@@ -279,3 +279,44 @@ def test_synthesize_row_date_chain_is_internally_consistent(make_row):
     assert out["syn_close_out_date"] >= out["syn_approval_date"]
     assert out["syn_action_due_date"] >= out["syn_approval_date"]
     assert out["syn_agreed_completion_date"] >= out["syn_approval_date"]
+
+
+import ast
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+
+# Literals structurally required by the implementation, never a tunable
+# threshold that belongs in schema/synth_rules.yaml instead. Corrected
+# 2026-08-09 against the actual code: the plan's original {0, 1, 2} omitted
+# 16 (the hex-string base in _hash_int's int(digest, 16)), which would have
+# made this test fail on first run against Tasks 1-7's real implementation.
+ALLOWED_LITERALS = {
+    0,   # env_score/tiebreak default (synth_severity_fields, synth_status_fields)
+    1,   # date_offsets span fencepost: high - low + 1
+    2,   # % 2 tiebreak in synth_status_fields; REPO path parents[2] in synth.py
+    16,  # hex-string base in _hash_int: int(digest, 16)
+}
+
+
+def _numeric_literals_in(source: str) -> set[float]:
+    tree = ast.parse(source)
+    found: set[float] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+            found.add(node.value)
+    return found
+
+
+def test_no_unexplained_numeric_literals_in_synth():
+    """Mechanical half of 'every syn_ column traces to a rule' — scoped
+    honestly to numeric literals only. String literals (role names, tier
+    names) are traced by convention + code review, not by this test; see
+    docs/superpowers/specs/2026-08-09-synth-fields-design.md Testing section."""
+    source = (REPO / "src" / "psm" / "synth.py").read_text()
+    found = _numeric_literals_in(source)
+    unexplained = found - ALLOWED_LITERALS
+    assert not unexplained, (
+        f"numeric literal(s) {unexplained} in synth.py not in ALLOWED_LITERALS — "
+        "move to schema/synth_rules.yaml, or extend ALLOWED_LITERALS with justification"
+    )
