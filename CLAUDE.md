@@ -31,6 +31,17 @@ A column with no prefix is a bug. `tests/test_conventions.py` enforces this.
 to EI PSM elements. It will be argued with. Keep it readable in one screen,
 version it, and **never bury a mapping in a Python dict.**
 
+## The `xw_`/`syn_` boundary
+
+`xw_` requires an external, independently published source (today:
+`schema/crosswalk.yaml`'s BSEE-category -> EI element mapping). A `synth.py`
+rule may take a real BSEE convention as *inspiration* for a threshold's shape
+(e.g. picking a round dollar figure BSEE itself uses as an order-of-magnitude
+reference) without qualifying as `xw_` — inspiration is not sourcing. Every
+`src/psm/synth.py` output is `syn_`, full stop, even when it's derived from a
+real `src_` column, because the *mapping* (which tier a value falls into) is
+our own invented judgment, not an external authority's.
+
 ## Never report a metric scored against `llm_` columns
 
 Accuracy against model-generated labels measures agreement with the labeller,
