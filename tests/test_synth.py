@@ -228,3 +228,21 @@ def test_mitigated_never_exceeds_unmitigated():
     for types in (frozenset({"Fatality"}), frozenset({"Injury"}), frozenset({"Crane"})):
         fields, _ = synth_severity_fields(types, 1000.0, rules)
         assert fields["mitigated_risk_score"] <= fields["unmitigated_risk_score"]
+
+
+from psm.synth import synth_incident_title
+
+
+def test_incident_title_happy_path():
+    rules = load_rules()
+    assert synth_incident_title(frozenset({"Fatality"}), "MP 298", rules) == "Fatality incident at MP 298"
+
+
+def test_incident_title_multiple_types_sorted_for_determinism():
+    rules = load_rules()
+    assert synth_incident_title(frozenset({"Fire", "Crane"}), "MP 298", rules) == "Crane, Fire incident at MP 298"
+
+
+def test_incident_title_empty_types_uses_fallback():
+    rules = load_rules()
+    assert synth_incident_title(frozenset(), "MP 298", rules) == "Unspecified incident at MP 298"

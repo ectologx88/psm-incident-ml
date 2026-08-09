@@ -151,3 +151,8 @@ def synth_severity_fields(
         "mitigated_risk_score": mitigated,
     }
     return fields, anomalies
+
+
+def synth_incident_title(incident_types: frozenset[str], area_block: str, rules: dict[str, Any]) -> str:
+    label = ", ".join(sorted(incident_types)) if incident_types else "Unspecified"
+    return rules["incident_title_template"].format(incident_type=label, area_block=area_block)
