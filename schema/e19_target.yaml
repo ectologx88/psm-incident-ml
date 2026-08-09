@@ -11,15 +11,19 @@
 # vocabularies reconciled against
 # docs/superpowers/specs/2026-08-09-synth-fields-design.md rev 2 - field
 # names and vocab values here now match that spec exactly. report_id moved
-# to sourced_fields (real, from the harvest spine - the original
-# synthetic_fields entry predated that work).
+# to sourced_fields (the original synthetic_fields entry predated that work).
+# No report_id column exists anywhere in the real pipeline (data/manifest.csv,
+# src/psm/spine.py, src/psm/extract.py all checked) - it resolves to
+# src_sha256, already unique per PDF. See sourced_fields.report_id below and
+# the Row Input Contract in
+# docs/superpowers/plans/2026-08-09-synth-fields-implementation.md.
 
 version: 2
 scope: "single incident investigation record"
 
 # --- Fields populated from BSEE source documents (src_ / xw_) ---
 sourced_fields:
-  report_id:             {from: "harvest spine (data/manifest.csv)", type: string, required: true, note: "primary key; not from form2010 - moved here from synthetic_fields in v2, see docs/_harvest.md"}
+  report_id:             {from: "src_sha256 (data/manifest.csv / extract_report() output)", type: string, required: true, note: "primary key; not from form2010. No report_id column exists anywhere in the pipeline - src_sha256 is the closest real, already-unique identifier, so it fills this role. See the Row Input Contract in docs/superpowers/plans/2026-08-09-synth-fields-implementation.md."}
   incident_date:        {from: "form2010.f01", type: date,   required: true}
   incident_time:        {from: "form2010.f01", type: time,   required: false}
   operator:             {from: "form2010.f02", type: string, required: true}
