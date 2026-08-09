@@ -1,0 +1,94 @@
+# Synthetic (syn_) field generation rules for the E19 target schema.
+#
+# DATA, NOT CODE — see docs/superpowers/specs/2026-08-09-synth-fields-design.md
+# (rev 2) for the design rationale, and docs/_synth.md for a plain-language
+# explanation. src/psm/synth.py applies these rules; it must not hardcode a
+# threshold, tier, salt, or word-list defined here.
+
+version: 1
+
+# Frozen anchor for every age-based rule (action_status, schedule_status).
+# NEVER read wall-clock time — that breaks the byte-identical reproducibility
+# contract every time the pipeline reran on a later date. Bump this only
+# deliberately, as a new dataset generation, never automatically.
+reference_date: "2026-08-09"
+
+# Per-role salts for identity-token hashing:
+# token = sha256(report_id + salt).hexdigest()[:identity_token_hex_len]
+identity_salts:
+  investigation_lead: "lead"
+  incident_classified_by: "classified_by"
+  investigation_acceptor: "acceptor"
+  close_out_approval: "close_out"
+  responsible_owner: "owner"
+
+# 6 hex chars = 16.7M-value space. Widened from 4 in rev 2 so expected
+# collisions across the full ~1,300-report corpus are negligible (see spec).
+identity_token_hex_len: 6
+
+identity_token_labels:
+  investigation_lead: "Investigator"
+  incident_classified_by: "Classifier"
+  investigation_acceptor: "Acceptor"
+  close_out_approval: "Approver"
+  responsible_owner: "Owner"
+
+identity_positions:
+  investigation_lead: "Synthetic Role — Investigation Lead"
+  incident_classified_by: "Synthetic Role — Incident Classifier"
+  investigation_acceptor: "Synthetic Role — Investigation Acceptor"
+  close_out_approval: "Synthetic Role — Close-Out Approver"
+  responsible_owner: "Synthetic Role — Responsible Owner"
+
+# offset_days = low + int(sha256(report_id + salt), 16) % (high - low + 1)
+# `base` must name a field already computed earlier in this mapping —
+# insertion order below IS dependency order (date_of_report before
+# approval_date, approval_date before the rest). Do not reorder without
+# updating src/psm/synth.py's base-resolution check.
+date_offsets:
+  date_of_report:         {base: incident_date, low: 5,  high: 15,  salt: "date_of_report"}
+  approval_date:           {base: date_of_report, low: 14, high: 45,  salt: "approval_date"}
+  close_out_date:           {base: approval_date,   low: 30, high: 90,  salt: "close_out_date"}
+  action_due_date:          {base: approval_date,   low: 30, high: 180, salt: "action_due_date"}
+  agreed_completion_date:   {base: approval_date,   low: 30, high: 180, salt: "agreed_completion_date"}
+
+action_status_age_days:
+  completed_after: 730    # > 2yr -> Completed
+  in_progress_after: 183  # 6mo-2yr -> In Progress; <=183 -> Pending
+
+schedule_status_salt: "schedule_status"
+
+# src_f07 checkbox label -> severity tier, highest listed tier wins if an
+# incident matches more than one. Any resolved-but-unlisted label falls back
+# to "Incident" in code; an empty/unresolved set falls back to "Unknown".
+severity_tier_order: ["Very Serious", "Serious", "Incident"]
+severity_tiers:
+  "Very Serious": [Fatality, Blowout, Explosion]
+  "Serious": [Injury, LWC, Fire, Collision]
+
+hs_risk_score_by_tier:
+  "Very Serious": 9
+  "Serious": 5
+  "Incident": 2
+
+fatality_injury_labels: [Fatality, Injury]
+
+pollution_label: "Pollution"
+
+# Ordered low -> high; first entry whose max_usd the amount is <= wins.
+# null max_usd = no upper bound. Our own thresholds, not externally sourced —
+# see the xw_/syn_ boundary rule in CLAUDE.md.
+financial_thresholds_usd:
+  - {max_usd: 25000, classification: "Minor"}
+  - {max_usd: 500000, classification: "Moderate"}
+  - {max_usd: null, classification: "Major"}
+
+financial_score_by_classification:
+  "Minor": 2
+  "Moderate": 5
+  "Major": 9
+
+mitigation_delta: 2
+mitigation_floor: 1
+
+incident_title_template: "{incident_type} incident at {area_block}"
