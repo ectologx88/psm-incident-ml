@@ -12,6 +12,42 @@ Records are mapped toward the Energy Institute PSM Framework **Element 19**
 
 ---
 
+## How this fits together
+
+```mermaid
+flowchart TB
+    BSEE["BSEE offshore incident PDFs<br/>(public federal records)"]:::real
+    SRC["src_ fields<br/>extracted verbatim"]:::real
+    E19FILE["Partner's E19 Excel file<br/>(reference only — never committed)"]:::structure
+    SCHEMA["e19_target.yaml<br/>hand-written schema"]:::structure
+    XW["xw_ fields<br/>BSEE cause to EI PSM element<br/>(documented, arguable mapping)"]:::structure
+    SYN["syn_ fields<br/>admin / workflow placeholders<br/>(never real, never scored)"]:::synth
+    GOLD["gold_ fields<br/>hand-labelled by a human<br/>(the only valid scoring target)"]:::gold
+    MODEL["Baseline ML models<br/>(not yet trained)"]:::structure
+
+    BSEE --> SRC
+    E19FILE -. field names & structure only .-> SCHEMA
+    SRC --> XW
+    SCHEMA -. shapes .-> XW
+    SCHEMA -. defines required slots .-> SYN
+    SRC --> GOLD
+    XW --> MODEL
+    GOLD --> MODEL
+
+    classDef real fill:#e6f4ea,stroke:#2e7d32,color:#1b5e20;
+    classDef structure fill:#e8f0fe,stroke:#1a73e8,color:#174ea6;
+    classDef synth fill:#f3e8fd,stroke:#8430ce,color:#5b21b6;
+    classDef gold fill:#fff8e1,stroke:#f9a825,color:#8d6e00;
+```
+
+**Read it as:** real BSEE reports flow in as `src_`; a documented, arguable
+mapping — not the partner's workbook itself — turns that into `xw_`; where the
+E19 structure needs administrative fields BSEE doesn't publish, we generate
+clearly-labelled `syn_` placeholders; and a human labeller produces `gold_`,
+the only thing any model is ever scored against. The E19 Excel file shapes
+the *schema* (field names, structure) — it is never a data source and is
+never committed to this repo.
+
 ## What is real and what is generated
 
 This is the first thing to read. The project deliberately mixes verbatim source
