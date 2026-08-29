@@ -1735,3 +1735,77 @@ in-window counts.
 Tests 243 → 249, including guards that the rates declare their window, that no
 unestimable mechanism carries a rate, that every rate meets the n floor, and that
 explosion is not banded below lifting.
+
+## 2026-08-29 — R4 applied: the test suite can now fail
+
+### The name collision that hid the gap
+
+`tests/test_crosswalk.py` tested `schema/crosswalk.yaml`. **Nothing tested
+`psm.crosswalk`** — 244 statements, 0%, the module that writes every enriched
+table. The near-identical names are the likely reason nobody noticed 28 passing
+tests sitting beside an untested module. Renamed to `test_crosswalk_schema.py`,
+and a new `test_crosswalk_module.py` tests the module.
+
+| module | before | after |
+|---|---|---|
+| `crosswalk.py` | **0%** | **48%** |
+| total | 30% | 35% |
+| tests | 249 | **281** |
+
+The 24 new module tests target defects that actually occurred, not happy paths:
+a mechanism alone must be a Loss Event (a record tagged only `Fire` previously
+got no Type A); a deliberate null must not backfill from a lower-precedence atom;
+an unestimable mechanism gets consequence but no score; verbatim always wins.
+
+### The test the file's own docstring promised and did not have
+
+`test_crosswalk_schema.py` opens by saying it exists so the v1 numbering bug
+"cannot recur silently" — v1 routed Equipment Failure to element 7 while its own
+note described element 15's subject matter. **Nothing compared the two.** Swapping
+any two categories' element numbers left all 28 tests green.
+
+Replaced `test_version_is_two_or_later` (a constant asserting a constant) with
+`test_every_element_matches_its_own_stated_reasoning`, which checks each entry's
+`matched_on` phrase against the element *name*.
+
+**It failed on first run, on exactly the two entries marked `confidence: low`** —
+`Supervision` (fixed by removing "task" from the stopword list, since element 17
+is "Work control, permit to work and **task** risk management") and
+`Work Environment`, whose "workplace layout, weather, marine environment" shares
+nothing with "Hazard identification and risk assessment". That is the file's own
+admission, so the test now permits a low-confidence entry to share no vocabulary
+**provided it declares low confidence and explains** — and requires agreement
+everywhere else.
+
+### The provenance convention: documented deviation, now enforced
+
+CLAUDE.md says every column in every processed table carries a
+`src_`/`xw_`/`llm_`/`gold_`/`syn_` prefix and names `test_conventions.py` as the
+enforcer. That file was 30 lines, tested only `synth.py`, and its docstring still
+said `crosswalk.py` "does not exist yet". **186 of 187 shipped columns carry no
+prefix.**
+
+The deviation is correct and was simply never written down: E19 columns must be
+byte-exact template labels, so prefixing them would break the exactness guarantee
+the projection layer exists to provide. Provenance moved to a **parallel file** —
+and that is a *stronger* guarantee than a prefix, because a prefix labels a whole
+column while the parallel file labels every cell, and the same E19 column is
+read-verbatim on one row and inferred on another.
+
+`test_conventions.py` now enforces what ships: prefixes on `synth.py` output and
+the sidecar, where the exactness constraint does not apply; and for the E19
+tables, that a provenance file exists with matching shape, that its tokens come
+from a closed set, that no non-empty cell lacks a provenance, that no provenance
+mark lacks a value, and that **`xw` never overwrote a verbatim value**.
+
+That last one is the enrichment step's central invariant and had no test at all.
+
+**CLAUDE.md still describes the prefix rule as universal.** It is not, and the
+deviation is deliberate. Left for the repo owner rather than amended unilaterally.
+
+### Still outstanding from the review
+
+R5 gold set (0/100 labelled, joins 0/100 directly — nothing scoreable), R6 README
+contradictions, R7 the ~37 unexplained missing fatalities. `e19_schema.py`,
+`evidence.py`, `fetch.py` and `spine.py` remain at 0%; they are one-shot
+generators rather than pipeline stages, which is a reason but not a defence.

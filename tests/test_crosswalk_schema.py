@@ -1,4 +1,8 @@
-"""Guards for the crosswalks.
+"""Guards for the crosswalk RULE FILES (schema/*.yaml).
+
+Named test_crosswalk_schema, not test_crosswalk: this file tests YAML, not
+`psm.crosswalk`. The old name collided with the module and is the likely reason
+nobody noticed the module had 0% coverage while 28 tests here passed.
 
 The PSM element crosswalk was keyed to a different numbering than the target
 template for its whole life, and nothing caught it: v1 routed Equipment Failure
@@ -66,8 +70,36 @@ class TestElementNumbersResolve:
 class TestReBasingIsAuditable:
     """v2 must carry its own provenance, or the next reader repeats the mistake."""
 
-    def test_version_is_two_or_later(self, crosswalk):
-        assert crosswalk["version"] >= 2
+    def test_every_element_matches_its_own_stated_reasoning(self, elements, crosswalk):
+        """THE test this file's docstring promises and did not have.
+
+        v1 routed Equipment Failure to element 7 while its note described
+        "maintenance, inspection and repair adequacy". Nothing compared the two.
+        Swapping any two categories' numbers left all 28 tests green.
+
+        Each entry records `matched_on`: the phrase from its own note that the
+        element name was matched against. This asserts they still agree.
+        """
+        import re as _re
+        STOP = {"and", "the", "of", "a", "to", "in", "or", "for", "on", "with"}
+        for cat, spec in crosswalk["categories"].items():
+            name = elements[spec["primary_element"]].lower()
+            words = {w for w in _re.findall(r"[a-z]{4,}", spec["matched_on"].lower())
+                     if w not in STOP}
+            hit = {w for w in words if w[:6] in name}
+            if hit:
+                continue
+            # A low-confidence entry is ALLOWED to share no vocabulary -- that is
+            # often what makes it low confidence. But it must say so, and say why,
+            # rather than sharing nothing silently. Work Environment is the live
+            # example: "workplace layout, weather, marine environment" against
+            # "Hazard identification and risk assessment".
+            assert spec.get("confidence") == "low", (
+                f"{cat}: matched_on {spec['matched_on']!r} shares no term with "
+                f"element {spec['primary_element']} ({elements[spec['primary_element']]!r}), "
+                f"but is marked confidence={spec.get('confidence')!r}. Either the "
+                "mapping drifted or the reasoning was never true.")
+            assert spec.get("note"), f"{cat}: low-confidence mapping with no explanation"
 
     def test_target_reference_names_the_generated_labels_file(self, crosswalk):
         assert "e19_labels.yaml" in crosswalk["target_element_reference"]
