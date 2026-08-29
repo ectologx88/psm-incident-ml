@@ -1496,3 +1496,75 @@ extraction exceeds that. It was completed in two passes (1,169 then the
 remaining 120), and `anomalies.jsonl` was regenerated from the per-record
 anomaly lists afterwards, because the interrupted run had truncated it in `w`
 mode. Anyone re-running this should do it locally in one pass.
+
+## 2026-08-29 — R0.1 applied: column detection per band, not per page
+
+### The fix, in three parts — the second and third were found by being wrong
+
+**Part 1: band the page.** `find_gutter` asks whether *the page* is two-column.
+Wrong question: the admin block sits at the BOTTOM of a page whose upper
+two-thirds is single-column narrative, so the prose crosses every candidate x and
+the page-wide test can never fire (127 of 434 admin pages, 29.3%). Replaced with
+`find_column_bands`, which finds contiguous runs of rows sharing a gutter.
+
+**Part 2: judge the band, not the row.** A first version tested each row for a
+clear span with content on both sides. That fragmented the block into runs of
+one, because a long field-26 value legitimately spills across the gutter and
+`30. DISTRICT SUPERVISOR:` sits entirely in the right column. Both the
+clear-fraction tolerance and the content-on-both-sides test now apply to the
+band.
+
+**Part 3: require form structure, not just whitespace.** Part 2 worked on the
+admin block and **shredded narrative prose** — three consecutive ragged lines
+happened to share a gap, and `iv) Stress concentration areas` /
+`relieved by some means to prevent surface crack` came out as two "columns".
+That is exactly what the page-wide clear-fraction test used to prevent; a local
+test loses the protection and has to replace it with positive evidence. A band
+now also requires at least two rows carrying a form anchor (`NN. Label`). Prose
+does not.
+
+### A metric that hid a working fix
+
+After part 3 the measure said clean MAJOR/MINOR had fallen from 10 to 2, and the
+fix was one step from being reverted. The metric was `value.upper() in
+('MAJOR','MINOR')` — an exact match. The actual extracted value was
+`'MAJOR\n29. ACCIDENT INVESTIGATION\nPANEL FORMED:\nNO'`: **the classification was
+correct and leading**, with field 29's content trailing it. Measured as
+"starts with MAJOR/MINOR", the true figure was **62**, not 2.
+
+Recorded because the near-miss is the lesson: a too-strict metric scored a
+correct extraction as a regression, and the response to a regression is usually
+to revert.
+
+### The residue had a familiar shape
+
+Field 29's label wraps across two rows — `29. ACCIDENT INVESTIGATION` /
+`PANEL FORMED:` — so a hint of `PANEL FORMED` never matched the anchor line,
+anchor 29 was rejected, and field 28 ran on into its content. Identical in shape
+to field 17's two wordings, and fixed the same way: a `label_hint` alternate in
+YAML, no code change.
+
+### Measured outcome
+
+| | original | now |
+|---|---|---|
+| field 28 **clean MAJOR/MINOR** | 4 | **58** |
+| field 28 total non-empty (i.e. how much was bleed) | 234 | **119** |
+| field 29 located | ~460 | **1,006** / 1,219 |
+| `Area == "5"` | 42 | **2** |
+| `Unit` populated | 691 | **757** |
+| revision A / B / C / unknown | 127/701/377/14 | **94/743/377/5** |
+
+Field 28 non-empty *falling* is the point: field 29 now claims its own content
+instead of it being absorbed. The bleed collapsed from 230 to ~57, and the column
+carries 58 clean classifications where it carried 4.
+
+Field 17 fill holds at 99.7% of ok records. 226 tests pass. Enriched incident
+columns with any value remain 25/43 — R0 and R0.1 corrected values rather than
+adding columns, which was their purpose.
+
+**Still open from the review:** R1 vocabulary constraints (the 234 illegal
+classifications are now 119, but the column still mixes BSEE MAJOR/MINOR with
+E19's VSI/SI/Incident and still suppresses crosswalk values), R2 recommendation
+grain, R3 the retracted statistic and re-banded likelihood, R4 test honesty,
+R5 gold set, R6 README, R7 the ~37 unexplained missing fatalities.

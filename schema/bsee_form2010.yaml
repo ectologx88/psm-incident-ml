@@ -70,7 +70,12 @@ fields:
   26: {name: team_members,           region: admin,     label_hint: "Team Members",                kind: text}
   27: {name: operator_report_on_file, region: admin,    label_hint: "OPERATOR REPORT ON FILE",     kind: yesno}
   28: {name: accident_classification, region: admin,    label_hint: "ACCIDENT CLASSIFICATION",     kind: text}
-  29: {name: panel_formed,           region: admin,     label_hint: "PANEL FORMED",                kind: yesno}
+  # Two rows. The label wraps as "29. ACCIDENT INVESTIGATION" / "PANEL FORMED:",
+  # so a hint of "PANEL FORMED" alone never matches the anchor line, anchor 29 is
+  # rejected, and field 28's value runs on into 29's content. Same shape as
+  # field 17's two wordings.
+  29: {name: panel_formed,           region: admin,     kind: yesno,
+       label_hint: ["PANEL FORMED", "ACCIDENT INVESTIGATION"]}
   30: {name: district_supervisor,    region: admin,     label_hint: "DISTRICT SUPERVISOR",         kind: text}
 
 # Lines matching these are page furniture, dropped before field segmentation.
