@@ -26,6 +26,7 @@ import argparse
 import csv
 import datetime as dt
 import re
+from collections import Counter
 from pathlib import Path
 
 import yaml
@@ -34,6 +35,7 @@ REPO = Path(__file__).resolve().parents[2]
 E19 = REPO / "data" / "processed" / "e19"
 SPINE = REPO / "data" / "processed" / "investigations_index.csv"
 XW_TYPE = REPO / "schema" / "xw_incident_type.yaml"
+XW_ELEMENT = REPO / "schema" / "crosswalk.yaml"
 DEFAULT_OUT = E19 / "enriched"
 
 RE_HHMM = re.compile(r"(\d{1,2}):?(\d{2})")
@@ -139,6 +141,45 @@ def resolve_types(atoms: list[str], spec: dict) -> dict[str, str]:
     return {k: v for k, v in out.items() if v}
 
 
+PSM_COLUMN = " Failed PSM Framework Element"   # leading space is the template's
+
+
+def enrich_causes(causes: list[dict], spec: dict) -> tuple[list[dict], list[dict], dict]:
+    """Attach a PSM element number to each typed cause statement.
+
+    Untyped statements and orphan subcategories are left blank on purpose --
+    inferring a parent category from a subcategory is the class of quiet guess
+    this repo exists to avoid, and both policies are declared in crosswalk.yaml.
+    """
+    from psm.causes import normalise_category, parse_statement
+
+    aliases = {k.lower(): v for k, v in (spec.get("aliases") or {}).items()}
+    cats = spec["categories"]
+    cols = list(causes[0])
+    out, prov = [], []
+    stats = Counter()
+
+    for row in causes:
+        e = dict(row)
+        p = {c: ("src" if (row.get(c) or "").strip() else "") for c in cols}
+        st = parse_statement(row.get("Cause Description", "") or "")
+        raw = getattr(st, "category", None)
+        if not raw:
+            stats["untyped_freetext"] += 1
+        else:
+            canon = aliases.get(normalise_category(raw))
+            if canon and canon in cats:
+                e[PSM_COLUMN] = str(cats[canon]["primary_element"])
+                p[PSM_COLUMN] = "xw"
+                stats["mapped"] += 1
+                stats[f"  -> {canon}"] += 1
+            else:
+                stats["typed_but_unaliased"] += 1
+        out.append(e)
+        prov.append(p)
+    return out, prov, stats
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
@@ -174,12 +215,30 @@ def main(argv=None) -> int:
             w.writeheader()
             w.writerows(data)
 
+    causes = load(E19 / "causes.csv")
+    espec = yaml.safe_load(XW_ELEMENT.read_text(encoding="utf-8"))
+    c_enriched, c_prov, c_stats = enrich_causes(causes, espec)
+    ccols = list(causes[0])
+    for name, data in (("causes.csv", c_enriched), ("causes_provenance.csv", c_prov)):
+        with (args.out / name).open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=ccols, extrasaction="ignore")
+            w.writeheader()
+            w.writerows(data)
+
     n = len(inc)
     print(f"enriched {n} incidents -> {args.out}")
     print(f"  unjoined to spine (no atoms available): {unjoined} ({100*unjoined/n:.1f}%)")
     for col in ("Incident Type A", "Incident Type B", "Incident Type C", "Incident Type D"):
         k = filled.get(col, 0)
         print(f"  {col:20} filled by crosswalk: {k:5}/{n} = {100*k/n:5.1f}%")
+
+    nc = len(causes)
+    print(f"\nenriched {nc} cause statements")
+    for k in ("mapped", "typed_but_unaliased", "untyped_freetext"):
+        print(f"  {k:22} {c_stats[k]:5}/{nc} = {100*c_stats[k]/nc:5.1f}%")
+    for k, v in sorted(c_stats.items()):
+        if k.startswith("  ->"):
+            print(f"    {k[5:]:26} {v:5}")
     return 0
 
 

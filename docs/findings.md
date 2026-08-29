@@ -941,3 +941,71 @@ systematically thinned.** That belongs in the README, not only here.
 not panel, so they should be reachable — yet only 3 join to `incidents.csv`. The
 spine covers incidents while the manifest covers *published reports*, so some
 spine rows may have no district report at all. Not yet verified.
+
+## 2026-08-29 — Session 2: PSM element crosswalk re-based
+
+`schema/crosswalk.yaml` v1 was keyed to a different element numbering than the
+target template, for its whole life, uncaught. It routed Equipment Failure to
+element **7** while its own note described *"maintenance, inspection and repair
+adequacy"* — element 7 in the template is `Documentation, records and knowledge
+management`; `Inspection and maintenance` is **15**. Applying v1 would have put a
+wrong element on all 3,462 cause rows.
+
+The reasoning in each note was sound. Only the anchoring was wrong, so v2
+re-matches each note's own description against the template's element names and
+records `matched_on` and `was_v1` per entry, making the re-basing auditable.
+
+| Category | v1 | v2 | matched on |
+|---|---|---|---|
+| Equipment Failure | 7 (+10) | **15** (+11) | maintenance, inspection, repair adequacy |
+| Human Performance Error | 13 (+12) | **3** (+8) | competence / human factors |
+| Management Systems | 3 (+1) | **8** (+6) | no written job procedures / inadequate hazards analysis |
+| Communication | 12 (+3) | **9** (+17) | shift handover, instruction, job briefing |
+| Supervision | 13 (+3) | **17** (+3) | supervision of a task in progress |
+| Work Environment | 10 (+7) | **6** (+11) | workplace layout, weather, marine environment |
+
+**Supervision departs from v1's reasoning, not just its numbering.** v1 routed it
+to the same element as Human Performance Error on adjacency grounds. The
+statements describe a supervisor failing to enforce a defined procedure during
+work in progress, which is work control rather than competency. Contested;
+element 1 is also arguable. Left at low confidence.
+
+**The trap avoided, now guarded by test.** Element 5 is `Communication with
+stakeholders` — external and corporate. Matching the BSEE category
+`Communication` to it on the shared word would route shift-handover failures to
+stakeholder communication. `test_communication_is_not_element_five` asserts it.
+
+### A coverage bug, separate from the numbering
+
+v1's Human Performance Error note said *"Normalise before lookup"*. Nothing did.
+The six keys matched only **54.1%** of typed statements: `human error` (64) and
+`management system` (17) went unmapped **purely on spelling**.
+
+An `aliases` block now implements what v1 already declared — and note this is not
+the open Session 3 question about whether "human error" and "human performance
+error" are the same concept. v1 answered that when it listed "Human error" as a
+surface variant of the dominant form; the ruling was just buried in prose.
+
+| | of typed statements |
+|---|---|
+| matched before aliases | 367 / 679 = 54.1% |
+| matched after aliases | **451 / 679 = 66.4%** |
+
+### Applied
+
+`psm.crosswalk` now enriches causes as well as incidents, writing
+` Failed PSM Framework Element` (the template's leading space preserved) with the
+element number, plus `causes_provenance.csv`.
+
+| | n | share of all statements |
+|---|---|---|
+| mapped | 451 | 13.0% |
+| typed but unaliased | 228 | 6.6% |
+| untyped free text | 2,783 | **80.4%** |
+
+The 80.4% ceiling is unchanged by anything in this session and is not reachable
+by crosswalking. It is the LLM-assisted path, which is downstream of a gold set.
+
+`tests/test_crosswalk.py` (15 tests) asserts every element number resolves to a
+real template element, that each entry records what it was before, and that the
+incident-type values come from the template's own picklists.
