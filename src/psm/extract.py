@@ -45,14 +45,104 @@ def _inline_strips(schema: dict) -> list[re.Pattern]:
 
 
 def _label_matches(field_no: int, tail: str, schema: dict) -> bool:
-    """Confirm an anchor by its label, tolerating era-to-era wording drift."""
+    """Confirm an anchor by its label, tolerating era-to-era wording drift.
+
+    ``label_hint`` may be a single string or a list of alternates; a list
+    matches if ANY alternate is present. Field 17 needs this: the pre-2010
+    revision reads "DESCRIBE IN SEQUENCE HOW ACCIDENT HAPPENED" where the modern
+    one reads "INVESTIGATION FINDINGS".
+    """
     spec = schema["fields"].get(field_no)
     if not spec:
         return False
     hint = spec.get("label_hint", "")
     if not hint:
         return True
-    return hint.upper() in tail.upper()
+    hints = [hint] if isinstance(hint, str) else hint
+    up = tail.upper()
+    return any(h.upper() in up for h in hints)
+
+
+def detect_form_revision(kept, schema: dict) -> str:
+    """Identify which form revision a document uses.
+
+    Read from the raw anchor stream rather than from extracted fields: on
+    revisions A and B the relevant anchors are *rejected* by the label hints, so
+    by the time ``fields`` exists the evidence has already been discarded.
+
+    Returns "A", "B", "C" or "unknown". Never raises.
+    """
+    cfg = schema.get("form_revisions") or {}
+    by_depth = {int(k): v for k, v in (cfg.get("water_depth_anchor") or {}).items()}
+    by_f3 = {k.upper(): v for k, v in (cfg.get("field3_label") or {}).items()}
+
+    verdict = None
+    f3_tail = None
+    for ln in kept:
+        for m in ANCHOR_RE.finditer(ln.text):
+            num = int(m.group(1))
+            tail = ln.text[m.end(): m.end() + 90].upper()
+            if verdict is None and "WATER DEPTH" in tail and num in by_depth:
+                verdict = by_depth[num]
+            if num == 3 and f3_tail is None:
+                f3_tail = tail
+    if verdict == "C":
+        return "C"
+    if verdict == "AB" or verdict is None:
+        # Revision A has no field 3 at all, so absence is itself evidence — but
+        # only once we already know we are not looking at revision C.
+        if f3_tail is not None:
+            for label, rev in by_f3.items():
+                if label in f3_tail:
+                    return rev
+        if verdict == "AB":
+            return "A" if f3_tail is None else "unknown"
+    return "unknown"
+
+
+def check_field_lengths(fields: dict[int, str], schema: dict) -> list[dict]:
+    """Flag structured fields holding far more text than their kind allows.
+
+    A ``checkbox_set`` carrying 2,356 characters of prose means an anchor was
+    rejected and its content absorbed into the previous accepted field. That is
+    the project's recurring failure mode -- silent, plausible, wrong -- and this
+    turns it loud. Raises anomalies only; never truncates or repairs.
+    """
+    limits = schema.get("max_length_by_kind") or {}
+    out: list[dict] = []
+    for num, text in sorted(fields.items()):
+        spec = schema["fields"].get(num) or {}
+        cap = limits.get(spec.get("kind"))
+        if cap is not None and len(text) > cap:
+            out.append({
+                "type": "field_length_exceeded",
+                "field": num,
+                "kind": spec.get("kind"),
+                "length": len(text),
+                "limit": cap,
+                "head": text[:80],
+            })
+    return out
+
+
+def kept_lines(lines, schema: dict) -> list[Line]:
+    """Drop page furniture and strip inline watermarks, preserving visual order.
+
+    Shared by :func:`segment_fields` and :func:`detect_form_revision` so both see
+    exactly the same line stream.
+    """
+    furn = _furniture(schema)
+    strips = _inline_strips(schema)
+    out: list[Line] = []
+    for ln in lines:
+        text = ln.text.strip()
+        for p in strips:
+            text = p.sub(" ", text)
+        text = re.sub(r"\s{2,}", " ", text).strip()
+        if not text or any(p.match(text) for p in furn):
+            continue
+        out.append(Line(ln.page, ln.top, ln.x0, text, ln.column))
+    return out
 
 
 def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
@@ -62,19 +152,8 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
     only when the field number is plausible (monotonically advancing) AND the
     label hint matches, so a stray "21. " inside prose does not open a field.
     """
-    furn = _furniture(schema)
-    strips = _inline_strips(schema)
     anomalies: list[dict] = []
-
-    kept = []
-    for ln in lines:
-        text = ln.text.strip()
-        for p in strips:
-            text = p.sub(" ", text)
-        text = re.sub(r"\s{2,}", " ", text).strip()
-        if not text or any(p.match(text) for p in furn):
-            continue
-        kept.append(Line(ln.page, ln.top, ln.x0, text, ln.column))
+    kept = kept_lines(lines, schema)
 
     # Pass 1: locate accepted anchors.
     #
@@ -171,8 +250,10 @@ def extract_report(pdf_path: Path, schema: dict) -> dict:
                     "note": "zero words extracted; likely a scanned image requiring OCR",
                 })
                 return rec
+            rec["src_form_revision"] = detect_form_revision(kept_lines(lines, schema), schema)
             fields, anomalies = segment_fields(lines, schema)
             rec["anomalies"].extend(anomalies)
+            rec["anomalies"].extend(check_field_lengths(fields, schema))
             for num, text in sorted(fields.items()):
                 name = schema["fields"][num]["name"]
                 rec[f"src_f{num:02d}_{name}"] = text
@@ -183,6 +264,20 @@ def extract_report(pdf_path: Path, schema: dict) -> dict:
                 ]
             if not fields:
                 rec["src_extract_status"] = "parse_failed"
+                # A text layer but no form anchors at all: either a genuinely
+                # unparseable layout, or the URL does not serve an investigation
+                # report. BSEE serves a 2008 MMS press release at one incident
+                # URL (090517-pdf). Distinguish so the second is not chased as
+                # a parser bug.
+                blob = " ".join(ln.text for ln in lines[:60]).upper()
+                if not any(k in blob for k in ("FORM 2010", "ACCIDENT INVESTIGATION", "OCCURRED")):
+                    rec["src_extract_status"] = "not_an_investigation_report"
+                    rec["anomalies"].append({
+                        "type": "not_an_investigation_report",
+                        "note": "text layer present but no Form 2010 markers; "
+                                "upstream: BSEE serves a non-report document at this URL",
+                        "head": " ".join(ln.text for ln in lines[:6])[:200],
+                    })
     except Exception as exc:  # noqa: BLE001 - a corrupt PDF must not kill the run
         rec["src_extract_status"] = "parse_failed"
         rec["anomalies"].append({"type": "exception", "error": f"{type(exc).__name__}: {exc}"})

@@ -1,9 +1,24 @@
 # Source field map for MMS Form 2010 (BSEE Accident Investigation Report).
 #
-# Field numbers are stable across eras; LABEL WORDING IS NOT. Patterns are
-# therefore deliberately loose — they anchor on the field number at a line start
-# and use `label_hint` only to confirm, never to locate. Typos below are BSEE's
-# own and are reproduced on purpose (e.g. "RECURRANCE").
+# NEITHER field numbers NOR label wording are stable across form revisions.
+# An earlier version of this comment asserted numbers were stable; the
+# 2026-08-29 diagnosis in docs/findings.md disproved it. Three revisions exist:
+#
+#   A (2004-2006, n=12)  no field 3; everything from LEASE on shifted -1
+#   B (2003-2017, n=53)  fields 1-7 match; 9-16 shifted -1
+#   C (2017-2026, n=38)  matches the map below
+#
+# The numbering below is revision C. Fields 3-16 are therefore rejected on
+# revisions A and B, and their content is absorbed into the previous accepted
+# field. That is P1 in docs/superpowers/plans/2026-08-29-extraction-remediation.md
+# and is NOT fixed here. Every record carries `src_form_revision` so the damage
+# is at least visible and testable by era.
+#
+# Patterns are deliberately loose — they anchor on the field number at a line
+# start and use `label_hint` only to confirm, never to locate. `label_hint` may
+# be a single string or a list of alternates; a list matches if ANY alternate is
+# present. Typos below are BSEE's own and are reproduced on purpose
+# (e.g. "RECURRANCE").
 #
 # `region` tells the extractor where to look:
 #   form_face  - page 0, two-column, may carry checkbox sets
@@ -35,8 +50,13 @@ fields:
   16: {name: statement,              region: form_face, label_hint: "STATEMENT",                   kind: text}
 
   # --- the fields this project exists for ---
-  17: {name: investigation_findings, region: narrative, label_hint: "INVESTIGATION FINDINGS",      kind: prose
-       , subheads: ["INCIDENT SUMMARY", "SEQUENCE OF EVENTS", "BSEE INVESTIGATION", "IN CONCLUSION", "CONCLUSION"]}
+  # Two wordings. The pre-2010 revision reads "DESCRIBE IN SEQUENCE HOW ACCIDENT
+  # HAPPENED"; the modern one reads "INVESTIGATION FINDINGS". Correlation across
+  # 105 files was perfect: 81/81 located under the modern wording, 0/22 under
+  # the old. Adding the alternate recovered 22 files with zero regression.
+  17: {name: investigation_findings, region: narrative, kind: prose,
+       label_hint: ["INVESTIGATION FINDINGS", "DESCRIBE IN SEQUENCE"],
+       subheads: ["INCIDENT SUMMARY", "SEQUENCE OF EVENTS", "BSEE INVESTIGATION", "IN CONCLUSION", "CONCLUSION"]}
   18: {name: probable_cause,         region: narrative, label_hint: "PROBABLE CAUSE",              kind: cause_statements}
   19: {name: contributing_cause,     region: narrative, label_hint: "CONTRIBUTING CAUSE",          kind: cause_statements}
 
@@ -76,3 +96,47 @@ furniture_patterns:
 # ("17. INVESTIGATION FINDINGS: For Public Release") so a whole-line rule misses it.
 inline_strip_patterns:
   - '\s*For Public Release\s*'
+
+# --- Integrity guards -------------------------------------------------------
+#
+# A structured field holding paragraphs of prose is the signature of an anchor
+# having been rejected: content runs anchor-to-next-anchor, so a rejected field
+# is absorbed into the previous accepted one rather than failing loudly. Real
+# examples from the 2026-08-29 diagnosis: a 2,356-char `f07_type`, a 2,556-char
+# `f02_operator`, a 6,049-char `f30_district_supervisor` holding one name plus a
+# whole crane attachment.
+#
+# These thresholds only ever RAISE AN ANOMALY. Nothing is truncated or repaired
+# — the project's convention is that dirty data stays dirty and visible. Kinds
+# absent from this map (prose, cause_statements) are legitimately unbounded.
+# Calibrated against revision C, which is the only era where extraction is known
+# correct — each cap sits above revision C's observed maximum with headroom, so
+# a firing guard means genuine absorption rather than ordinary content. An
+# earlier 400-char checkbox_set cap tripped on all 38 revision-C records
+# (field 7 there runs a legitimate median of 533 chars of checkbox labels),
+# which is a guard that says nothing. Revision-C maxima at calibration:
+# f02 131, f06 57, f07 562, f21 409, f25 84, f27 89, f30 18.
+max_length_by_kind:
+  yesno: 150
+  date: 120
+  measure: 120
+  datetime_block: 200
+  checkbox_set: 700
+  composite: 600
+  text: 600
+
+# --- Form revision detection ------------------------------------------------
+#
+# Detected from the raw anchor stream, NOT from extracted fields: on revisions A
+# and B the relevant anchors are rejected by the label hints above, so by the
+# time fields exist the evidence is gone.
+#
+# Primary discriminator is which field number carries WATER DEPTH; field 3's
+# label separates A from B.
+form_revisions:
+  water_depth_anchor:
+    10: C
+    9: AB          # ambiguous, resolved by field 3
+  field3_label:
+    "LEASE": A
+    "OPERATOR/CONTRACTOR": B

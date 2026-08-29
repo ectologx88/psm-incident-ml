@@ -541,3 +541,241 @@ company form where the operator is implicit.
 **Not yet done:** `schema/e19_projection.yaml` (the mapping itself, including
 blank-reason codes), `src/psm/project.py`, and the exactness test asserting
 output headers equal the labels read from the template.
+
+## 2026-08-29 — Root cause of the archive-era extraction gap
+
+Two independent investigations, run in parallel against the same 105 raw PDFs
+and 105 interim JSONs. They converged on one mechanism from different angles,
+which is the main reason to trust the conclusion.
+
+### The headline: the narrative is present and recoverable
+
+**The archive-era field-17 gap is a parser bug, not missing data. The gold
+sample does NOT need to be re-drawn.** Re-running the real `extract_report()`
+with *only* field 17's `label_hint` relaxed recovered clean, complete narrative
+prose (545–3,892 chars) from **22 of the 23 failing files**.
+
+The 23rd is not our bug: `data/raw/090517-pdf.pdf` **is not an investigation
+report**. Its PDF title is *"MMS to hold Public Hearings on Cape Wind Energy
+Project Draft Environmental Impact Statement"* — a 2008 press release served at
+an incident-report URL. `parse_failed` is the correct outcome; the parser
+refused rather than inventing fields. Upstream data defect, log it.
+
+### Root cause 1 — the form has three numbering eras; the schema encodes one
+
+`schema/bsee_form2010.yaml` states *"Field numbers are stable across eras; LABEL
+WORDING IS NOT."* **The first half is false**, and it is the largest single
+cause of damage across the corpus.
+
+| Era | n | Years (in-PDF field 1) | Numbering vs schema |
+|---|---|---|---|
+| A early | 12 | 2004–2006 | no field 3; everything from LEASE on shifted −1 |
+| B mid | 53 | 2003–2017 (mode 2007–2016) | 1–7 match; **9–16 shifted −1** |
+| C modern | 38 | 2017–2026 | exact match |
+
+Field 17's label also changes: the older revision reads
+`17. DESCRIBE IN SEQUENCE HOW ACCIDENT HAPPENED:` where the modern one reads
+`17. INVESTIGATION FINDINGS:`. The correlation is perfect across all 105 files —
+81/81 located under the modern wording, **0/22** under the old.
+
+**Why it fails silently.** Content runs anchor-to-next-anchor. When
+`_label_matches()` rejects an anchor, that field's content is absorbed into the
+*previous accepted* field rather than being dropped. Verified: `070822-pdf` has
+`src_f07_type` at **2,356 chars** holding fields 8–16 plus the whole narrative;
+`060411-pdf` has `src_f02_operator` at **2,556 chars** holding most of the form
+face. A `checkbox_set` field silently containing prose is worse than an empty
+column.
+
+One thing the hint gate gets right: a shifted anchor never produces *wrong
+content under a right name*. The failure is absence-plus-absorption, not
+mislabelling. No `src_f10_water_depth` anywhere contains a non-depth.
+
+**Correction to a previous entry.** "Fields 8–16 missing on 10 reports, field 29
+on 40 — a known remaining gap in form-face parsing on older layouts" (2026-08-02)
+misdiagnosed this. f08 is present on exactly the 38 modern-era reports; the other
+67 did not fail to parse, their content was absorbed.
+
+### Root cause 2 — `find_gutter()` fails on the closing admin block
+
+Page 0 gutter detection succeeds 104/105. The admin page (the one with
+`DISTRICT SUPERVISOR`) succeeds **31/105**. Without a gutter, left and right
+columns merge into single rows — `bp-mc-778-a-6-june-2022.pdf` p3 emits
+`25. DATE OF ONSITE INVESTIGATION: ACCIDENT CLASSIFICATION:` as one line, which
+is exactly the f28→f25 bleed originally reported.
+
+### Root cause 3 — `ROW_TOL` is a hard bin edge, not a tolerance
+
+`_rows()` buckets on `round(top/2.5)`, so words 0.5pt apart can land in
+different bins when they straddle a boundary. `25. …` (top 275.9 → bin 110) and
+`28.` (top 276.4 → bin 111) split; the orphan `28.` then fails `ANCHOR_RE`.
+**41 orphan `NN.` lines across 27 records**; records with an orphan lose f28
+21/27 of the time.
+
+### Root cause 4 — the terminal anchor is an unbounded sink
+
+`segment_fields()` runs the last anchor to end-of-document. **48/105 reports
+have pages after the admin page** (injury, witness, crane attachments). f30
+median length is 35 chars, p90 is 1,290; `vr-131-stone-energy-17-september-2012`
+holds **6,049 characters** in a field that should contain one name.
+
+### Contamination by field — the payload is clean, the metadata is not
+
+Rate = records whose value contains ≥1 label owned by a different field.
+
+| Field | n | contaminated | severity |
+|---|---|---|---|
+| f17 findings | 82 | **0%** | clean where present |
+| f18 probable cause | 104 | **0%** | clean |
+| f19 contributing cause | 103 | **1%** | clean |
+| f22 recommendations | 95 | **0%** | clean |
+| f04 lease/area/block | 92 | 1% cross-field | but **97% intra-box misalignment — meaning-changing** |
+| f07 type | 91 | **58%** (100% of era B) | severe; median 45% of value is foreign |
+| f26 team members | 103 | **70%** | severe; **55% *begin* with a foreign label** |
+| f30 district supervisor | 93 | **53%** | severe; real name at start, unbounded tail after |
+
+**The project's payload fields (17–24) are essentially uncontaminated. The
+damage is concentrated in identification (4, 5, 7) and the admin block (25–30).**
+
+A separate universal but **cosmetic** class: own-label retention. When an anchor
+line has no colon the label-strip does not fire and the field keeps its own
+`NN. LABEL` — f01 100%, f03 100%. f01 still yields a parseable date on 101/103.
+
+### `out_of_order_anchor` is a success indicator, not a warning
+
+30/105 records carry it. f26 is contaminated on 9/30 records that have it versus
+**63/73** that do not. The anomaly fires when the admin columns *were* split
+correctly (left 25,26,27 then right 28,29,30 — legitimately out of order). Any
+triage keyed on this flag would select the healthiest records. Do not use it as
+a quality signal.
+
+Genuinely predictive flags, none currently logged: form era (derivable from
+which number carries `WATER DEPTH`); gutter-not-found on the admin page;
+presence of an orphan `NN.` line; pages existing after the admin page.
+
+### Downstream exposure — latent, not yet propagating
+
+`gold_scaffold.py` is the only consumer of any `src_fNN_` column and reads
+exactly two: f18 and f19, both clean. Its area/block/operator come from
+`data/manifest.csv`, not from f02/f04. `synth.py` reads no `src_f*` at all.
+`causes.py`'s `FURNITURE_HEAD_RE` is scoped to 18/19 and masks nothing found
+here.
+
+**One forward-looking trap.** The 2026-08-02 entry commits to *"The
+authoritative values are inside the PDF (form fields 1, 2 and 4)"* as the remedy
+for unreliable filename-derived metadata. As of today f04 is misaligned on 97%
+of records and f02 is a whole-form dump on all 12 era-A records — the designated
+authoritative source is currently the worse of the two options. Do not act on
+that recommendation until root cause 1 is fixed.
+
+### Verified vs inferred
+
+**Verified** by opening PDFs and re-running layout/extraction over all 105:
+text layers present on 105/105 (no OCR needed anywhere); the `DESCRIBE IN
+SEQUENCE` wording and its 81/81 vs 0/22 correlation; the three-era numbering
+table (53/53 and 10/10 within cluster); gutter 31/105 admin vs 104/105 page 0;
+41 orphans / 27 records; 48 records with post-admin pages; the
+`out_of_order_anchor` anti-correlation; the 22/23 recovery with zero regression
+on field 18; `090517-pdf` being a press release; the downstream consumer
+inventory.
+
+**Inferred:** corpus-wide exposure of roughly **300–350 reports** with the old
+field-17 wording, extrapolated from 30 downloaded 2004–2009 files against
+manifest per-year counts. The label→owning-field map used for intrusion
+detection is a reading of the form's box structure, not a published source.
+
+**Could not check:** the ~1,140 reports not in `data/raw/`; whether more than
+three revisions exist pre-2003 or among panel reports; whether recovered
+narratives contain the sub-structure the schema expects.
+
+**A methodological note worth keeping.** An early `pdftotext -layout` pass
+suggested 2007-era files swap fields 6/7. The coordinate-aware read shows they
+do not — a pdftotext column-ordering artifact, and a clean illustration of why
+CLAUDE.md forbids the text path for field assignment.
+
+## 2026-08-29 — P0 remediation landed
+
+Implements P0 of `docs/superpowers/plans/2026-08-29-extraction-remediation.md`.
+Measured before/after on the same 105 PDFs and the same era split used in the
+diagnosis.
+
+### Result
+
+| Check | Before | After |
+|---|---|---|
+| Archive-era (2003–2013) field 17 fill, gold sample | 26/48 = **54.2%** | 47/48 = **97.9%** |
+| Current-era (2014–2026) field 17 fill | 52/52 = 100% | 52/52 = 100% (no regression) |
+| Records carrying `src_form_revision` | 0 | 105/105 |
+| Test suite | 142 | 159 |
+
+The one remaining archive miss is `090517-pdf`, which is not an investigation
+report — see below. **The gold sample is now labellable across both eras.**
+
+### What changed
+
+**Field 17 label alternates.** `label_hint` now accepts a list; a list matches
+if any alternate is present. Added `DESCRIBE IN SEQUENCE` for the pre-2010
+wording. Roughly the 10-line change the diagnosis predicted.
+
+**`src_form_revision` on every record.** Detected from the raw anchor stream,
+not from extracted fields — on revisions A and B the deciding anchors are
+rejected by the label hints, so by the time `fields` exists the evidence has
+been discarded. Distribution across the 105: **A 13, B 53, C 38, unknown 1**.
+The agent diagnosis predicted 12/53/38; the extra revision-A record is a
+one-file discrepancy not chased, and the `unknown` is the press release.
+
+**Length-sanity guard.** Flags structured fields holding far more text than
+their kind allows. Raises an anomaly and never truncates, per the dirty-data
+convention.
+
+**`not_an_investigation_report` status.** A text layer with no Form 2010
+markers is now distinguished from `parse_failed`. Generalised on markers rather
+than hardcoding the filename, so any future non-report URL is caught. Confirms
+`090517-pdf`, which BSEE serves as a 2008 MMS press release at an
+incident-report URL.
+
+### The length guard was calibrated wrong on the first attempt — worth recording
+
+The initial thresholds fired on **104 of 105 records**, which is a guard that
+says nothing. Root cause: a 400-char `checkbox_set` cap, where revision-C field
+7 runs a legitimate **median of 533 chars** of checkbox labels and maxes at 562.
+All 38 correct records tripped it.
+
+Recalibrated against **revision C as the baseline**, since that is the only era
+where extraction is known correct: each cap now sits above revision C's observed
+maximum with headroom.
+
+| | Before | After |
+|---|---|---|
+| Records tripping the guard | 104/105 | **66/105** |
+| Revision-C firings (false positives) | 38 | **0** |
+
+Firings after recalibration, by revision:
+
+| Field | A (n=13) | B (n=53) | C (n=38) |
+|---|---|---|---|
+| 2 operator | 12 | 0 | 0 |
+| 7 type | 1 | 52 | 0 |
+| 30 district supervisor | 6 | 18 | 0 |
+| 27 operator report | 0 | 3 | 0 |
+| 6 activity | 0 | 1 | 0 |
+
+Every firing is on revision A or B, exactly where absorption was diagnosed, and
+none on C. The distribution independently corroborates root cause 1: field 7
+absorbing content on 52 of 53 revision-B records is the fields-8–16 shift, seen
+from the other side.
+
+**The generalisable lesson:** calibrate an integrity check against the subset
+where the pipeline is known correct, then confirm it stays silent there. A
+threshold picked by intuition fired on 99% of inputs and would have been noise
+from day one.
+
+### Not fixed here, unchanged from the plan
+
+P1 per-revision field map (fields 3–16 remain rejected on revisions A and B,
+their content still absorbed). P2 admin-block gutter, terminal-anchor sink,
+`ROW_TOL` bin edges. P3 field 4 intra-box alignment. The `src_form_revision`
+column now makes all three testable by era.
+
+`schema/bsee_form2010.yaml`'s header comment previously asserted *"Field numbers
+are stable across eras"*. Corrected — it is false, and it is the reason this
+class of bug went unnoticed.
