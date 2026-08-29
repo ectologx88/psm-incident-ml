@@ -869,3 +869,75 @@ records — a targeted regex recovers them at 93%/85%, well above what positiona
 parsing would give, yet at least one key looks wrong (`LB-6488-...`, where `LB`
 is likely "Lift Boat" rather than an area code). **Treat the key as stable and
 unique, not as a clean location reference**, until P1 and P3 land.
+
+## 2026-08-29 — Session 1 crosswalk, and a severity bias in the corpus
+
+Applied `schema/xw_incident_type.yaml` via new `psm.crosswalk`. Output is a
+separate enriched copy plus a cell-level provenance table, so inferred values are
+never mistaken for read ones.
+
+| Field | filled by crosswalk |
+|---|---|
+| Incident Type A | 1,037 / 1,215 = **85.3%** |
+| Incident Type B | 784 = 64.5% |
+| Incident Type C | 716 = 58.9% |
+| Incident Type D | 233 = 19.2% |
+
+13,136 `src` cells against 2,770 `xw` cells. Type D is low by choice: Crane and
+Other Lifting Device (271 records) resolve to null because they name equipment,
+not mechanism.
+
+### Three resolutions reached by checking rather than asking
+
+**`Injury TLI`** is defined nowhere public, and this workbook is not an EI
+publication, so it may be the author's own abbreviation. It does not matter:
+BSEE's `LTA` means *days away from work* and `RW/JT` means *restricted work or
+job transfer*, so aligning the ladders puts LTA in slot three regardless of what
+TLI expands to. Both LTA duration bands map there; BSEE's 1-3 vs >3 split has no
+E19 counterpart.
+
+**Bare `Injury` → null, not Minor.** A draft defaulted it to `Injury Minor`.
+Narrative sampling killed that: 135 of 148 carry no severity atom, and the ones
+that do co-occur with `Fatality` 12 times and never with a minor code. It reads
+as an older tag predating the LTA/RW-JT vocabulary.
+
+**`Crane` → Type D null.** A draft proposed `Dropped Object` as the modal case.
+151 narratives show boom failures, an injury during a crane *inspection*, rigging
+and positioning incidents, and loads lost overboard. A modal guess would be wrong
+on a large minority of 177 records.
+
+**`Injury Permenant Disability` is structurally unreachable.** BSEE classifies by
+duration away from work; permanence is a different axis (IOGP maintains an FPI
+framework, BSEE does not use it). No mapping effort reaches this value.
+
+Precedence turned out to matter far less than expected: 39.4% of spine rows carry
+2+ atoms, but only **36** carry two competing injury atoms, and response atoms
+never compete for Type C.
+
+### The finding that matters most: panel exclusion is a severity filter
+
+`Injury Fatality` came out at **3 of 1,215**, against 85 `Fatality` rows in the
+spine. Investigating that gap found a systematic bias:
+
+| Accident type | spine n | PANEL | share |
+|---|---|---|---|
+| **Fatality** | 85 | 46 | **54.1%** |
+| Blowout | 58 | 18 | 31.0% |
+| Explosion | 74 | 5 | 6.8% |
+| Pollution | 436 | 16 | 3.7% |
+| Fire | 514 | 10 | 1.9% |
+| Crane | 197 | 3 | 1.5% |
+
+BSEE convenes a panel for death, serious injury or significant pollution — so
+**panel reports are the high-severity tail**, and `psm.project` excludes them
+because the extractor was never built against that document type. Excluding them
+is right on parsing grounds and wrong on sampling grounds: it removes over half
+of all fatalities and a third of blowouts.
+
+**Any model trained on this corpus is trained on a corpus with the worst outcomes
+systematically thinned.** That belongs in the README, not only here.
+
+**Unexplained, flagged rather than buried:** 39 fatality incidents are DISTRICT,
+not panel, so they should be reachable — yet only 3 join to `incidents.csv`. The
+spine covers incidents while the manifest covers *published reports*, so some
+spine rows may have no district report at all. Not yet verified.

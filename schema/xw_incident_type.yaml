@@ -1,0 +1,200 @@
+# BSEE ACCIDENT_TYPE -> E19 Incident Type A / B / C / D.
+#
+# THIS FILE IS AN OPINION, NOT A FACT -- same standing as schema/crosswalk.yaml.
+# Output columns take the `xw_` prefix and are never scored against.
+#
+# ---------------------------------------------------------------------------
+# The structural finding that shaped this file
+#
+# BSEE's ACCIDENT_TYPE is not one vocabulary. Its 21 head atoms are four kinds
+# of statement, each speaking to a different E19 axis:
+#
+#   outcome    what harm resulted        -> Type C, implies Type B
+#   mechanism  how it happened           -> Type D
+#   scale      a dollar threshold        -> Type C via Equipment Damage
+#   response   what the crew had to do   -> evidence for Type A, not an outcome
+#
+# So this is not a 21-row lookup: an atom contributes to one axis and is silent
+# on the others.
+#
+# Severity ladders, aligned (2026-08-29, sources in docs/findings.md):
+#
+#   E19                            BSEE / OSHA recordkeeping
+#   Injury Fatality             <- Fatality
+#   Injury Permenant Disability <- NOTHING. See unreachable_values below.
+#   Injury TLI                  <- LTA  (BSEE: "days away from work")
+#   Injury Minor                <- RW/JT (BSEE: "restricted work or job transfer")
+#
+# `TLI` is defined nowhere public and this workbook is not an EI publication, so
+# it may be the template author's own abbreviation. It does not matter: slot
+# three is the only lost-time tier available, which is where "days away from
+# work" belongs whether TLI expands to Time Lost or Lost Time Injury.
+# ---------------------------------------------------------------------------
+
+version: 1
+status: resolved
+source: "spine ACCIDENT_TYPE (data/processed/investigations_index.csv)"
+coverage: "21 atoms reach 94.8% of spine rows; spine joins 89.5% of incidents"
+
+# E19 values that cannot be reached from this source at all. Recorded so they
+# read as structurally unreachable rather than as gaps we failed to fill.
+unreachable_values:
+  "Injury Permenant Disability": >
+    BSEE classifies injuries by DURATION away from work; permanence is a
+    different axis entirely (IOGP maintains an FPI framework for it, BSEE does
+    not use it). No BSEE atom carries permanence, so this value is unreachable
+    regardless of mapping effort.
+
+# --- OUTCOME atoms: determine Type C, and imply Type B --------------------
+outcome:
+  Fatality:
+    n: 85
+    type_b: "Health & Safety"
+    type_c: "Injury Fatality"
+
+  "LTA (>3 days)":
+    n: 264
+    type_b: "Health & Safety"
+    type_c: "Injury TLI"
+    note: "LTA is BSEE's 'days away from work'. Slot three on the E19 ladder."
+
+  "LTA (1-3) days":
+    n: 20
+    type_b: "Health & Safety"
+    type_c: "Injury TLI"
+    note: >
+      Same tier as >3 days. BSEE's 1-3 vs >3 duration split has no counterpart
+      in the E19 ladder, so both collapse here rather than inventing a boundary.
+
+  "RW/JT (>3 days)":
+    n: 120
+    type_b: "Health & Safety"
+    type_c: "Injury Minor"
+    note: "Restricted work / job transfer: the person kept working, so below lost-time."
+
+  "RW/JT (1-3 days)":
+    n: 23
+    type_b: "Health & Safety"
+    type_c: "Injury Minor"
+
+  Injury:
+    n: 148
+    type_b: "Health & Safety"
+    type_c: null
+    resolved_by: "narrative sample, 2026-08-29"
+    note: >
+      DELIBERATELY NULL. An earlier draft defaulted this to Injury Minor. Reading
+      the narratives killed that: 135 of 148 carry no severity atom at all, and
+      the ones that do co-occur with Fatality (12 times), never with a minor
+      code. The narratives describe a platform fire injuring two contract
+      workers, a hand injury requiring intervention, a dropped mooring line.
+      "Injury" reads as an older, looser tag used before the LTA/RW-JT
+      vocabulary settled -- not as "minor". Defaulting it would under-rate 135
+      records. Null means unknown, which is true. Candidate for narrative-based
+      severity extraction later.
+
+  "Other Injury":
+    n: 48
+    type_b: "Health & Safety"
+    type_c: null
+    note: "Same reasoning as Injury."
+
+  Pollution:
+    n: 440
+    type_b: "Environment & Reputation"
+    type_c: "Loss of Containment"
+
+  "Structural Damage":
+    n: 40
+    type_b: "Business Interruption & Cost"
+    type_c: "Equipment Damage"
+
+  "Damaged/Disabled Safety Sys.":
+    n: 15
+    type_b: "Business Interruption & Cost"
+    type_c: "Equipment Damage"
+    note: >
+      Uneasy. A disabled safety system is a lost barrier, not damaged plant, and
+      E19 Type C has no barrier-impairment value. Mapped to the nearest
+      available rather than left null because the damage framing is defensible,
+      but flag it if Section 3 work ever leans on these 15 records.
+
+# --- SCALE atoms: a dollar threshold, not an outcome type -----------------
+# Contribute nothing when a real outcome atom is present -- see precedence.
+scale:
+  "Incident >$25K":
+    n: 206
+    type_b: "Business Interruption & Cost"
+    type_c: "Equipment Damage"
+  "Collision >$25K":
+    n: 28
+    type_b: "Business Interruption & Cost"
+    type_c: "Equipment Damage"
+
+# --- MECHANISM atoms: determine Type D, silent on B and C ----------------
+mechanism:
+  Fire:                       {n: 515, type_d: "Combustion"}
+  Explosion:                  {n: 73,  type_d: "Combustion"}
+  "Shutdown from Gas Release": {n: 37, type_d: "Gas/Vapour Release"}
+
+  Blowout:
+    n: 58
+    type_d: "Gas/Vapour Release"
+    note: "A blowout may release oil rather than gas; E19 Type D has no well-control value."
+
+  Collision:
+    n: 48
+    type_d: "Other"
+    note: >
+      Vessel impact. E19 Type D has no value for it -- 'Crush/Impact' describes a
+      person being struck, not a hull hitting a structure. Falls to Other.
+
+  Crane:
+    n: 177
+    type_d: null
+    resolved_by: "narrative sample of 151 crane reports, 2026-08-29"
+    note: >
+      DELIBERATELY NULL. An earlier draft proposed Dropped Object as the modal
+      case. The narratives do not support it: boom failures, an injury during a
+      crane INSPECTION, rigging and positioning incidents, loads lost overboard,
+      and dropped loads -- a genuine mix. Co-occurrence agrees (45 with
+      Incident >$25K, 37 with LTA, 3 with Fatality). "Crane" names the
+      equipment, not the mechanism. A modal guess would be wrong on a large
+      minority of 177 records; null is honest.
+
+  "Other Lifting Device":
+    n: 94
+    type_d: null
+    note: "Same reasoning as Crane."
+
+# --- RESPONSE atoms: evidence for Type A, not an outcome -----------------
+# Neither says what happened, only what the crew had to do.
+response:
+  "Required Evacuation": {n: 452}
+  "Required Muster":     {n: 91}
+
+# --- Type A: Loss Event vs Near Hit --------------------------------------
+type_a_rule:
+  loss_event_when: "any outcome or scale atom is present"
+  near_hit_when: "the only atoms present are response atoms"
+  otherwise: null
+  known_limitation: >
+    BSEE publishes no near-miss flag, so this is inference, not extraction. A
+    genuine near miss that also caused a >$25K write-off reads as a Loss Event
+    under this rule. Near-miss data is the most valuable class in the corpus, so
+    this rule erodes exactly what is most worth having. Over-calling Loss Event
+    is the safer error, but it is still an error.
+
+# --- Precedence: ACCIDENT_TYPE is multi-valued, Type C is not -------------
+precedence:
+  order: ["Fatality", "Injury", "Pollution", "Structural Damage", "Scale"]
+  reading: >
+    Harm to a person outranks loss of containment, which outranks damage to
+    plant, which outranks a bare dollar threshold. Within injuries the most
+    severe wins.
+  measured_impact: >
+    39.4% of spine rows carry 2+ head atoms, but only 36 rows carry two
+    competing INJURY atoms. The common pairs are outcome + response
+    (LTA + Required Evacuation 154, RW/JT + Required Evacuation 80) and response
+    atoms never compete for Type C. So precedence decides roughly 70 records --
+    worth stating explicitly, but far less consequential than it first appeared.
