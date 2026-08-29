@@ -42,18 +42,26 @@ of the environment and to negate flaws that are not discovered.
 20. LIST THE ADDITIONAL INFORMATION:
 17. (Cont.) INVESTIGATION FINDINGS:
 1. EAC was confirmed as a failure mechanism.
-2. Stress analysis showed stresses alone were not sufficient to explain failure.
-a. Tension in flange at time of incident - 1.7 MM lb
+2. Stress analysis showed stresses alone were not
+a. Tension in flange at time of incident - 1.7 MM
 b. Rating of flange - 2.5 MM lb
+sufficient to explain failure.
+lb
 c. Flanges above failed location subject to higher tension.
 d. All five failed inserts exhibited low-energy fracture surfaces versus 100% ductile,
 which would be associated with an overload failure.
-3. No evidence was found to support fatigue as the primary mode of failure, based on
-metallurgical findings and analysis of recorded current data.
-4. Investigation supports unzipping hypothesis of cracking initiated in insert 39-6
-and progressing to adjacent inserts until final failure of the riser connection.
-5. Metallurgical analysis points to hydrogen charging as most probable root cause with
-work ongoing to determine source of hydrogen.
+3. No evidence was found to support
+metallurgical findings and analysis
+4. Investigation supports unzipping
+and progressing to adjacent inserts
+5. Metallurgical analysis points to
+work ongoing to determine source of
+fatigue as the primary mode of failure, based on
+of recorded current data.
+hypothesis of cracking initiated in insert 39-6
+until final failure of the riser connection.
+hydrogen charging as most probable root cause with
+hydrogen.
 6. Deadman sequence began approximately 24 seconds after the riser parted with the
 casing shear ram closed approximately 29 seconds after the start of the sequence and
 the wellbore secured via the lower blind shear ram approximately 30 seconds later. It
@@ -115,7 +123,9 @@ running riser. Durations should be established for leaving riser hanging beneath
 vessel unlatched from wellhead.
 iii) Encourage BP and other operators to participate with contractors and
 manufacturers to improve choke, kill and hydraulic line seal design for VIV condition.",,,,,,
-6eac5d04d2c614f9797dfe331690e6958b57c062175dec44d55640b8e46bc503,district,2003,p00301,,,04-may-2003,2003-05-04,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/safety/04-may-2003-p00301.pdf,04-may-2003-p00301.pdf,ok,freetext,"Boom pawl was not engaged by operator. With mechanical cranes the potential for
+6eac5d04d2c614f9797dfe331690e6958b57c062175dec44d55640b8e46bc503,district,2003,p00301,,,04-may-2003,2003-05-04,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/safety/04-may-2003-p00301.pdf,04-may-2003-p00301.pdf,ok,freetext,"been engaged, slippage of the boom
+to fall resulting in the failure of the
+Boom pawl was not engaged by operator. With mechanical cranes the potential for
 clutch slippage is generally present especially during heavy rain or foggy conditions.
 These weather conditions existed and contributed to this incident.","In reviewing the reason for the boom hoist clutch becoming wet, it was determined that
 preventive maintenance activities need improvement as they relate to maintaining the
@@ -124,16 +134,14 @@ c1910c975417e203bd2befba7ba82a56c17b3a6b540d37e67305d8fdec713b71,district,2003,p
 Pressurized fluids were trapped between the flow safety valve and a downstream header
 block valve. Once the flowline connection was partially opened, the trapped fluids
 were free to escape. Interviews with wellbay operators indicate that the system does
-not provide the means which to bleed down trapped pressure downstream of the flow
-by
+not provide the means by which to bleed down trapped pressure downstream of the flow
 safety valve.","19. LIST THE CONTRIBUTING CAUSE(S) OF ACCIDENT,
 Worker may not have followed proper procedure or safe work practice in electing to
 remove threaded studs by cutting rather than unscrewing. Cutting of the studs may have
 resulted in a sudden separation at the connection flange rather than a gradual
 separation which may have been achieved by unscrewing. Worker may not have obtained
-prior approval from job foreman to cut threaded studs. Studs may have been in need of
-replacement if threads were galled or damaged to prevent proper unscrewing
-othe~ise
+prior approval from job foreman to
+replacement if threads were galled
 action.",,,,,,
 fd9847613e1d81b37347f5ee63b369e5e7816689b598db0b9ff1505b5decfb9f,district,2004,,,,040519-pdf,2004-05-19,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/bsee/040519-pdf.pdf,040519-pdf.pdf,ok,freetext,"In the instant that Byron King switched open the SSV, he realized his error, and then
 switched to close the SSV. Grasping the magnitude of the fire, Byron King then left
@@ -155,11 +163,14 @@ could have been closed that would have prevented this fire; the master valve, th
 valve, or the ""wing valves"" on the swab flow line ahead of the sand knockout. None of
 these manual valves were closed, and there was nothing to hold back the full wellhead
 pressue from dischardging through the open choke body.",,,,,,
-6feb788887b91222f62b6f3b28a8f36338e12db6a0ea5db7d96a5431cbfaee85,district,2004,p00182,,,25-jul-2004,2004-07-25,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/safety/25-jul-2004-p00182.pdf,25-jul-2004-p00182.pdf,ok,freetext,"Mr.
-did not follow the ExxonMobil 100% tie off requirement while
-atteIIipting to reposition himself.","Mr. and Mr. did not discuss the need to keep tension on the
-three-chain falls. It is speculated that the pipe spool would not have shifted if all
-three chain falls attached to the pipe spool were under tension at the time of the
+6feb788887b91222f62b6f3b28a8f36338e12db6a0ea5db7d96a5431cbfaee85,district,2004,p00182,,,25-jul-2004,2004-07-25,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/safety/25-jul-2004-p00182.pdf,25-jul-2004-p00182.pdf,ok,freetext,"Mr. did not follow the ExxonMobil 100%
+tie off requirement while
+atteIIipting to reposition himself.","Mr. and Mr. did not discuss
+three-chain falls. It is speculated that the pipe
+three chain falls attached to the pipe spool were
+the need to keep tension on the
+spool would not have shifted if all
+under tension at the time of the
 incident.",,,,,,
 07d53acda037beb05ce689e496527ba59c4fcd5385d21d775747ad87fdcaff34,district,2004,,,,041227-pdf,2004-12-27,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/bsee/041227-pdf.pdf,041227-pdf.pdf,ok,freetext,"The direct cause of the pollution incident was due to a section of wire line wire that
 had lodged in the water dump valve on the outlet of the (FWKO). The wire caused the
@@ -167,9 +178,9 @@ valve to stay in the open position allowing all liquids from the (FWKO) to over 
 to the skinuner. The SDV on the inlet to the skinuner did not function properly due to a
 build up of scale and corrosion inside the valve. The LSH on the skinuner performed its
 design function and shut in the platform. The dump valve on the (FWKO) was replaced
-and the SDV on the inlet of the skinuner was repaired.","Wireline rope left in one of the wells from a previous wireline operation apparently
-flowed through the production process system and became lodged in the water outlet
-dump valve of the (FWKO) causing the valve to malfunction.",,,,,,
+and the SDV on the inlet of the skinuner was repaired.","Wireline rope left in one of the wells from a
+flowed through the production process system
+dump valve of the (FWKO) causing the valve to",,,,,,
 68d8fff06b0235311c6651eb7b47ec470ebd697d6c6465e6c5651cb70aa25ae8,district,2004,,,,040121-pdf,2004-01-21,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/gulf-of-mexico/040121-pdf.pdf,040121-pdf.pdf,ok,freetext,"The electric motor and brake are designed and built together so that when power
 applied to the electric motor, the brake releases and the motor applies torque. When
 electric power is removed, the electric/mechanical brake is set.
@@ -177,9 +188,11 @@ The mechanic did not read the procedures for removal of the motor for this mode 
 crane. Other types have brake bands on the cable drum. The mechanic failed to remove
 the load off the boom, which consisted of the boom, boom lifting pulleys and cable.","Mechanic failed to read the manufacturers recommended motor removal instructions, by
 cradling the boom and removing all loads from the motor and gear train.",,,,,,
-6e4d142a40e9dddc0caa2ad791aaae44f7e80b57b5aae763d8db3feef4dc052f,district,2005,,,,050516-pdf,2005-05-16,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/050516-pdf.pdf,050516-pdf.pdf,ok,freetext,The PES packer leaked and the came in.,"ZnBr brittled the elements on the PES packer. There was inadequate mud weight to
-handle the sand once the packer leaked. The crew had to wait 30 hours to receive
-the mud on location.",,,,,,
+6e4d142a40e9dddc0caa2ad791aaae44f7e80b57b5aae763d8db3feef4dc052f,district,2005,,,,050516-pdf,2005-05-16,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/050516-pdf.pdf,050516-pdf.pdf,ok,freetext,The PES packer leaked and the came in.,"ZnBr brittled the elements on the PES packer.
+handle the sand once the packer leaked. The
+the mud on location.
+There was inadequate mud weight to
+crew had to wait 30 hours to receive",,,,,,
 10000cd6c42bb35b61a6ea1a615d816d9f654420675d3ce8f5818f490349cbc0,district,2005,,,,051226-pdf,2005-12-26,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/051226-pdf.pdf,051226-pdf.pdf,ok,freetext,"Accident investigation revealed that electrical wiring in the horizontal wire tray was
 secured with a metal tie wire. The metal tie wire eventually cut into a 480 volt
 electrical cable due to vibration thus causing the wire to arc. The sparks contacted
@@ -214,9 +227,10 @@ contributing cause. The failure of the MCTs increased the severity of the event.
 The failure of the operator to have remote monitoring and operation capabilities of
 the ballast control system prior to evacuation is also considered a possible
 contributing cause of the event. If this system had been operational at the time of
-evacuation, the HPUs may not have been isolated and the ballast control could have
-been remotely monitored and controlled from a land location.",,,,,,
-0f841fd0201bd40503340504165dafd19426f502e4dc0b6ba65efcf9917ef6a4,district,2005,,,,051108-pdf,2005-11-08,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/051108-pdf.pdf,051108-pdf.pdf,ok,freetext,The shaker hand did not realize that the valve was not fully closed.,"The shaker hand was new to the position and the driller was new to the rig. There was
+evacuation, the HPUs may not have been
+been remotely monitored and controlled",,,,,,
+0f841fd0201bd40503340504165dafd19426f502e4dc0b6ba65efcf9917ef6a4,district,2005,,,,051108-pdf,2005-11-08,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/051108-pdf.pdf,051108-pdf.pdf,ok,freetext,The shaker hand did not realize that the valve,"was not fully closed.
+The shaker hand was new to the position and the driller was new to the rig. There was
 lack of communication between the driller and the shaker hand.",,,,,,
 117dad02505b5e120a6924a5f1477d71fec9e6545467bae0982f503b98186fde,district,2006,,,,060318-pdf,2006-03-18,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/060318-pdf.pdf,060318-pdf.pdf,ok,freetext,"Cable wear in the ""stress zone"" [exposed segment of rope that repeatedly travels back
 and forth over the sheaves] caused interior lubrication to break down. The inside of
@@ -280,11 +294,11 @@ the operator tried to start the compressor back up.
 relief area of only 25.25 square inches per panel. This was identified in a Safety
 Alert (Service News Bulletin 810) provided by Cooper Bessemer (issued in 1988 and then
 re-issued in September 1995) as a potential hazard.",,,,,,
-256599b7e35422d93e4214318bd42f0f62d26e17e35fa02107abb2897b8ca29b,district,2007,,,,070208-pdf,2007-02-08,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/070208-pdf.pdf,070208-pdf.pdf,ok,freetext,Fatigue failure of crane boom material is the probable cause of this incident.,None,,,,,,
+256599b7e35422d93e4214318bd42f0f62d26e17e35fa02107abb2897b8ca29b,district,2007,,,,070208-pdf,2007-02-08,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/070208-pdf.pdf,070208-pdf.pdf,ok,freetext,Fatigue failure of crane boom material is the,None,,,,,,
 37646d86bb75e7951dbc537270575ea8bb8fbdca40dff019224fe86a7c0bcf07,district,2007,,,,071024-pdf,2007-10-24,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/071024-pdf.pdf,071024-pdf.pdf,ok,freetext,"1) Worn/defective drill bit or improper drill bit being used for the job.
-2) Equipment was not thoroughly inspected before use.",,,,,,,
+2) Equipment was not thoroughly inspected before",,,,,,,
 233d1399f9028eaf51ef63545fb318332f77121971f38e39a366068e68341c1b,district,2007,,,,071115-pdf,2007-11-15,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/071115-pdf.pdf,071115-pdf.pdf,ok,typed,"Human Error:
-Lack of communications between crew member and Captain of boat.",,,,,,,
+Lack of communications between crew member",19. LIST THE CONTRIBUTING CAUSE(S) OF,,,,,,
 56cd81559e727e96beebc9d3c4c7c46508feca84b9661480d9e4781a3482f2d7,district,2008,,,,080616-pdf,2008-06-16,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/inspection-and-enforcement/080616-pdf.pdf,080616-pdf.pdf,ok,freetext,"The drawworks has six motors to operate the top drive, but two of the motors were
 found not operating properly. As a result, the drawworks were not capable of
 operating at its full power capacity. The problem found with the two motors was
@@ -308,8 +322,8 @@ motors are rated for 1120 amps. This lower amperage did not allow for full motor
 braking potential to be reached.",,,,,,
 42ed68b347526d46daf384ab020c6b7de82db08089d37ea606d620810ae30e1b,district,2008,,,,080405-pdf,2008-04-05,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/inspection-and-enforcement/080405-pdf.pdf,080405-pdf.pdf,ok,freetext,"The MT failed to recognize that he was performing maintenance on a pressurized section
 of the meter and also failed to verify that the meter was properly isolated and bled
-down before starting his work activties. There was also unclear communication between
-the platform personnel and the MT in regard to the meter housing being completely bled
+down before starting his work activties. There
+the platform personnel and the MT in regard to
 down.",N/A,,,,,,
 4412d57881980f1558560384f942ba99dbd08e13247ecd9a9c38bd137b0c2338,district,2008,,,,080413-pdf,2008-04-13,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/inspection-and-enforcement/080413-pdf.pdf,080413-pdf.pdf,ok,freetext,"The CCF attempted to transfer from the M/V Miss Debbie to the boat landing on VR 318A
 platform without the assistance of a swing rope.","* Testimony displayed in the operator's data revealed that the CCF's sense of urgency
@@ -334,8 +348,9 @@ Injured Person was not in a safe place where he could move out of the way if equ
 shifted.
 Equipment on boats, that is capable of movement should always be secured. Personnel
 should be aware of all hazards present and situations where an incident could occur.
-These should have been addressed in a safety meeting on the boat prior to commencing
-work.",High seas,,,,,,
+These should have been addressed in
+work.","19. LIST THE CONTRIBUTING CAUSE(S) OF
+High seas",,,,,,
 df38c6985b4d24ac249996ef33f9ccce52617467f111cdd0da2ad562ea38743e,district,2009,,,,090515-pdf,2009-05-15,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090515-pdf.pdf,090515-pdf.pdf,ok,typed,"Rolls Royce, DNV, and SBMA each performed forensic engineering studies to identify the
 root cause of the incident.
 - Rolls Royce performed internal re-analysis.
@@ -349,19 +364,26 @@ for the CSR loads experienced.","*Chain stop design: There was a lack of seconda
 out.
 *Quality control flaws in design process: The design laod was inadequate since it not
 account for the prescribed CSR load.",,,,,,
-2592caac20168a98a3968151e4f434e51f80a7ba0c4bdbd9de4d4e4db340a01f,district,2009,,,,090401-pdf,2009-04-01,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090401-pdf.pdf,090401-pdf.pdf,ok,freetext,"Grinding sparks landed on stored flammable items (i.e. sheets, towels, dry paper
+2592caac20168a98a3968151e4f434e51f80a7ba0c4bdbd9de4d4e4db340a01f,district,2009,,,,090401-pdf,2009-04-01,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090401-pdf.pdf,090401-pdf.pdf,ok,typed,"Grinding sparks landed on stored flammable items (i.e. sheets, towels, dry paper
 goods, aerosol cans, cleaners, etc.) located inside the hot work zone causing ignition
 of the fire. When workers went on break, the cutting torch was left unaccompanied
 inside the how work zone with charged fuel and oxygen in the hoses. The torch and
 hoses were melted and destroyed, allowing a continuous flow of fuel creating a larger
-fire.","1. Personnel did not remain in the hot work zone at least thirty-five minutes after
+fire.","19. LIST THE CONTRIBUTING CAUSE(S) OF
+1. Personnel did not remain in the
 work ended.
-2. There was not a designated fire watch with fire watch duties only being performed.
-3. All flammable materials had not been removed or covered properly within the
-thirty-five foot perimeter of hot work.
-4. Workers did not remove shut-off oxygen and fuel gas bottles and bleed hoses down
+2. There was not a designated fire
+3. All flammable materials had not
+thirty-five foot perimeter of hot
+4. Workers did not remove shut-off
 before leaving hot work zone.
-5. Workers did not follow the issued and signed Job Safety Analysis Worksheet and
+ACCIDENT:
+hot work zone at least thirty-five minutes after
+watch with fire watch duties only being performed.
+been removed or covered properly within the
+work.
+oxygen and fuel gas bottles and bleed hoses down
+5. Workers did not follow the issued and signed
 Diamond Offshore Permit to Work (hot work permit).",,,,,,
 fd60281565f1fc52e184103cfdc183ca1bb1ea9cf2fe14f8ae94cd0e99a5f5c3,district,2009,,,,090517-pdf,2009-05-17,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090517-pdf.pdf,090517-pdf.pdf,not_an_investigation_report,parse_failed,,,,,,,,
 dbd10f3a2ecbe4e4ad4faabf7497213e9165732ed2da68d4ae0b087051dc1e2d,district,2009,,,,090911-pdf,2009-09-11,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090911-pdf.pdf,090911-pdf.pdf,ok,freetext,"Improper rigging procedures from side loading of the torque wrench resulted in failure
@@ -372,7 +394,9 @@ not detail how to recover the wrench from the Moonpool.
 2) Hand placement of the IP.
 3) Size and shape of the riser wrench resulting in a tight clearance through the
 diverter housing.",,,,,,
-09b261a998118e7fd4fc9028516df5e6c848437819b4e3cffd02a095e077c744,district,2009,,,,090213a-pdf,2009-02-13,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090213a-pdf.pdf,090213a-pdf.pdf,ok,freetext,The positioning of the lifting eyes.,"The air tuggers were not at full power due low air pressure. Compressed air volume
+09b261a998118e7fd4fc9028516df5e6c848437819b4e3cffd02a095e077c744,district,2009,,,,090213a-pdf,2009-02-13,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090213a-pdf.pdf,090213a-pdf.pdf,ok,freetext,The positioning of the lifting eyes.,"The air tuggers were not at full power due low
+and with no other incidents.
+air pressure. Compressed air volume
 was inadequate to support usage. Also, an air tugger cable parted due to shock
 loading. Low air pressure reduced holding capacity and brakes were not holding.",,,,,,
 3d1590fb646ff801643790df903d93c8fc8529cfcd868aa8349993a34ef63a47,district,2010,,,,100928-pdf,2010-09-28,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/100928-pdf.pdf,100928-pdf.pdf,ok,freetext,"The cutting process produced hot, incandescent, molten slag that was ejected from the
@@ -396,15 +420,17 @@ The fire was not extinguished until the attendant vessel used its fire water mon
 to spray large quantities of water on the fire.
 * No shielding was present to prevent the hot slag from entering the wall of the
 building.
-* The fire was not observed until well advanced into the burning process since the
-position of the torch cutter precluded him from observing the building's inside wall.",,,,,,
-78d9653baf3ffbacaf5a6a30ac76299d6c64d4004adb20b90a1f05ab6a890701,district,2010,,,,100417-pdf,2010-04-17,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/100417-pdf.pdf,100417-pdf.pdf,ok,freetext,"The fire was caused by the molten spray from the cutting operation, contacting the
-tarp covering the 30 bbls of flammable liquid.","*Prior to any welding or burning operations being conducted, personnel failed to
-adequately assess the area and remove the flammables before issuing a hot work permit.
-*There was no welding Job Safety Analysis (JSA) conducted for the cutting torch
+* The fire was not observed until well
+position of the torch cutter precluded",,,,,,
+78d9653baf3ffbacaf5a6a30ac76299d6c64d4004adb20b90a1f05ab6a890701,district,2010,,,,100417-pdf,2010-04-17,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/100417-pdf.pdf,100417-pdf.pdf,ok,freetext,"The fire was caused by the molten spray from the
+tarp covering the 30 bbls of flammable liquid.","cutting operation, contacting the
+*Prior to any welding or burning operations being conducted, personnel failed to
+adequately assess the area and remove the
+*There was no welding Job Safety Analysis
 operations.",,,,,,
-87d30a5a1a549d14f193858105f25d26447670006bf0840ecb2ca9936b7d74c2,district,2010,,,,100412-pdf,2010-04-12,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/100412-pdf.pdf,100412-pdf.pdf,ok,freetext,"The opening pressure of the ILT was set at 1100 psi (approximately 350 psi too high),
-which rendered the fail-safe system inoperable.","1) There were no specific procedure exists for running casing using the ILT.
+87d30a5a1a549d14f193858105f25d26447670006bf0840ecb2ca9936b7d74c2,district,2010,,,,100412-pdf,2010-04-12,https://www.bsee.gov/sites/bsee.gov/files/reports/divisions/100412-pdf.pdf,100412-pdf.pdf,ok,freetext,"The opening pressure of the ILT was set at 1100
+which rendered the fail-safe system inoperable.","psi (approximately 350 psi too high),
+1) There were no specific procedure exists for running casing using the ILT.
 2) The Operator of the ILT lacked adequate understanding of the equipment he was using
 (lack of training).
 3) There was no documented maintenance recording system for the ILT.",,,,,,
@@ -415,14 +441,16 @@ air tugger while the Driller lowered another joint with the block was dissrupted
 the Driller answering the phone call.
 * Possible fatigue and/or rushing to complete the operation was involved as a result
 of the accident occurring during the last 15 minutes prior to shift change.
-* A design flaw with the air tugger's wire rope reeving configuration resulted in the
-pipe being pulled too close into the rotary table area.",,,,,,
-255996055f9dbeefd8fea2e3b44b491fdc73ca2b66163989d9130e3839b591f5,district,2011,,,,110606-pdf,2011-06-06,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/reports/110606-pdf.pdf,110606-pdf.pdf,ok,typed,"The IP did not fully understand the scope of the work; therefore, removed more than
+* A design flaw with the air tugger's wire
+pipe being pulled too close into the rotary",,,,,,
+255996055f9dbeefd8fea2e3b44b491fdc73ca2b66163989d9130e3839b591f5,district,2011,,,,110606-pdf,2011-06-06,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/reports/110606-pdf.pdf,110606-pdf.pdf,ok,typed,"The IP did not fully understand the scope of the work;
 one bolt at a time during the hot bolting operation.","The IP:
 * Did not sign the job safety analysis (JSA);
+therefore, removed more than
 * Was working alone without notifying control room personnel; and
 * Did not deenergize the equipment before performing maintenance.",,,,,,
-c6be28170278baebca1e4139c7c67945d5ae3b08ad94ee5f8077763fe913cb39,district,2011,,,,110825-pdf,2011-08-25,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/ocs-operations/110825-pdf.pdf,110825-pdf.pdf,ok,freetext,,"The Driller's lack of awareness of how many and what size drill pipes and how many
+c6be28170278baebca1e4139c7c67945d5ae3b08ad94ee5f8077763fe913cb39,district,2011,,,,110825-pdf,2011-08-25,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/ocs-operations/110825-pdf.pdf,110825-pdf.pdf,ok,freetext,,"The Driller's lack of awareness of how many and what
+size drill pipes and how many
 stands were being pulled; expecting that there was one more stand of 90' drill pipe.",,,,,,
 8d5aa950c224b0e6e9ebfeaf5067633791af637be39e46a767365c7ddd693f52,district,2011,,,,110510-pdf,2011-05-10,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/safety/110510-pdf.pdf,110510-pdf.pdf,ok,freetext,"The CO inadvertently pulled the auxiliary line lever while attempting to raise the
 load line, and then failed to react quick enough to prevent the auxiliary ball from
@@ -452,9 +480,10 @@ Although Seatrax provided a mentor for the SSE, the mentor failed to ensure the 
 of the SSE.
 The mentor, crane operator and signalman should have ensured that the SSE remained at
 a safe distance away from the boom tip before giving the signal to make the lift.",,,,,,
-d69585cc80dfd897f754dc06879ceb53ea37b4ad69667a796546ecc966b5051a,district,2012,apache,WC,205,5-september-2012,2012-09-05,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/wc-205-apache-5-september-2012.pdf,wc-205-apache-5-september-2012.pdf,ok,freetext,Human error by the IP. The IP placed his hand on a moving cable.,"1. The line of sight between the Driller (Hoist Operator) and the IP was blocked
+d69585cc80dfd897f754dc06879ceb53ea37b4ad69667a796546ecc966b5051a,district,2012,apache,WC,205,5-september-2012,2012-09-05,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/wc-205-apache-5-september-2012.pdf,wc-205-apache-5-september-2012.pdf,ok,freetext,Human error by the IP. The IP placed his hand,"on a moving cable.
+1. The line of sight between the Driller (Hoist Operator) and the IP was blocked
 requiring radio communication to be used for signaling.
-2. The JSA did not mention the hazards of pinch points and moving parts in the work
+2. The JSA did not mention the hazards
 area of the Sala block.",,,,,,
 03e3b8c5ceb2f30ba52cc13f246d6f235977d21b7359a482dfd4f778b28348d5,district,2012,anadarko petroleum,GC,608,19-december-2012,2012-12-19,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/gc-608-anadarko-petroleum-19-december-2012.pdf,gc-608-anadarko-petroleum-19-december-2012.pdf,ok,typed,"The employees involved failed to recognize all of the potential hazards that could be
 encountered during the lift before starting the job. Had the employees identified
@@ -475,24 +504,26 @@ load.
 6) Lack of experience: At the time of the accident, both of the employees were
 relatively new to their positions. The Crane Operator had been in that position for
 less than a year and the Roustabout had been in his position for approximately one
-year. This could have been a contributing factor in the accident.",,,,,,
+year. This could have been a contributing factor in",,,,,,
 22d15a5547b11e7c97fdccbd9dcb86d8a74463d235375a85997eace348750ab5,district,2012,mcmoran,VR,398,1-aug-2012,2012-08-01,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/vr-398-mcmoran-1-aug-2012.pdf,vr-398-mcmoran-1-aug-2012.pdf,ok,freetext,"1. Failure to properly equalize the pressure below and above the DX plug before
 cutting the tubing contributed directly to the incident.","1. Sand and wireline debris in the DX plug prevented equalizing ports of DX plug from
-opening and restricted flow of fluids from being pumped through the plug.",,,,,,
+opening and restricted flow of fluids from",,,,,,
 f6e1a6e1d5376950331475bf9d5d6d2cb1007a3962e7385ab75d4349af77b91d,district,2012,stone energy,VR,131,17-september-2012,2012-09-17,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/vr-131-stone-energy-17-september-2012.pdf,vr-131-stone-energy-17-september-2012.pdf,ok,freetext,"The CO attempted to lift a tool building weighing 7,500 pounds, while the crane boom
 was at an insufficient angle of approximately 30 degrees; thus, overloading the crane
 by ~3,900 pounds which is double its safe working load.","Human error by all parties involved which included the following:
-1. Failure to accurately identify the load weight and use proper hoisting techniques
+1. Failure to accurately identify
 to safely lift loads.
-2. Failure to follow the lessee's Safe Operating Procedures.
+2. Failure to follow the lessee's
+the load weight and use proper hoisting techniques
+Safe Operating Procedures.
 3. Failure to perform a thorough JSA and identify all the potential hazards associated
 with the lifting operation
 4. Failure to stop the job when identifying an abnormal lifting condition and mitigate
 risks involved before continuing with the operation",,,,,,
 0948a4ba368a58047116b3b1a6b6be30eed16a0a47f6489cf1105d5ebabb6da2,district,2012,eni,EW,921,17-august-2012,2012-08-17,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/ew-921-eni-17-august-2012.pdf,ew-921-eni-17-august-2012.pdf,ok,typed,"Equipment Failure:
 ENI final investigation revealed that the resulting fire was caused by a failed
-internal thrust bearing that allowed a metal to metal friction point and rapid
-temperature increase in the presence of flammable dry oil.",,,,,,,
+internal thrust bearing that allowed
+temperature increase in the presence",19. LIST THE CONTRIBUTING CAUSE(S) OF,,,,,,
 b5343d161b631f75164a031594b9f881da8afb25573b95c4df25e3df0035dc26,district,2013,mcmoran oil and gas,HI,A 536,18-july-2013,2013-07-18,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,ok,freetext,"The IP lost control of the 65# site glass after the upper pipe nipple broke. After the
 upper pipe nipple broke, the weight of the sight glass and momentum caused his left
 index finger to strike the corroded edge of the ASME code plate bracket.","The IP was not wearing gloves.
@@ -501,7 +532,7 @@ Improper technique was used to remove the site glass.",,,,,,
 f2ac16378054741c64659f7f8339a8ae2b5bcf2c5660f932adea66e77f63139c,district,2013,chevron,VR,214A,12-jul-2013,2013-07-12,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/vr-214a-chevron-12-jul-2013.pdf,vr-214a-chevron-12-jul-2013.pdf,ok,freetext,"A PA crew member attempted to move the S-line lubricator which was twenty seven
 feet long and weighed approximately 390 pounds without the help of another crew member
 or the aid of a mechanical lifting device.","In the JSA under mitigations to minimize/eliminate hazards for moving/assembling
-the lubricators, the JSA did not recognize the hazards of moving the lubricator by
+the lubricators, the JSA did not recognize
 hand.",,,,,,
 f2a1d99f27186e20ab7073b1598a7ce9352b2c5df2a05384a9978f9dfc1e2fef,district,2013,energy xxi,GI,22 L,24-oct-2013,2013-10-24,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/gi-22-l-energy-xxi-24-oct-2013.pdf,gi-22-l-energy-xxi-24-oct-2013.pdf,ok,freetext,"1. According to Energy XXI investigation, a pin-hole leak in the 2"" braided, flex
 starter exhaust piping was the source of fuel for the fire.
@@ -523,14 +554,14 @@ engine had created a hole or crack allowing natural gas to leak externally.
 1. Evidence (pictures taken immediately after accident) indicates that an explosion
 proof cover had been removed for access to the ignition system wiring during the
 engine timing process. It has not be determined if the use of a gas detector to
-monitor the area for gas was being utilized prior to and at the time of the flash
+monitor the area for gas was being utilized prior
 fire.",,,,,,
-e77e68db3fe05d1216e0aa6a2a3ae18d352a94077767517723cb4a63e9727197,district,2013,marathon oil company,DC,757,26-oct-2013,2013-10-26,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/dc-757-marathon-oil-company-26-oct-2013.pdf,dc-757-marathon-oil-company-26-oct-2013.pdf,ok,freetext,"Both of the 1"" support cables for the HTV parted at the wedge socket.",No contributing factors could be listed at the time of the investigation.,,,,,,
+e77e68db3fe05d1216e0aa6a2a3ae18d352a94077767517723cb4a63e9727197,district,2013,marathon oil company,DC,757,26-oct-2013,2013-10-26,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/dc-757-marathon-oil-company-26-oct-2013.pdf,dc-757-marathon-oil-company-26-oct-2013.pdf,ok,freetext,"Both of the 1"" support cables for the HTV parted at",No contributing factors could be listed at the time,,,,,,
 ff69a0b9c1c3b088f0378e5d1a21527adee51e26bb82f4a22ebdbbad9a9effbf,district,2014,energy xxi,SP,93A,20-oct-2014,2014-10-20,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/sp-93a-energy-xxi-20-oct-2014.pdf,sp-93a-energy-xxi-20-oct-2014.pdf,ok,freetext,"1) Minor fragments from previous repairs of the right bank #6 cylinder went unnoticed
 during installation of the new cylinder.
-2) The major internal breakdown included instant damages to the lube oil sealing
-systems/components that then allowed lube oil to communicate with the manifold, that
-developed a small flame causing the turbine side impeller to be destroyed along with
+2) The major internal breakdown included instant
+systems/components that then allowed lube oil to
+developed a small flame causing the turbine side
 the turbine housing internally.",,,,,,,
 fc429251c00ee1a66f8e5977fdd7288d53db95724bb34593929de4d2fc152a86,district,2014,shell,MC,762,21-oct-2014,2014-10-21,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/mc-762-shell-21-oct-2014.pdf,mc-762-shell-21-oct-2014.pdf,ok,freetext,"Human Error
 Poor hand placement. The (IP) placed his hand in a known pinch point. The JSA clearly
@@ -539,11 +570,10 @@ surroundings and where the crew places their hands and feet.","Witness statement
 IP used improper hand placement. ­
 Fitness to Work standard was not followed. IP had worked 18 hrs the previous day and
 had aleady worked 12 hrs at the time of the accident. ­
-­
-There were no hazardous markings at the pinch point of the (RMS) and no type of safety
+There were no hazardous markings at the pinch point of the (RMS) and no type of safety ­
 guarding around the pinch point. ­
 Load was hoisted unevenly causing the (RMS) to spin. ­",,,,,,
-b0ef4eb8bbeaf4a5692fd8a17c72e2d7e424eb073e0fce0499b22cfbaa70b2b0,district,2014,arena,EI,100,13-sep-2014,2014-09-13,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/ei-100-arena-13-sep-2014.pdf,ei-100-arena-13-sep-2014.pdf,ok,freetext,"It is believed the nozzle was activated due to the nozzle coming in contact with the
+b0ef4eb8bbeaf4a5692fd8a17c72e2d7e424eb073e0fce0499b22cfbaa70b2b0,district,2014,arena,EI,100,13-sep-2014,2014-09-13,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/ei-100-arena-13-sep-2014.pdf,ei-100-arena-13-sep-2014.pdf,ok,freetext,"It is believed the nozzle was activated due to
 piping.",,,,,,,
 435b468903c873e94a8b698c2cf2e7cfc714e09fc9a0cdd9c528bf0244cfbc92,district,2014,marubeni oil and gas,GC,155,24-sep-2014,2014-09-24,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/gc-155-marubeni-oil-and-gas-24-sep-2014.pdf,gc-155-marubeni-oil-and-gas-24-sep-2014.pdf,ok,freetext,"- A leaking dump valve on the #3 pit allowed Synthetic Based Mud to slowy drain out of
 the pit.
@@ -570,17 +600,22 @@ hoist system causing the crane to be shock loaded.
 caused the crane to be shock loaded were created. The shock load caused the crane’s
 boom to collapse on top of the hydraulic jack system work basket, then folding the
 boom in half sending the jib end toward the Crane Operator’s cab. This directly led to
-the failure and collapse of the crane boom and other components.
-4. Lessee failed to ensure control of the work string would be maintained if the
-stored energy was released while utilizing the hydraulic jack system.",Poor planning and risk evaluation by the operator.,,,,,,
+the failure and collapse of the crane boom and
+4. Lessee failed to ensure control of the work
+stored energy was released while utilizing the
+other components.
+string would be maintained if the
+hydraulic jack system.",Poor planning and risk evaluation by the operator.,,,,,,
 874f6265813639220f795de9263a518fd9fbc3f1fbd330fa313e1b2e3abf1249,district,2015,statoil usa e and p,MC,942,30-nov-2015,2015-11-30,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/mc-942-statoil-usa-e-and-p-30-nov-2015.pdf,mc-942-statoil-usa-e-and-p-30-nov-2015.pdf,ok,freetext,"1) Human error.
-2) The I.P. placed himself directly in the line of fire.","1) The air tugger operator should not have raised the joint of pipe at the I.P.’s
+2) The I.P. placed himself directly in the line","of fire.
+1) The air tugger operator should not have raised the joint of pipe at the I.P.’s
 request.
 2) Maersk rig personnel did not follow their own policy/procedure should the pipe
 drift (rabbit) become lodged inside of the drill pipe. (See last paragraph in section
 17).",,,,,,
-2ee8150719c0051c5567e55cfb975e975c5c500643a3f3330376ab3b48cb0982,district,2015,fieldwood energy,VR,21,16-dec-2015,2015-12-16,https://www.bsee.gov/sites/bsee.gov/files/vr21-fieldwood-energy-16-dec-2015.pdf,vr21-fieldwood-energy-16-dec-2015.pdf,ok,freetext,"• The boom hoist limit device failed to function, thus allowing the boom to exceed its
-maximum angle height and contact the boom stops","• During the job safety analysis, all parties failed to identify the associated
+2ee8150719c0051c5567e55cfb975e975c5c500643a3f3330376ab3b48cb0982,district,2015,fieldwood energy,VR,21,16-dec-2015,2015-12-16,https://www.bsee.gov/sites/bsee.gov/files/vr21-fieldwood-energy-16-dec-2015.pdf,vr21-fieldwood-energy-16-dec-2015.pdf,ok,freetext,"• The boom hoist limit device failed to function,
+maximum angle height and contact the boom stops","thus allowing the boom to exceed its
+• During the job safety analysis, all parties failed to identify the associated
 hazards of the lift due to the close proximity of the load to the crane’s minimum boom
 radius and the low light conditions
 • The pre-use inspection failed to identify the extension shaft for the boom hoist
@@ -589,13 +624,13 @@ limit device was loose and bent.
 read from the Crane Operator’s station
 • Neither the Signal Person nor the Crane Operator noticed the boom was nearing the
 stops",,,,,,
-23bed5f6357f1f3cce9f5eeb54169d396f93fc570387a2778917160324f09543,district,2015,and t offshore,HI,110 W,17-nov-2015,2015-11-17,https://www.bsee.gov/sites/bsee.gov/files/reports/incident-and-investigations/hi-110-w-and-t-offshore-17-nov-2015.pdf,hi-110-w-and-t-offshore-17-nov-2015.pdf,ok,freetext,Improper chemical handling.,"The IP failed to recognize the rag he removed from the bucket to kneel on was
+23bed5f6357f1f3cce9f5eeb54169d396f93fc570387a2778917160324f09543,district,2015,and t offshore,HI,110 W,17-nov-2015,2015-11-17,https://www.bsee.gov/sites/bsee.gov/files/reports/incident-and-investigations/hi-110-w-and-t-offshore-17-nov-2015.pdf,hi-110-w-and-t-offshore-17-nov-2015.pdf,ok,freetext,Improper chemical handling.,"The IP failed to recognize the rag he removed from the
 saturated with Tretolite DM0484X demulsifier.",,,,,,
 464f3eb78910c2a7874b9467305750cea6ce271924e274b85857b9bbc2f8142d,district,2016,fieldwood energy,HI,A 573 B,28-aug-2016,2016-08-28,https://www.bsee.gov/sites/bsee.gov/files/hi-a-573-b-fieldwood-energy-28-aug-2016.pdf,hi-a-573-b-fieldwood-energy-28-aug-2016.pdf,ok,freetext,"1. Injured Person did not ensure that someone spotted/anchored the ladder at deck
 level, securing it before ascending up the ladder.
 2. Pre-Task Hazard Inspection Checklist and the Job Safety and Environmental Analysis
 (JSEA) had no annotation of working with ladders, work surfaces being slippery or
-wet,Safety Harness & Anchor Device 100%, and a Fall Protection Rescue System was not
+wet,Safety Harness & Anchor Device 100%, and a
 reviewed during the Safety Briefing.
 3. Person In Charge failed to sign the JSEA",,,,,,,
 fc66b8542c5f0a46de4e5861c8474ab674c55d459fb95cbfaecfdd31e0660215,district,2016,talos energy,PL,23,29-feb-2016,2016-02-29,https://www.bsee.gov/sites/bsee.gov/files/pl23-talos-energy-29-feb-2016.pdf,pl23-talos-energy-29-feb-2016.pdf,ok,freetext,"Findings performed by an engineering firm investigating the incident states in part:
@@ -625,7 +660,7 @@ insulate the metal, which increased the localized surface temperature of the met
 phosphate siderite (iron carbonate), and calcite (calcium carbonate). These carbonate
 scales should not have formed at a pH of 2.95. The presence of calcium phosphate
 suggested that the emulsion breaker was not compatible with the produced water. The
-iron carbonate was the product of CO2 corrosion and the calcium carbonate was an
+iron carbonate was the product of CO2 corrosion and
 inorganic mineral scale.""",N/A,,,,,,
 48ff712c061b1410d92e5a0d9c642bea082ab20b39c8138b9ab309252d042535,district,2016,ridgelake,SS,154,23-dec-2016,2016-12-23,https://www.bsee.gov/sites/bsee.gov/files/ss154-ridgelake-23-dec-2016.pdf,ss154-ridgelake-23-dec-2016.pdf,ok,freetext,"It appears the major areas of corrosion/pitting were in the welds of the tube where
 the fluid interface mixed with corrosive chemicals, thereby damaging the metal. As a
@@ -643,8 +678,10 @@ and ball would not come in contact with the boom tip while lowering the crane bo
 bolt head, creating a hole and allowing coolant to spray onto the engine exhaust
 piping. The piping was covered with protective heat blankets, and once saturated with
 the coolant, ignited.",N/A,,,,,,
-7217b31cd6c3429ab40ff5d8f29608975b22ee4663516487c264b9c44bacee15,district,2017,anadarko,GC,680,27-december-2017,2017-12-27,https://www.bsee.gov/sites/bsee.gov/files/gc680-anadarko-27-december-2017.pdf,gc680-anadarko-27-december-2017.pdf,ok,freetext,"Severe corrosion to the buoyancy can air fill-up lines is the most likely cause of
-this incident.",N/A,,,,,,
+7217b31cd6c3429ab40ff5d8f29608975b22ee4663516487c264b9c44bacee15,district,2017,anadarko,GC,680,27-december-2017,2017-12-27,https://www.bsee.gov/sites/bsee.gov/files/gc680-anadarko-27-december-2017.pdf,gc680-anadarko-27-december-2017.pdf,ok,freetext,"Severe corrosion to the buoyancy can air fill-up
+this incident.","N/A
+A-1 tree and riser to descend until
+lines is the most likely cause of",,,,,,
 22213e5882a02eaa68aa67103730df0aa1ada5eaee1d8e41020ca3c0ee80c9cf,district,2017,may ei 338arenacranesantitized,,,,,https://www.bsee.gov/sites/bsee.gov/files/31-may-ei-338arenacranesantitized.pdf,31-may-ei-338arenacranesantitized.pdf,ok,freetext,"The rigger inadvertently placed himself in a hazardous location allowing the tool
 house and a handrail to be a possible pinch point hazard.","*As per Wood Group’s GOM-SWP-Cranes and Lifting Equipment Standard 4.10 Signals states
 signals to operators shall include use of the hand, voice and/or audible method. Means
@@ -655,9 +692,11 @@ audibly or visually at all times. The Crane Operator shall not respond unless si
 are clearly understood.
 A signal person must be provided for the following situations:
 1. The point of operation is not in full view of the operator
-2. The view is obstructed when the equipment is traveling
-3. The operator or the person handling the load determines it is necessary due to site
+2. The view is obstructed when the equipment is
+3. The operator or the person handling the load
 specific concerns
+traveling
+determines it is necessary due to site
 *As per Island Operating’s Safe Practices Manual
 28.45 Crane movement shall always be governed by a standard set of signals,
 transmitted to the operator by a signalman.
@@ -665,16 +704,18 @@ transmitted to the operator by a signalman.
 conspicuous arm band, hat, glove or other badge of authority.
 28.48 Where visual or audible signals are inadequate, telephone or portable radio
 communication should be used.
-*As per Island Operating’s Job Safety Analysis dated May 31, 2017, Section 5-Always
-watch out for your co-worker to insure that they are in a safe place and out of the
+*As per Island Operating’s Job Safety Analysis dated
+watch out for your co-worker to insure that they are
 line of fire before making lift from the platform.",,,,,,
 1074f9a8a2b583ed8a11b41c4e91e8df0c91a00119824557f1616f3ff80394c2,district,2017,bp exploration,GC,782,13-sep-2017,2017-09-13,https://www.bsee.gov/sites/bsee.gov/files/gc-782-bp-exploration-13-sep-2017.pdf,gc-782-bp-exploration-13-sep-2017.pdf,ok,freetext,"1) Improper valve alignment allowed SBM to be discharged into the Gulf of Mexcio.
 2) Personnel failed to properly verify valve alignment prior to pumping water
-overboard.",The leaking splitter valve may have contributed to the SBM discharge.,,,,,,
+overboard.","19. LIST THE CONTRIBUTING CAUSE(S) OF
+The leaking splitter valve may have",,,,,,
 1ece2626cebdad105abfd2188fe704526d9190275c5e2ef00013031a0938b1a0,district,2018,chevron,MC,607,01dec2018,2018-12-01,https://www.bsee.gov/sites/bsee.gov/files/reports/mc607-chevron-01dec2018.pdf,mc607-chevron-01dec2018.pdf,ok,freetext,"The extreme unexpected changes in wind speed and direction due to strong thunderstorms
 caused an excursion of the vessel's planned position. Due to these rapid changes, the
 vessel was unable to maintain position while being latched up to the well. This event
-subsequently resulted in an Emergency Disconnect Sequence (EDS-3).",N/A,,,,,,
+subsequently resulted in an Emergency","19. LIST THE CONTRIBUTING CAUSE(S) OF
+N/A",,,,,,
 a173db4d7adebc8cdacf2ab467b5774ec4ac82025c3669fe3dcdd18854e44a9e,district,2018,gc787a bp,,,08-may-2018,2018-05-08,https://www.bsee.gov/sites/bsee.gov/files/gc787a-bp-08-may-2018.pdf,gc787a-bp-08-may-2018.pdf,ok,freetext,"Based on BSEE's investigation and BP's internal investigation, the following findings
 were identified:
 The correct seals were not installed due to personnel not having knowledge of the
@@ -694,29 +735,33 @@ recommended that additional gas detection sensors be installed on the facility. 
 the lack of speak-up and trust between BP leadership and BP technicians as well as the
 safety culture on Atlantis were all cited as contributing to the response by personnel
 to the gas release.","During ongoing simultaneous operations around the time of the incident, the control
-room operators bypassed the shut-in functions of the line-of-sight gas detectors for
-the sales gas skid. The point gas detectors were not placed in bypass, however the
-distance of the detectors in relation to the gas skid did not sense the presence of
+room operators bypassed the shut-in functions of
+the sales gas skid. The point gas detectors were
+distance of the detectors in relation to the gas
 the gas.",,,,,,
 cb8c725ba1ed10305ebd9a1bff3809d4f704504c245a1eac67cfea0f6b2d390f,district,2018,noble,MC,736,16-may-2018,2018-05-16,https://www.bsee.gov/sites/bsee.gov/files/mc736-noble-16-may-2018.pdf,mc736-noble-16-may-2018.pdf,ok,typed,"• Management Systems- Inadequate Management of Change (MOC) procedures: The change in
 water production did not prompt a review of the produced water handling system.","• Human Performance Error - inadequate knowledge of equipment operations: With the
 ongoing pollution, personnel continually adjusted chemical rates and levels in the
 FWKO, Float Cell, and the Wet Oil Tank following the production start-ups from May 13,
 15, and 16, 2018 without taking the appropriate action shutting in the facility.",,,,,,
-b51364bab7ea32f122fce44570a8a2c43dada2f7e2a77c12f7eaffed61c227c7,district,2018,anadarko,GC,645,19may2018,2018-05-19,https://www.bsee.gov/sites/bsee.gov/files/gc-645-anadarko-19may2018.pdf,gc-645-anadarko-19may2018.pdf,ok,freetext,- Failure to follow the planned procedure.,"- Conflicting instructions from the rig's management. The Driller gave instructions
+b51364bab7ea32f122fce44570a8a2c43dada2f7e2a77c12f7eaffed61c227c7,district,2018,anadarko,GC,645,19may2018,2018-05-19,https://www.bsee.gov/sites/bsee.gov/files/gc-645-anadarko-19may2018.pdf,gc-645-anadarko-19may2018.pdf,ok,freetext,- Failure to follow the planned procedure.,"- Conflicting instructions from the rig's management.
+The Driller gave instructions
 for the crew to not remove any bolts from the riser and LSG frame, but the Toolpusher
 gave instructions for the crew to remove the bolts.
-- Failure to stop work when instruction was given that was not in line with the
+- Failure to stop work when instruction
 planned procedure.",,,,,,
 7088e4de863c77b481f96f7a8079a31d639b00214afc3dfd3c31376ab0280d38,district,2019,,MC,437,6may19,2019-05-06,https://www.bsee.gov/sites/bsee.gov/files/mc-437-6may19.pdf,mc-437-6may19.pdf,ok,typed,"Equipment failure – Flawed equipment design: The UPS system failed due to shorted
 capacitors and undersized fuses on the inverter capacitor bank","Equipment Failure - Flawed equipment construction: Generator swapping operations
 caused the loss of normal power on the facility.",,,,,,
 2dbfb818aa38cec0425b24de3b4f579ef315ee5ee8bc3e7160cb5f19f96366c6,district,2019,,GB,426,31mar19,2019-03-31,https://www.bsee.gov/sites/bsee.gov/files/gb-426-31mar19-sanitized-2010.pdf,gb-426-31mar19-sanitized-2010.pdf,ok,freetext,"The IP failed recognize the fall/trip hazard while attempting to exit the firewater
-pump skid. The skid is painted to identify the 17 inch drop while entering or exiting
+pump skid. The skid is painted to identify the 17 inch
 the skid.",,,,,,,
-b8b004f629c62237341df6cb20101ab16263333fbffc90f491a6e5df14301583,district,2019,fieldwood energy,EB,160,9-dec-2019,2019-12-09,https://www.bsee.gov/sites/bsee.gov/files/eb-160-fieldwood-energy-9-dec-2019.pdf,eb-160-fieldwood-energy-9-dec-2019.pdf,ok,typed,"The Root Cause: Lessee failed to ensure personnel were properly inspecting the slips
+b8b004f629c62237341df6cb20101ab16263333fbffc90f491a6e5df14301583,district,2019,fieldwood energy,EB,160,9-dec-2019,2019-12-09,https://www.bsee.gov/sites/bsee.gov/files/eb-160-fieldwood-energy-9-dec-2019.pdf,eb-160-fieldwood-energy-9-dec-2019.pdf,ok,typed,"The Root Cause: Lessee failed to ensure personnel were
+ensure slips and bowls were
+properly inspecting the slips
 and bowls and operating all equipment as per Manufacturer's Operations/Maintenance
-Instruction Manual prior to use.","1. Personnel failed to ensure slips completely seated into the bowls.
+Instruction Manual prior to use.","1. Personnel failed to ensure slips completely
+seated into the bowls.
 2. Personnel failed to ensure the slips and bowls were properly lubricated prior to
 use.
 3. Job Safety Analysis (JSA) did not contain steps to ensure slips and bowls were
@@ -769,37 +814,40 @@ person should: Be in clear view of the Crane Operator to ensure that their signa
 be seen. Their position should give them clear view of the load, crane, personnel, and
 area operation. If the Crane Operator’s view of the primary signal person is
 obstructed, a secondary signal person should be provided.
-Section 28.31 (B.)(1) A lift plan should be created before each crane operation and
-adhered to during the entire operation. If the lift plan cannot be followed, it must
+Section 28.31 (B.)(1) A lift plan should be created
+adhered to during the entire operation. If the lift
 be revised. “",,,,,,
-b4efd723ca8ddd8de27848f7bbbe8606551c9693b0918a5bfa632c388236f129,district,2020,bp,MC,778,13-jul-2020,2020-07-13,https://www.bsee.gov/sites/bsee.gov/files/mc-778-bp-13-jul-2020.pdf,mc-778-bp-13-jul-2020.pdf,ok,freetext,"• Human Performance Error - Inattention to task: BP decided to place the well into
-production before verifying that the workover fluids were cleaned up.",N/A,,,,,,
-7172202687739559179dc1c8e14cc1ddee3e20cd1731c148a498a1b5fef3e2e4,district,2020,arena,EI,238,19-jan-2020,2020-01-19,https://www.bsee.gov/sites/bsee.gov/files/reports/ei238-arena-19-jan-2020-redacted.pdf,ei238-arena-19-jan-2020-redacted.pdf,ok,freetext,Inattention to task-The mechanic missed the step causing him to fall forward.,"When the mechanic missed the step, the weight of the tool bag on his back added to the
+b4efd723ca8ddd8de27848f7bbbe8606551c9693b0918a5bfa632c388236f129,district,2020,bp,MC,778,13-jul-2020,2020-07-13,https://www.bsee.gov/sites/bsee.gov/files/mc-778-bp-13-jul-2020.pdf,mc-778-bp-13-jul-2020.pdf,ok,freetext,"• Human Performance Error - Inattention to task: BP
+production before verifying that the workover fluids",N/A,,,,,,
+7172202687739559179dc1c8e14cc1ddee3e20cd1731c148a498a1b5fef3e2e4,district,2020,arena,EI,238,19-jan-2020,2020-01-19,https://www.bsee.gov/sites/bsee.gov/files/reports/ei238-arena-19-jan-2020-redacted.pdf,ei238-arena-19-jan-2020-redacted.pdf,ok,freetext,Inattention to task-The mechanic missed the step,"When the mechanic missed the step, the weight of
 severity of his injuries.",,,,,,
 36d99d167a3671e161e9b42f282ad7b851de2014802f01fc8bc0756ca5e7e1a9,district,2021,wd73d cox operating,,,25-sep-2021,2021-09-25,https://www.bsee.gov/sites/bsee.gov/files/wd73d-cox-operating-25-sep-2021.pdf,wd73d-cox-operating-25-sep-2021.pdf,ok,freetext," Human Performance Error – Not aware of hazards: IP was not aware of the trip hazards
 from working near uneven surfaces. No slip or trips were identified on the Job Safety
-Analysis."," Work Environment – No or improper PPE: IP was not wearing cut resistant work gloves
+Analysis."," Work Environment – No or improper PPE: IP was
+not wearing cut resistant work gloves
 while handling the sharp edge sheet tin metal.",,,,,,
 bda70aae95f1dfb2cbda0304a90d7183c969bf5b64a478412220d4265ff63048,district,2021,talos,GC,281,04-june-2021,2021-06-04,https://www.bsee.gov/sites/bsee.gov/files/gc-281-talos-04-june-2021.pdf,gc-281-talos-04-june-2021.pdf,ok,freetext,"Lack of situational awareness due to the IP's left hand placement in a clearly
-identified pinch point.","IP was placed in an unnecessary position in a unidentifed red zone.
+identified pinch point.","IP was placed in an unnecessary position in
 IP became complacent with the job.",,,,,,
-67aaf40ce4821c44ef36b5deec2cbc3141175d98820cc2ceca2b248570cd26f8,district,2021,bp,GC,821,27-feb-2021,2021-02-27,https://www.bsee.gov/sites/bsee.gov/files/gc-821-bp-27-feb-2021.pdf,gc-821-bp-27-feb-2021.pdf,ok,freetext,"Improper valve alignment allowed SOBM to be discharged into the Gulf of Mexico.
-Failure to follow procedure for transferring permitted fluid overboard.",Inadequate communication between tour change.,,,,,,
-aecc68513403334f22cc48958df81eeebe3ae86d70846e08598e2bf1e02bc9cf,district,2021,cox,ST,26 D,14-mar-2021,2021-03-14,https://www.bsee.gov/sites/bsee.gov/files/cox-st-26-d-14-mar-2021-revised.pdf,cox-st-26-d-14-mar-2021-revised.pdf,ok,freetext,"Poor communication between the dock crane operator and the dispatcher caused the
+67aaf40ce4821c44ef36b5deec2cbc3141175d98820cc2ceca2b248570cd26f8,district,2021,bp,GC,821,27-feb-2021,2021-02-27,https://www.bsee.gov/sites/bsee.gov/files/gc-821-bp-27-feb-2021.pdf,gc-821-bp-27-feb-2021.pdf,ok,freetext,"Improper valve alignment allowed SOBM to be discharged
+Failure to follow procedure for transferring permitted",Inadequate communication between tour change.,,,,,,
+aecc68513403334f22cc48958df81eeebe3ae86d70846e08598e2bf1e02bc9cf,district,2021,cox,ST,26 D,14-mar-2021,2021-03-14,https://www.bsee.gov/sites/bsee.gov/files/cox-st-26-d-14-mar-2021-revised.pdf,cox-st-26-d-14-mar-2021-revised.pdf,ok,freetext,"Poor communication between the dock crane operator and
 basket weight to be mislabeled.",None,,,,,,
-076fe9111e4508b2dbd1e23617701475253e394385749818c6c28d4133e97782,district,2022,enven,EW,873,03-mar-2022,2022-03-03,https://www.bsee.gov/sites/bsee.gov/files/ew_873_enven_03-mar-2022.pdf,ew_873_enven_03-mar-2022.pdf,ok,typed,Equipment Failure: Piston rod failed.,Piston rod penetrated engine housing allowing hot oil to spray on stored air filters.,,,,,,
+076fe9111e4508b2dbd1e23617701475253e394385749818c6c28d4133e97782,district,2022,enven,EW,873,03-mar-2022,2022-03-03,https://www.bsee.gov/sites/bsee.gov/files/ew_873_enven_03-mar-2022.pdf,ew_873_enven_03-mar-2022.pdf,ok,typed,Equipment Failure: Piston rod failed.,"19. LIST THE CONTRIBUTING CAUSE(S) OF
+Piston rod penetrated engine housing",,,,,,
 4aa850016b01eeb4a182f7521444bd7a938aa61bd5039447d1551a4f4ff120ad,district,2022,shell,MC,809 A,20-aug-2022,2022-08-20,https://www.bsee.gov/sites/bsee.gov/files/shell-mc-809-a-20-aug-2022.pdf,shell-mc-809-a-20-aug-2022.pdf,ok,typed,"• Human Performance Error - Inattention to task: Torch was stored away without closing
 the bottle valves, depressurizing the lines, and ensuring the torch head valves were
 fully tightened.
 • Human Performance Error – Not aware of hazards: While workers were utilizing the
-plasma cutter, sparks came into contact with the torch head causing the acetylene gas
+plasma cutter, sparks came into contact with the torch
 leaking from the torch to ignite.",,,,,,,
 6cecf8f0a5c010ad1976d601a722938cc4b8161ce86c6aa1d20dfc471ccfe4e7,district,2022,bp,MC,778 A,6-june-2022,2022-06-06,https://www.bsee.gov/sites/bsee.gov/files/bp-mc-778-a-6-june-2022.pdf,bp-mc-778-a-6-june-2022.pdf,ok,typed,• Equipment Failure: Rod piston seal failure.,,,,,,,
 ac1757c4eeab1fa90b4a474b22f313790fcd817d640d3de7830b350fd17c836d,district,2022,anadarko,EB,602,10-sep-2022,2022-09-10,https://www.bsee.gov/sites/bsee.gov/files/eb-602-anadarko-10-sep-2022.pdf,eb-602-anadarko-10-sep-2022.pdf,ok,typed,"Human Performance Error:
-IP failed to control the movement of the TG door while manually pushing on the TG
+IP failed to control the movement of the TG door
 frame as stated in the JSA.","Management Systems:
+while manually pushing on the TG
 Inadequate written job procedures – JSA was titled install and removal of the TG, but
-JSA only discussed installation. Removal was said to be the reverse of the
+JSA only discussed installation. Removal was said to be
 installation.",,,,,,
 9df725f8d67da3cee7b8aa38f5e488783e7bef57a6252024629cf43faf079758,district,2023,Cox,EI,259C,13-OCT-2023,2023-10-13,https://www.bsee.gov/sites/bsee.gov/files/2024-04/EI%20259C_Cox_13-OCT-2023_EV2010R.pdf,EI 259C_Cox_13-OCT-2023_EV2010R.pdf,ok,typed,"Human Performance Error: Even though the Job Safety Analysis discusses the use of a
 safety harness, the CM failed to wear the safety harness when reaching over the
@@ -809,14 +857,14 @@ occurred.
 Management Systems: Inadequate hazard analysis - Also, the CM failed to conduct a stop
 work authority and readdress the Job Safety Analysis when the decision was made to
 remove the brace.
-Work Environment: The guard rail onto the gantry was 38 inches high.",,,,,,
+Work Environment: The guard rail onto the gantry was 38",,,,,,
 e5387585a4cbc22c0d59f07d6d864ec8c8bc8c78445ff8d42283d1a45a94daf6,district,2023,AP Cox,MO,916,22-Nov-2023,2023-11-22,https://www.bsee.gov/sites/bsee.gov/files/2024-01/MO%20916-AP%20Cox%20%2022-Nov-2023.pdf,MO 916-AP Cox  22-Nov-2023.pdf,ok,typed,"• Communication – Inadequate communication between personnel: While lowering the
 section of piping, crewmembers involved did not communicate properly resulting in an
 individual being injured.","• Supervision – No or inadequate supervision: Lack of supervision was found to be a
-contributing factor to the incident. This resulted in the piping shifting as it was
-being lowered, causing the IP’s finger to become pinched between the piping and an
+contributing factor to the incident. This
+being lowered, causing the IP’s finger to
 adjacent beam.",,,,,,
-e3525fb6dc185f9b35b91b4a4796a600025a74652e3f36b3f90027ab0b77c382,district,2023,Shell,AC,857,03.JAN_.2023,2023-01-03,https://www.bsee.gov/sites/bsee.gov/files/2023-04/2010%20Shell%20AC%20857%2003.JAN_.2023%20Redacted.pdf,2010 Shell AC 857 03.JAN_.2023 Redacted.pdf,ok,freetext,"Failure of the Universal Power Supply, UPS-7560 resulted in a loss of power.",None,,,,,,
+e3525fb6dc185f9b35b91b4a4796a600025a74652e3f36b3f90027ab0b77c382,district,2023,Shell,AC,857,03.JAN_.2023,2023-01-03,https://www.bsee.gov/sites/bsee.gov/files/2023-04/2010%20Shell%20AC%20857%2003.JAN_.2023%20Redacted.pdf,2010 Shell AC 857 03.JAN_.2023 Redacted.pdf,ok,freetext,"Failure of the Universal Power Supply, UPS-7560",None,,,,,,
 0757e28551f297c8c6332ee93e6da3bb7dcfc0a5a4ce841452dfc0f1dad53f58,district,2023,BP,MC,520,07-Jun-2023,2023-06-07,https://www.bsee.gov/sites/bsee.gov/files/2024-03/MC%20520%20BP%2007-Jun-2023.pdf,MC 520 BP 07-Jun-2023.pdf,ok,typed,"Human Error:
 • The Driller and Assistant Driller did not follow the guidelines and procedures and
 did not fill out the Elevator Pre-use checklist. Due to the Driller and Assistant
@@ -827,17 +875,18 @@ foot cleanout assembly 40 feet onto the pipe skate.
 (EU) pipe. The pipe that was being lifted was 4.5 inch Internal-External Upset (IEU)
 which requires the smaller diameter inserts. The IEU pipe upset is approximately 1/4
 inch smaller in diameter than the EU pipe upset.","Human Error:
-The Assistant Driller was not aware of his responsibility to ensure that the Elevator
+The Assistant Driller was not aware
 Pre-use Checklist was completed.
 Supervision:
-The Driller did not verify that the Elevator Pre-use Checklist was carried out to his
-satisfaction.",,,,,,
+The Driller did not verify that the
+satisfaction.
+20. LIST THE ADDITIONAL",,,,,,
 a22ea35463600fbd75ddb809a9ec431033bbaeae2aff58c24145ee249b851189,district,2024,Shell,MC,391,05-MAR-2024,2024-03-05,https://www.bsee.gov/sites/bsee.gov/files/2024-12/MC%20391%20Shell%2005-MAR-2024.pdf,MC 391 Shell 05-MAR-2024.pdf,ok,freetext,"The extreme unexpected changes in wind speed and direction due to strong thunderstorms
 caused an excursion of the vessel's planned position. Due to these rapid changes, the
 vessel was unable to maintain position while being latched up to the well. This event
 subsequently resulted in an EDS from the well.","-The weather forecasts did not predict the adverse weather conditions that were
 witnessed on location.
--The vessel’s radar did not show the actual weather conditions that were witnessed on
+-The vessel’s radar did not show the actual
 location.",,,,,,
 18a277e00c9c957910bfce23bd8251dcacb728832bbd74792146897fd3984791,district,2024,MantaRay,HIA,5,11-JUL-2024,2024-07-11,https://www.bsee.gov/sites/bsee.gov/files/2024-09/11-JUL-2024_HIA5_MantaRay_EV2010R%20%281%29_0.pdf,11-JUL-2024_HIA5_MantaRay_EV2010R (1)_0.pdf,ok,typed,"Human Performance Error- Inadequate knowledge of equipment operation:
 Engagement of Winch with Handle in Place: The primary cause of the incident was the
@@ -876,8 +925,7 @@ failed to look up and recognize the hazard, failed to recognize that having a wo
 the fingerboards was a hazard, or failed to stop work after recognizing the hazard.",,,,,,
 eb8727d42f251803a23a31d00fea38ad2f841ad449a86e989a2f82490218a1e6,district,2025,Shell,GB,959,14-Oct-2025,2025-10-14,https://www.bsee.gov/sites/bsee.gov/files/2026-03/GB%20959%20Shell%2014-Oct-2025.pdf,GB 959 Shell 14-Oct-2025.pdf,ok,typed,"Management System:
 • Inadequate hazard analysis. Control measures for this operation involving the aerial
-man-riding work basket were ineffective or not implemented. The crew failed to
-lift
+lift man-riding work basket were ineffective or not implemented. The crew failed to
 recognize the hazards associated with using the aerial lift man-riding work basket as a
 lifting operation by pulling downward with rope. There was no lift plan in place for
 this operation.
@@ -898,7 +946,7 @@ performed when the radio remote controls failed to operate, resulting in the ope
 control station becoming the primary means of control, thus exposing the bypass
 functions to misuse. Additionally, there was no physical method of control to prevent
 unauthorized use of bypasses or overrides. The OEM manual and control panel signage
-state the deck control panel or operator station are for emergency use only.",,,,,,
+state the deck control panel or operator station",,,,,,
 40b1b3080cef9d78339a305c4b6ee73d531c8bc70ac126fae5ca01b94e04a118,district,2025,High Point Gas Gathering LLC,VK,817,16-Aug-2025,2025-08-16,https://www.bsee.gov/sites/bsee.gov/files/2026-03/VK%20817%20High%20Point%20Gas%20Gathering%20LLC%2016-Aug-2025.pdf,VK 817 High Point Gas Gathering LLC 16-Aug-2025.pdf,ok,typed,"• Human Performance Error: International Navigational Rule #5 and #8. The captain
 failed to safely operate the M/V Dry Tortugus. He admitted to falling asleep at the
 controls while the vessel was on autopilot.
@@ -961,12 +1009,16 @@ events regarding the evacuation of the IP reveals miscommunication and a lack of
 emergency response preparedness. There were several examples exhibited within the
 timeline of the evacuation that strongly suggest the IP’s evacuation was delayed due
 to failure to plan for these events prior to the incident. BSEE recommends Cantium
-review their emergency plans and procedures to ensure a more efficient response in the
+review their emergency plans and procedures
 event of future evacuations.",,,,,,
 8d7c767c5ae3d2f5a0c15eb71a1ba271d906df141b09dfad210062a5393df85b,district,2026,Beacon Growtco Operating,MC,759,20-Feb-26,2026-02-20,https://www.bsee.gov/sites/bsee.gov/files/2026-07/MC%20759%20Beacon%20Growtco%20Operating%2020-Feb-26.pdf,MC 759 Beacon Growtco Operating 20-Feb-26.pdf,ok,typed,"- Loss of winch gear mesh function. - The electric umbilical winch lost gear mesh
 function during recovery of ROV ML242, resulting in uncontrolled payout of the
-umbilical cable.","1. Inadequate lubrication practices - Although scheduled maintenance records indicated
-gear greasing had been completed, OEM analysis identified inadequate lubrication
+umbilical cable.","19. LIST THE CONTRIBUTING CAUSE(S) OF
+1. Inadequate lubrication practices -
+gear greasing had been completed, OEM
+ACCIDENT:
+Although scheduled maintenance records indicated
+analysis identified inadequate lubrication
 conditions as the mechanism that led to progressive gear tooth damage and loss of gear
 mesh function.
 2. Lack of independent emergency stopping capability – The winch’s emergency stopping
@@ -993,4 +1045,4 @@ crew on location with the Cable Removal-Demolition Procedure prior to performing
 work.
 Communication: Inadequate job instructions provided- Danos failed to provide the crew
 with the proper training to perform the task. Due to the crew not being familiar with
-the task, training should have been provided prior to the crew performing the task.",,,,,,
+the task, training should have been provided",,,,,,
