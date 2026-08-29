@@ -1435,3 +1435,64 @@ the method's purpose.
 
 Recorded because the difference decides whether the method is broken or merely
 incomplete. It is incomplete.
+
+## 2026-08-29 — R0 applied: `_rows` clusters instead of quantising
+
+### The fix
+
+`round(top / tol)` replaced with single linkage on the gap, **plus a span cap**.
+Both parts were necessary and the second was found by a test rather than by
+inspection.
+
+**The tolerance had to shrink with the algorithm.** As a bin width, 2.5 meant
+±1.25 from a centre; as a gap it means "chain anything within 2.5pt", which is
+far looser. Measured on a sampled form face, single linkage at tol 2.0 produced a
+within-row spread of 3.36pt — two distinct lines merged. The observed gap
+distribution is bimodal: **146 of 222 consecutive gaps under 1pt** (same-baseline
+jitter), **62 above 2.5pt** (genuine line breaks), only 14 between. `ROW_TOL` is
+now **1.5**, sitting in the empty middle.
+
+**A test I wrote caught a weakness in the fix I wrote.** Single linkage alone
+chains: six words stepping 1.4pt apart each pass the tolerance and merge across
+7pt. Real pages do not show that ladder, but nothing prevented it, so a row is
+now also capped at `ROW_SPAN_MAX = 2.0` from its first word.
+
+Baseline before the change, measured over 120 sampled PDFs: **5,112 excess rows
+against 10,734 true rows — 47.6% more rows than the pages have, affecting 119 of
+120 documents.**
+
+### Measured outcome — two fixed, one unchanged, one deferred
+
+| | before | after |
+|---|---|---|
+| **`Area == "5"`** (next field's ordinal) | 42 | **2** |
+| `src_form_revision` A / B / C / unknown (ok records) | 127 / 701 / 377 / 14 | **94 / 743 / 377 / 5** |
+| `Unit` populated | 691 | **764** |
+| UNKEYED incident numbers | 80 | 76 |
+| field 28 label bleed | 230 | **228** |
+| field 5 → `Unit` on revision A | 3/127 | 0/94 |
+
+**D2 is 95% resolved.** 33 revision-B documents were reclassified out of A —
+matching the 32 predicted — and 9 unknowns resolved. A collision key that read
+`261-20050225-1043` now reads `EI-261-...`: the missing area letter recovered
+itself, which is the clearest single demonstration that the row reconstruction
+was the cause.
+
+**D3 did not move, and that is expected.** Its root cause is `find_gutter` being
+a whole-page test applied to a page whose upper two-thirds is single-column
+narrative — R0.1 in the remediation plan, independent of `_rows`. The remediation
+plan predicted this; recording it because a fix that improves one symptom and not
+another is exactly where wishful reading creeps in.
+
+**Field 5 on revision A went from ~0 to 0.** On revision A the form numbering is
+shifted, so anchor 5 is `ACTIVITY`, not `PLATFORM`, and the label hint correctly
+refuses it. That is the P1 per-revision field map's job, not R0's. The previous
+3/127 were spurious matches; 0/94 is the more honest number.
+
+### Note on re-extraction
+
+The sandbox caps a single command at ~3 minutes, and a full 1,289-document
+extraction exceeds that. It was completed in two passes (1,169 then the
+remaining 120), and `anomalies.jsonl` was regenerated from the per-record
+anomaly lists afterwards, because the interrupted run had truncated it in `w`
+mode. Anyone re-running this should do it locally in one pass.

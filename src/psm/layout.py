@@ -27,7 +27,14 @@ from dataclasses import dataclass
 # Row bucketing tolerance in points. Form 2010 body text is ~12pt leading, so
 # 2.5 keeps genuinely different rows apart while tolerating baseline jitter
 # within a row (observed: an "X" at top=250.7 beside its label at top=249.8).
-ROW_TOL = 2.5
+# Maximum gap in points between two words for them to be on the same visual row.
+# This is a GAP, not a bin width -- see _rows(). It was 2.5 when it meant a bin
+# width (+/-1.25 from a centre); as a gap that value chains adjacent lines.
+ROW_TOL = 1.5
+
+# Maximum total baseline spread within one row, guarding against single-linkage
+# chaining. Observed within-row spread on real form faces is 1.68pt.
+ROW_SPAN_MAX = 2.0
 
 # Search window for the form face's inter-column gutter, in points.
 GUTTER_SEARCH = (240.0, 370.0)
@@ -52,12 +59,45 @@ class Line:
 
 
 def _rows(words, tol: float = ROW_TOL):
-    """Bucket words into visual rows keyed by rounded ``top``."""
-    buckets: dict[int, list] = {}
-    for w in words:
-        buckets.setdefault(round(w["top"] / tol), []).append(w)
-    for key in sorted(buckets):
-        yield sorted(buckets[key], key=lambda w: w["x0"])
+    """Group words into visual rows by clustering on ``top``.
+
+    An earlier version bucketed on ``round(top / tol)``. That is a fixed bin
+    EDGE, not a tolerance: two words on the same baseline land in different rows
+    whenever an edge falls between them, however close they are. Measured across
+    120 sampled PDFs it produced **47.6% more rows than the page actually has**,
+    affecting 119 of 120 documents -- and the damage was not cosmetic. It split
+    ``BLOCK:`` (top 308.8) from its value ``25`` (top 308.3), so a downstream
+    regex read the next field's ordinal instead; it split ``3.`` from
+    ``OPERATOR/CONTRACTOR``, so form-revision detection saw an absent field 3 and
+    misclassified 32 revision-B documents as revision A.
+
+    Single linkage on the gap is the right shape, but the tolerance had to shrink
+    with it. As a bin width, 2.5 meant +/-1.25 either side of a centre; as a gap
+    it means "chain anything within 2.5pt", which is much looser and does chain:
+    at tol 2.0 the within-row spread on a sampled form face jumps to 3.36pt, i.e.
+    two distinct lines merged. The observed gap distribution is bimodal -- 146 of
+    222 consecutive gaps are under 1pt (same-baseline jitter), 62 exceed 2.5pt
+    (genuine line breaks), and only 14 fall between -- so 1.5 sits in the empty
+    middle with room either side.
+
+    Single linkage alone is not sufficient either: a ladder of words each within
+    the tolerance of the last chains without limit, so six words stepping 1.4pt
+    apart merge across 7pt into one "row". Real form faces do not exhibit that
+    ladder -- observed within-row spread is 1.68pt -- but nothing in the
+    algorithm prevented it, so a row is also capped at ROW_SPAN_MAX from its
+    first word. A text line's words share a baseline; they do not drift.
+    """
+    ordered = sorted(words, key=lambda w: w["top"])
+    row: list = []
+    for w in ordered:
+        if row and w["top"] - row[-1]["top"] <= tol and w["top"] - row[0]["top"] <= ROW_SPAN_MAX:
+            row.append(w)
+        else:
+            if row:
+                yield sorted(row, key=lambda w: w["x0"])
+            row = [w]
+    if row:
+        yield sorted(row, key=lambda w: w["x0"])
 
 
 # A candidate gutter must be uncrossed by this fraction of the page's rows, and
