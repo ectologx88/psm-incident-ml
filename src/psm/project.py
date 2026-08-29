@@ -229,6 +229,7 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
 
     tables = {t: [] for t in proj["tables"]}
     sidecar_rows = []
+    cause_fields: list[dict] = []
     reasons = Counter()
     collisions: list[str] = []
     seen_ids: set[str] = set()
@@ -274,15 +275,24 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
             row[lab] = inc_id if lab == "Incident Number" else resolve(rec, spec, mrow)
         tables["incidents"].append(row)
 
+        # Tag each statement with the field it came from. BSEE's field 18 is
+        # "Probable Cause" and 19 is "Contributing Cause" -- an axis of primacy,
+        # not the depth axis E19's `Cause type` asks for (see
+        # schema/xw_cause_qualifiers.yaml). So it is NOT crosswalked, but it is
+        # real provenance and an obvious feature for a later LLM-assisted pass,
+        # and concatenating the two fields was silently discarding it.
         statements = []
         for fnum in ("f18", "f19"):
-            statements += [s for s in segment_statements(field(rec, fnum) or "") if s.strip()]
-        for i, stmt in enumerate(statements, start=1):
+            statements += [(s, fnum[1:]) for s in segment_statements(field(rec, fnum) or "")
+                           if s.strip()]
+        for i, (stmt, src_field) in enumerate(statements, start=1):
             r = {c: "" for c in cols("causes")}
             r["Incident Number"] = inc_id
             r["Cause number"] = str(i)
             r["Cause Description"] = " ".join(stmt.split())
             tables["causes"].append(r)
+            cause_fields.append({"Incident Number": inc_id, "Cause number": str(i),
+                                 "bsee_source_field": src_field})
 
         recs22 = [b.strip() for b in re.split(r"\n\s*\n", field(rec, "f22") or "") if b.strip()]
         for i, block in enumerate(recs22, start=1):
@@ -309,7 +319,8 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
             reasons[spec["blank"]] += 1
 
     return {"tables": tables, "sidecar": sidecar_rows, "cols": {t: cols(t) for t in tables},
-            "reasons": reasons, "collisions": collisions, "skipped": skipped}
+            "reasons": reasons, "collisions": collisions, "skipped": skipped,
+            "cause_fields": cause_fields}
 
 
 def write_csv(path: Path, cols: list[str], rows: list[dict]) -> None:
@@ -335,6 +346,10 @@ def main(argv=None) -> int:
     for name, rows in built["tables"].items():
         write_csv(args.out / f"{name}.csv", built["cols"][name], rows)
         print(f"  {name}.csv: {len(rows)} rows x {len(built['cols'][name])} cols")
+    if built["cause_fields"]:
+        cf = built["cause_fields"]
+        write_csv(args.out / "causes_source_field.csv", list(cf[0]), cf)
+        print(f"  causes_source_field.csv: {len(cf)} rows (BSEE field 18 vs 19)")
     if built["sidecar"]:
         side_cols = list(built["sidecar"][0])
         write_csv(args.out / "bsee_unmapped.csv", side_cols, built["sidecar"])

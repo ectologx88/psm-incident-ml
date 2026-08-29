@@ -70,6 +70,20 @@ class CauseStatement:
     delimiter_form: str
 
 
+# A font with no ToUnicode mapping renders its bullet glyph as "(cid:129)".
+# The surrounding text is perfectly readable -- these are not broken documents,
+# and the document-level guard in psm.extract correctly leaves them `ok`. But an
+# unmapped glyph carries no information, and left in place it becomes the head of
+# a "category" called "(cid". Normalised to a real bullet so the existing bullet
+# handling picks it up, rather than stripped, because that is what it is.
+CID_GLYPH_RE = re.compile(r"\(cid:\d+\)\s*")
+
+
+def strip_cid_glyphs(text: str) -> str:
+    """Replace unmapped-glyph tokens with a bullet."""
+    return CID_GLYPH_RE.sub("\u2022 ", text or "")
+
+
 def unwrap(text: str) -> list[str]:
     """Join PDF hard-wraps into logical statements.
 
@@ -77,7 +91,7 @@ def unwrap(text: str) -> list[str]:
     before a separator looks like a category. Everything else continues the
     previous line.
     """
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    lines = [ln.strip() for ln in strip_cid_glyphs(text).splitlines() if ln.strip()]
     out: list[str] = []
     for ln in lines:
         starts_new = bool(BULLET_RE.match(ln))
@@ -135,7 +149,7 @@ def candidate_category(statement: str) -> tuple[str | None, str]:
     ``category_prefix`` is ``None`` when the statement does not look typed at
     all — which is itself the finding for free-text-era reports.
     """
-    body = BULLET_RE.sub("", statement).strip()
+    body = BULLET_RE.sub("", strip_cid_glyphs(statement)).strip()
     if not body:
         return None, "empty"
     m = SEP_RE.search(body)
@@ -153,7 +167,7 @@ def candidate_category(statement: str) -> tuple[str | None, str]:
 
 def parse_statement(statement: str) -> CauseStatement:
     """Best-effort split into category / subcategory / description."""
-    body = BULLET_RE.sub("", statement).strip()
+    body = BULLET_RE.sub("", strip_cid_glyphs(statement)).strip()
     category, form = candidate_category(body)
     if category is None:
         return CauseStatement(body, None, None, body or None, form)
@@ -165,8 +179,11 @@ def parse_statement(statement: str) -> CauseStatement:
     m2 = SEP_RE.search(rest)
     dot = re.search(r"(?<=[a-z])\.(?=\s|$)", rest)
     cut = min([p.start() for p in (m2, dot) if p] or [len(rest)])
-    sub = rest[:cut].strip(" .–—-") or None
-    desc = rest[cut:].strip(" .:–—-") or None
+    # Bullet chars are in the strip set because a cid-glyph bullet can sit
+    # mid-statement, after the category separator, where the leading-bullet
+    # rule above has already run and cannot reach it.
+    sub = rest[:cut].strip(" .–—-•●▪·*") or None
+    desc = rest[cut:].strip(" .:–—-•●▪·*") or None
     if sub and len(sub.split()) > 14:  # a whole sentence, not a subcategory
         sub, desc = None, rest
     return CauseStatement(body, category, sub, desc, form)

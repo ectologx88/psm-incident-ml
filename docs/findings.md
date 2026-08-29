@@ -1082,3 +1082,41 @@ to attribute a cognitive mode to.
 
 80.4% of statements are untyped free text and no crosswalk reaches them. Of the
 679 typed, 66.4% carry a mapped category. Everything above is bounded by that.
+
+## 2026-08-29 — Two follow-ups from Session 3
+
+### The CID leak was a bullet glyph, not a broken text layer
+
+`(cid` appearing as a cause subcategory looked like the document-level CID guard
+being too permissive. It was not. The nine affected statements read
+`Human Performance Error: (cid:129) Not aware of hazards. There were no safety
+restraints...` — **`(cid:129)` is an unmapped bullet character in an otherwise
+perfectly readable document.** The guard was right to leave those documents `ok`;
+lowering its threshold would have wrongly condemned them.
+
+Fixed where it belonged, in `psm.causes`: cid tokens are normalised **to a
+bullet** rather than stripped, because that is what they are, so the existing
+bullet handling picks them up. Bullet characters were also added to the
+subcategory strip set — a cid bullet can sit mid-statement, after the category
+separator, where the leading-bullet rule has already run and cannot reach it.
+
+Effect: categories recovered on statements that previously produced `(cid`, and a
+few merged statements correctly split.
+
+| | before | after |
+|---|---|---|
+| cause statements | 3,462 | 3,468 |
+| Equipment Failure | 111 | 114 |
+| Human Performance Error | 177 | 179 |
+| Management Systems | 72 | 76 |
+
+### `src_cause_field` recorded
+
+`psm.project` concatenated fields 18 and 19 without recording which a statement
+came from, discarding real provenance. Now written to
+`data/processed/e19/causes_source_field.csv`, keyed on incident and cause number.
+
+It is deliberately **not** crosswalked to `Cause type` — probable/contributing is
+an axis of primacy, Immediate/Underlying/Root an axis of depth. But it is the
+obvious feature for a later LLM-assisted pass, and it should not have been thrown
+away.
