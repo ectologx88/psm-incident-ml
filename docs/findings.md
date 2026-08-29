@@ -443,3 +443,101 @@ New split: **28 typed, 71 freetext, 1 parse_failed** (was 29/70/1).
   be bleeding into 18/19 undetected on reports outside this sample. The
   true typed share is `<= 28%`, direction unchanged from the original
   caveat (the bug only ever pushes reports *into* `typed`).
+
+## 2026-08-29 — E19 label extraction: the target schema does not match the template
+
+**Why this was run.** Adversarial review of a worked E19 sample found the field
+names did not match the source workbook. The same defect turned out to be in the
+repo: `schema/e19_target.yaml` is hand-written with invented snake_case names
+(`incident_date`, `area_block`, `narrative_summary`) rather than the template's
+actual labels. It is explicit about this — *"HAND-WRITTEN. No workbook was
+opened, copied, or derived from"* — a deliberate IP-safety choice that
+nonetheless leaves the schema unable to satisfy an exactness requirement.
+
+**Decision taken:** add an **E19 projection layer** rather than rename
+throughout. The internal snake_case schema stays canonical for the pipeline;
+exactness becomes a property of the output. `synth.py`, `gold_scaffold.py` and
+`crosswalk.yaml` are untouched.
+
+### What was built
+
+`src/psm/e19_schema.py` — reads the workbook **read-only** and emits
+`schema/e19_labels.yaml`. Labels are never retyped: every field-name mismatch
+found in review so far came from a human transcribing them. The workbook itself
+remains uncommitted; the derived YAML (names and vocabularies only, no formulas
+or rollup logic) is committed, consistent with CLAUDE.md's existing allowance.
+
+Block detection is derived, not hardcoded to row numbers: the sheet's
+convention is *header cell, blank row, contiguous field run*, so a run of length
+one is a header and the following run is its fields. Survives a row insert.
+
+**Result: 7 groups, 65 fields, 29 vocabularies.** Workbook SHA256 asserted
+unchanged across the run. A round-trip check re-opens the workbook and compares
+every emitted label and value against its source cell.
+
+### Two extractor bugs the round-trip check caught before commit
+
+Both produced plausible, non-erroring output — the failure mode this project
+keeps hitting.
+
+1. **`Risk Score` came out with 45 values.** Column W stacks `1..25` (the real
+   risk-score vocabulary) immediately followed by `1..20` (PSM element numbers)
+   with no blank row between. Read naively that is one 45-value vocabulary. Fix:
+   split a column where a numeric series restarts. `Risk Score` is now n=25 and
+   the trailing `1..20` is emitted separately.
+2. **Values were assumed contiguous.** Several picklist columns have blank rows
+   inside them, so verifying against `first_row + i` failed on eight columns.
+   Fix: store each value's actual row rather than inferring a range.
+
+A third issue is handled rather than fixed: five columns have no header of their
+own (`X45`, `AI6` are bare PSM element lists; `W45`, `BF7`, `BH7` are numeric
+scales). Their first cell is a *value*, not a name. Rather than invent a
+vocabulary name, these are emitted with `name: null` and
+`header_confident: false`, leaving identification to the consumer.
+
+### Template irregularities, preserved verbatim
+
+These are the real column names. Normalising them would defeat the exactness
+guarantee: `Incident Classificatioin` (sic, used twice), `incident Title`
+(lower-case i), `Unmittigated` / `Mittigated` (sic), `Human Factors  Cause`
+(double space), ` Failed PSM Framework Element` (leading space),
+`What happened?  ` (two trailing spaces), `Health & Safety  - Consequence`
+(double space, and the sibling E&R and Financial fields differ from each other
+in the same way).
+
+**`Description` appears twice in one group** (E18 and E23 — the form's two
+"Description if Other" fields). A flat table cannot carry two identically named
+columns; the projection must disambiguate, and how it does so needs the author's
+input rather than our invention.
+
+### Diff against `schema/e19_target.yaml`
+
+| | n |
+|---|---|
+| E19 fields total | 65 |
+| Covered 1:1 by a differently-named target field | 33 |
+| Partially covered — grain or split mismatch | 9 |
+| **Absent from the target schema entirely** | **23** |
+| **Name matches between the two schemas** | **0 of 65** |
+
+Partial coverage is where the shapes genuinely differ: E19 splits location into
+`Site` / `Area` / `Unit` / `Detail` where the target has one `area_block`; E19
+has four `Incident Type A–D` fields where the target has one multi-enum;
+`Cause Description` and `Recommendation Description` are one-row-per-item in E19
+against list-valued fields in the target.
+
+The 23 absent fields cluster in three places: **the consequence/likelihood pairs
+for all three risk matrices** (the target kept only the scores), **the cause
+qualifiers** (`Cause type`, `Risk Management Cause`, `Human Factors  Cause`), and
+**the row keys** (`Cause number`, `Recommendation Number`).
+
+13 target fields have no E19 counterpart at all — `lease_number`, `operator`,
+`water_depth_ft`, `activity`, `operation`, `property_damage_usd`,
+`regulatory_violations`, `cause_category`, `cause_status`, and others. These are
+BSEE-side or project-side fields and belong in the sidecar, not in E19 output.
+Note E19 has no `operator` field at all, which makes sense for an internal
+company form where the operator is implicit.
+
+**Not yet done:** `schema/e19_projection.yaml` (the mapping itself, including
+blank-reason codes), `src/psm/project.py`, and the exactness test asserting
+output headers equal the labels read from the template.

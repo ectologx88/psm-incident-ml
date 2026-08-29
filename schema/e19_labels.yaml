@@ -1,0 +1,774 @@
+_generated_by: src/psm/e19_schema.py
+_source_workbook: E19 Investigation Report - Rev2.xlsx
+_source_sha256: f029d33c769368ef79f10ce4a934fdd2a73da476f3f82ce628d3f7de126b8d44
+_note: 'Labels are byte-exact from the workbook, including its own typos and irregular whitespace. Do
+  not normalise them: these are the column names the E19 projection must emit. Regenerate with `uv run
+  python -m psm.e19_schema --workbook <path>` rather than editing.'
+groups:
+- group: Incident Information
+  group_cell: E5
+  fields:
+  - label: Incident Number
+    cell: E7
+  - label: incident Title
+    cell: E8
+  - label: Incident Classificatioin
+    cell: E9
+  - label: Date of Incident
+    cell: E10
+  - label: Time of Incident
+    cell: E11
+  - label: Date of Report
+    cell: E12
+  - label: Site
+    cell: E13
+  - label: Area
+    cell: E14
+  - label: Unit
+    cell: E15
+  - label: Detail
+    cell: E16
+  - label: Work Group
+    cell: E17
+  - label: Description
+    cell: E18
+  - label: Incident Type A
+    cell: E19
+  - label: Incident Type B
+    cell: E20
+  - label: Incident Type C
+    cell: E21
+  - label: Incident Type D
+    cell: E22
+  - label: Description
+    cell: E23
+  - label: Investigation leader - Name
+    cell: E24
+  - label: Investigation leader - Position
+    cell: E25
+  - label: Incident Classified by - Name
+    cell: E26
+  - label: Incident Classified by - Position
+    cell: E27
+  - label: Investigation Acceptor/Approver (Owner) - Name
+    cell: E28
+  - label: Investigation Acceptor/Approver (Owner)- Position
+    cell: E29
+  - label: Approval Date
+    cell: E30
+  - label: Close out Approval - Name
+    cell: E31
+  - label: Close out Approval - Position
+    cell: E32
+  - label: Close out Date
+    cell: E33
+- group: Incident Description
+  group_cell: E38
+  fields:
+  - label: 'What happened?  '
+    cell: E40
+  - label: What was the outcome?
+    cell: E41
+- group: Incident Classificatioin
+  group_cell: E46
+  fields:
+  - label: Incident Classification
+    cell: E48
+  - label: What was the worst outcome that could reasonably be expected to have happened?
+    cell: E49
+  - label: Health & Safety Incident - Classification
+    cell: E50
+  - label: Health & Safety - Risk Score
+    cell: E51
+  - label: Health & Safety  - Consequence
+    cell: E52
+  - label: Health & Safety - Likelihood
+    cell: E53
+  - label: Environment & Reputation - Incident Classification
+    cell: E54
+  - label: Environment & Reputation - Risk Score
+    cell: E55
+  - label: Environment & Reputation  - Consequence
+    cell: E56
+  - label: Environment & Reputation - Likelihood
+    cell: E57
+  - label: Financial Cost & Business - Incident Classification
+    cell: E58
+  - label: Financial Cost & Business Interruption - Risk Score
+    cell: E59
+  - label: Financial Cost & Business Interruption  - Consequence
+    cell: E60
+  - label: Financial Cost & Business Interruption - Likelihood
+    cell: E61
+- group: Investigation
+  group_cell: I13
+  fields:
+  - label: How did the incident occur
+    cell: I15
+- group: Causes
+  group_cell: I20
+  fields:
+  - label: Cause number
+    cell: I22
+  - label: Cause Description
+    cell: I23
+  - label: Cause type
+    cell: I24
+  - label: Risk Management Cause
+    cell: I25
+  - label: Human Factors  Cause
+    cell: I26
+  - label: ' Failed PSM Framework Element'
+    cell: I27
+- group: Recommendation
+  group_cell: M20
+  fields:
+  - label: Recommendation Number
+    cell: M22
+  - label: Recommendation Description
+    cell: M23
+  - label: Unmittigated Risk - Score
+    cell: M24
+  - label: Unmittigated Risk - Consequence
+    cell: M25
+  - label: Unmittigated Risk - Likelihood
+    cell: M26
+  - label: Mittigated Risk - Score
+    cell: M27
+  - label: Mittigated Risk - Consequence
+    cell: M28
+  - label: Mittigated Risk - Likelihood
+    cell: M29
+  - label: Agreed Completion Date
+    cell: M30
+  - label: Responsible Owner - Name
+    cell: M31
+  - label: Responsible Owner - Position
+    cell: M32
+- group: Recommendation Status /Close Out
+  group_cell: Q5
+  fields:
+  - label: Incident Number
+    cell: Q7
+  - label: Recommendation Number
+    cell: Q8
+  - label: Schedule Status
+    cell: Q9
+  - label: Date Completed
+    cell: Q10
+vocabularies:
+- name: Incident Type
+  header_confident: true
+  cell: C3
+  value_rows:
+  - 4
+  - 6
+  - 7
+  values:
+  - A
+  - Loss Event
+  - Near Hit
+- name: B
+  header_confident: true
+  cell: E4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  values:
+  - Health & Safety
+  - Environment & Reputation
+  - Business Interruption & Cost
+- name: C
+  header_confident: true
+  cell: G4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  values:
+  - Injury Fatality
+  - Injury Permenant Disability
+  - Injury TLI
+  - Injury Minor
+  - Health Issue Fatality
+  - Health  Issue Permenant Disability
+  - Health Issue TlI
+  - Health Issue Minor
+  - Loss of Containment
+  - Availiability Loss
+  - Equipment Damage
+  - Consent Breach
+  - Product Quality
+- name: D
+  header_confident: true
+  cell: I4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  values:
+  - Crush/Impact
+  - Bone Fracture
+  - Laceration
+  - Burn
+  - Harmful Exposure
+  - Electricution
+  - Spill to Water
+  - Spil to Land
+  - Gas/Vapour Release
+  - Combustion
+  - Road Traffic Incident
+  - Equipment Failure
+  - Dropped Object
+  - Fall
+  - Other
+- name: Shift
+  header_confident: true
+  cell: K4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 12
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  values:
+  - A - Process Ops
+  - B - Process Ops
+  - C - Process Ops
+  - D - Process Ops
+  - E - Process Ops
+  - F - Process Ops
+  - Maintenance
+  - Projects
+  - Technical
+  - Facilities Management
+  - Admin
+  - Other
+- name: Site
+  header_confident: true
+  cell: M4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  values:
+  - Alpha
+  - Beta
+  - Gamma
+  - Delta
+- name: Area
+  header_confident: true
+  cell: O4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  values:
+  - One
+  - Two
+  - Three
+  - Four
+- name: Unit
+  header_confident: true
+  cell: Q4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  values:
+  - A
+  - B
+  - C
+  - D
+- name: Consequence
+  header_confident: true
+  cell: S4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - A
+  - B
+  - C
+  - D
+  - E
+- name: Likelihood
+  header_confident: true
+  cell: U4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+- name: Risk Score
+  header_confident: true
+  cell: W4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  - 27
+  - 28
+  - 29
+  - 30
+  - 31
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  - '6'
+  - '7'
+  - '8'
+  - '9'
+  - '10'
+  - '11'
+  - '12'
+  - '13'
+  - '14'
+  - '15'
+  - '16'
+  - '17'
+  - '18'
+  - '19'
+  - '20'
+  - '21'
+  - '22'
+  - '23'
+  - '24'
+  - '25'
+- name: null
+  header_confident: false
+  cell: W45
+  value_rows:
+  - 45
+  - 46
+  - 47
+  - 48
+  - 49
+  - 50
+  - 51
+  - 52
+  - 53
+  - 54
+  - 55
+  - 56
+  - 57
+  - 58
+  - 59
+  - 60
+  - 61
+  - 62
+  - 63
+  - 64
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  - '6'
+  - '7'
+  - '8'
+  - '9'
+  - '10'
+  - '11'
+  - '12'
+  - '13'
+  - '14'
+  - '15'
+  - '16'
+  - '17'
+  - '18'
+  - '19'
+  - '20'
+- name: null
+  header_confident: false
+  cell: X45
+  value_rows:
+  - 45
+  - 46
+  - 47
+  - 48
+  - 49
+  - 50
+  - 51
+  - 52
+  - 53
+  - 54
+  - 55
+  - 56
+  - 57
+  - 58
+  - 59
+  - 60
+  - 61
+  - 62
+  - 63
+  - 64
+  values:
+  - Leadership commitment and responsibility.
+  - Identification and compliance with legislation and industry standards.
+  - Employee selection, placement and competency, and health assurance.
+  - Workforce involvement.
+  - Communication with stakeholders.
+  - Hazard identification and risk assessment.
+  - Documentation, records and knowledge management.
+  - Operating manuals and procedures.
+  - Process and operational status monitoring, and handover.
+  - Management of operational interfaces.
+  - Standards and practices.
+  - Management of change and project management.
+  - Operational readiness and process start-up.
+  - Emergency preparedness.
+  - Inspection and maintenance.
+  - Management of safety critical devices.
+  - Work control, permit to work and task risk management.
+  - Contractor and supplier, selection and management.
+  - Incident reporting and investigation.
+  - Audit, assurance, management review and intervention.
+- name: Incident Classification
+  header_confident: true
+  cell: Z4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  values:
+  - Very Serious Incident
+  - Serious Incident
+  - Incident
+- name: Cause Type
+  header_confident: true
+  cell: AB4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  values:
+  - Immediate
+  - Underlying
+  - Root
+- name: Risk Management Cause
+  header_confident: true
+  cell: AD4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  values:
+  - Hazard not Identified
+  - Inadequate Control Measures
+  - Control Measures Not Implemented
+- name: Human Factors
+  header_confident: true
+  cell: AF4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  values:
+  - Competency - Lack of Competency
+  - ' Competency -  Lapse of Competency'
+  - Mistake - Work Environment - poor or confusing equipment design or layout
+  - Mistake - Work Environment - poor or distrating conditions
+  - Mistake - Information Issue -incorrect information
+  - Mistake - Information Issue -too little, missing or inaccesible information
+  - Mistake - Information Issue - too much or poorly presented information causing confusion
+  - Mistake - Stress Level Issue
+  - Violation - Situational Violation
+  - Violation - Wilful Violation
+- name: Failed PSM Framework Element
+  header_confident: true
+  cell: AH4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  - '6'
+  - '7'
+  - '8'
+  - '9'
+  - '10'
+  - '11'
+  - '12'
+  - '13'
+  - '14'
+  - '15'
+  - '16'
+  - '17'
+  - '18'
+  - '19'
+  - '20'
+- name: null
+  header_confident: false
+  cell: AI6
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  values:
+  - 1 Leadership commitment and responsibility.
+  - 2 Identification and compliance with legislation and industry standards.
+  - 3 Employee selection, placement and competency, and health assurance.
+  - 4 Workforce involvement.
+  - 5 Communication with stakeholders.
+  - 6 Hazard identification and risk assessment.
+  - 7 Documentation, records and knowledge management.
+  - 8 Operating manuals and procedures.
+  - 9 Process and operational status monitoring, and handover.
+  - 10 Management of operational interfaces.
+  - 11 Standards and practices.
+  - 12 Management of change and project management.
+  - 13 Operational readiness and process start-up.
+  - 14 Emergency preparedness.
+  - 15 Inspection and maintenance.
+  - 16 Management of safety critical devices.
+  - 17 Work control, permit to work and task risk management.
+  - 18 Contractor and supplier, selection and management.
+  - 19 Incident reporting and investigation.
+  - 20 Audit, assurance, management review and intervention.
+- name: Recommendation Accepted
+  header_confident: true
+  cell: AL4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  values:
+  - Pending
+  - Rejected
+  - Accepted
+- name: Schedule Status
+  header_confident: true
+  cell: AN4
+  value_rows:
+  - 6
+  - 7
+  - 8
+  - 9
+  values:
+  - Completed
+  - On Schedule
+  - Behind Original Agreed Schedule
+  - Deleted
+- name: Field Observation Report
+  header_confident: true
+  cell: AS2
+  value_rows:
+  - 4
+  - 6
+  - 7
+  - 8
+  - 9
+  values:
+  - Field Observation Rating
+  - 1 Major Deficiency Identified
+  - 2 Minor Deficiency Identified
+  - 3 Meets Requirements
+  - 4 Best Practice Example
+- name: Meeting Effectiveness
+  header_confident: true
+  cell: AV2
+  value_rows:
+  - 5
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - Attendees
+  - 1 Required participants not defined and agreed
+  - 2 Not all required participants attend the meeting
+  - '3 All required participants  attend. (Some late) No prior apologies received or nominated stand-ins
+    to substitue for absentees. '
+  - '4 All required participants  attend.  Prior apologies received or nominated stand-ins to substitue
+    for absentees. '
+- name: Input
+  header_confident: true
+  cell: AX5
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - 1 Required inputs not defined and agreed.
+  - 2 Not all required input brought to the meeting.
+  - 3 All participants bring the required input to the meeting. Input material not circulated prior to
+    the meeting.
+  - 4 All participants bring the required input to the meeting. Input material circulated prior to the
+    meeting.
+- name: Agenda
+  header_confident: true
+  cell: AZ5
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - 1 Agenda not defined and agreed
+  - 2 Agenda not used to run meeting
+  - 3 Some significant deviations from the agenda by participants
+  - 4 The agenda is adhered to by all participants
+- name: Ground Rules
+  header_confident: true
+  cell: BB5
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - 1 Ground Rules not defined and agreed
+  - 2 Ground Rules not referred to.
+  - 3 Some deviations from the Ground Rules
+  - 4 The Ground Rules are adhered to by all participants
+- name: Output
+  header_confident: true
+  cell: BD5
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - 1 Required output is not defined and aagreed
+  - 2 Not all required output generated.No evidence of follow-up to generated actions.
+  - 3 All required otput geerated. Gaps in follow-up to generated actions.
+  - 4 All required otput geerated. Full follow-up to generated actions.
+- name: null
+  header_confident: false
+  cell: BF7
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+- name: null
+  header_confident: false
+  cell: BH7
+  value_rows:
+  - 7
+  - 8
+  - 9
+  - 10
+  values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
