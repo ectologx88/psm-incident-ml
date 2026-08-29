@@ -779,3 +779,93 @@ column now makes all three testable by era.
 `schema/bsee_form2010.yaml`'s header comment previously asserted *"Field numbers
 are stable across eras"*. Corrected — it is false, and it is the reason this
 class of bug went unnoticed.
+
+## 2026-08-29 — E19 projection: what BSEE can actually fill
+
+Delivers the verbatim E19 mapping. Four relational tables whose column names are
+byte-exact E19 field labels, read from `schema/e19_labels.yaml` at runtime and
+never hardcoded. Nothing is crosswalked, inferred or synthesised.
+
+### Output
+
+| Table | rows | cols |
+|---|---|---|
+| `incidents.csv` | 104 | 43 |
+| `causes.csv` | 330 | 7 |
+| `recommendations.csv` | 93 | 12 |
+| `closeout.csv` | 93 | 4 |
+| `bsee_unmapped.csv` (sidecar) | 104 | 15 |
+
+### The headline number
+
+Of the **65 E19 fields**:
+
+| | n |
+|---|---|
+| **Populated from BSEE** | **23** |
+| Had a source but returned nothing | 0 |
+| Blank — `judgement` (needs a human) | 27 |
+| Blank — `structural` (nothing in the document answers it) | 13 |
+| Blank — `extractable` (in field 17 prose, phase 2) | 2 |
+
+Fill rates on the populated 23 (n=104 incidents):
+
+| Field | fill |
+|---|---|
+| Incident Number, How did the incident occur, What happened? | 100% |
+| Date of Incident | 97.1% |
+| Investigation leader - Name | 95.2% |
+| Site | 93.3% |
+| Time of Incident, Description, Acceptor/Approver Name + Position | 87.5% |
+| Area | 84.6% |
+| Unit | 60.6% |
+| Detail | 33.7% |
+| Incident Classificatioin / Incident Classification | 23.1% |
+
+`Detail` and `Incident Classificatioin` are genuinely thin in the source — rig
+name and field 28 are frequently blank on the form itself — not extraction
+failures.
+
+### Two extractor decisions worth recording
+
+**`What happened?` was 14.4% on the first run.** Keying on an explicit
+`INCIDENT SUMMARY` heading found only 15/104, because most reports do not print
+one. Where the heading is absent the opening of the narrative *is* the summary,
+so the rule now takes everything before the first later subheading. **14.4% →
+100%.**
+
+**`How did the incident occur` deliberately returns blank** when a report has no
+`SEQUENCE OF EVENTS` heading, giving 23.1% rather than 100%. Falling back to the
+whole narrative would copy `What happened?` into both columns and imply a
+separation the document does not make. Accuracy over coverage.
+
+### Design notes
+
+`schema/e19_projection.yaml` carries one entry per E19 label, each with either a
+`source` or a `blank` reason code — enforced by test, so no field can be silently
+absent. Tests also assert the mapping invents no field the template lacks, and
+that emitted headers equal the template's labels as a set.
+
+**`Description` appears twice** in Incident Information (E18 and E23, the form's
+two "Description if Other" fields). A flat table cannot carry two identically
+named columns and both would draw from the same BSEE source, so they collapse to
+one, recorded under `collapsed_duplicates`. Needs the template author, not our
+invention.
+
+`Investigation Acceptor/Approver (Owner)- Position` is filled with the literal
+`"District Supervisor"` when field 30 is non-empty — the field's own label is the
+position. Borderline between a source value and an inference; flagged in the map
+rather than presented as clean.
+
+Names are pseudonymised at projection time with a committed salt (`INV-xxxxxx`,
+`SUP-xxxxxx`), stable per person corpus-wide.
+
+### Caveat
+
+Incident Number is `{AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}`, constructed because BSEE
+publishes no identifier. Zero collisions across 104 records. But area/block are
+parsed from field 4, which the contamination audit found misaligned on 97% of
+records — a targeted regex recovers them at 93%/85%, well above what positional
+parsing would give, yet at least one key looks wrong (`LB-6488-...`, where `LB`
+is likely "Lift Boat" rather than an area code). **Treat the key as stable and
+unique, not as a clean location reference**, until P1 and P3 land.

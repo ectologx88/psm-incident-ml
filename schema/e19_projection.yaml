@@ -1,0 +1,180 @@
+# BSEE Form 2010 -> E19 projection.
+#
+# Column names are read from schema/e19_labels.yaml at runtime and are byte-exact
+# from the source workbook, typos and irregular whitespace included. Nothing here
+# retypes a label; entries are keyed by the label as extracted.
+#
+# THIS PASS IS VERBATIM ONLY. A value is written when a BSEE field carries it
+# literally, or when it is structural (an ordinal, a foreign key). Nothing is
+# crosswalked, inferred or synthesised. Blanks are the deliverable as much as the
+# values are -- they size the work that remains.
+#
+# blank reason codes:
+#   structural   nothing in the source document could answer this
+#   extractable  present in field 17 narrative prose, not in any structured field
+#   judgement    needs a human reading the report; deliberately out of scope here
+#
+# See docs/superpowers/plans/2026-08-29-extraction-remediation.md for what is
+# deferred and why.
+
+version: 1
+
+tables:
+  incidents:
+    groups: ["Incident Information", "Incident Description", "Incident Classificatioin", "Investigation"]
+    grain: "one row per incident"
+  causes:
+    groups: ["Causes"]
+    grain: "one row per cause statement"
+    foreign_keys: ["Incident Number"]
+  recommendations:
+    groups: ["Recommendation"]
+    grain: "one row per recommendation"
+    foreign_keys: ["Incident Number"]
+  closeout:
+    groups: ["Recommendation Status /Close Out"]
+    grain: "one row per recommendation"
+
+# 'Description' appears twice in Incident Information (cells E18 and E23 - the
+# form's two "Description if Other" fields). A flat table cannot carry two
+# identically named columns, and both would draw from the same BSEE source
+# (field 7's OTHER free text), so they collapse to one column here. Flagged for
+# the template author rather than resolved by inventing a name.
+collapsed_duplicates:
+  "Description": ["E18", "E23"]
+
+mapping:
+  # --- Incident Information -------------------------------------------------
+  "Incident Number":
+    source: constructed
+    rule: "{AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}"
+    note: "BSEE publishes no incident identifier; confirmed against the Data Center
+           field definitions, which list seven columns and no ID. Structural, not data."
+  "incident Title":       {blank: structural}
+  "Incident Classificatioin": {source: f28, extract: text}
+  "Date of Incident":     {source: f01, extract: date}
+  "Time of Incident":     {source: f01, extract: time}
+  "Date of Report":
+    blank: structural
+    note: "The page stamp is a publication date and post-dates approval by 0-15 days
+           in every sampled report. Mapping it here would show every report as written
+           after it was approved. Kept in the sidecar as bsee_publication_date."
+  "Site":                 {source: f04, extract: area,  fallback: whole_record}
+  "Area":                 {source: f04, extract: block, fallback: whole_record}
+  "Unit":                 {source: f05, extract: platform}
+  "Detail":               {source: f05, extract: rig_name}
+  "Work Group":
+    blank: extractable
+    note: "E19's picklist is org structure (A-F Process Ops, Maintenance, Projects).
+           BSEE ACTIVITY is a lifecycle phase and OPERATION is work type; neither names
+           a team. Crew identity IS stated in field 17 prose - 'a Guardian well
+           abandonment crew', 'Two members of the Emergency Response Team'."
+  "Description":          {source: f07, extract: other_text}
+  "Incident Type A":      {blank: judgement}
+  "Incident Type B":      {blank: judgement}
+  "Incident Type C":      {blank: judgement}
+  "Incident Type D":      {blank: judgement}
+  "Investigation leader - Name":
+    source: f26
+    extract: pseudonym
+    prefix: INV
+    note: "Salted hash, stable per person corpus-wide. De-amplification, not
+           anonymisation - the sources are public and re-extractable."
+  "Investigation leader - Position":  {blank: structural}
+  "Incident Classified by - Name":     {blank: structural}
+  "Incident Classified by - Position": {blank: structural}
+  "Investigation Acceptor/Approver (Owner) - Name":
+    source: f30
+    extract: pseudonym
+    prefix: SUP
+  "Investigation Acceptor/Approver (Owner)- Position":
+    source: f30
+    extract: literal_if_present
+    value: "District Supervisor"
+    note: "The field's own label is the position. Borderline between source value and
+           inference; flagged rather than assumed clean."
+  "Approval Date":
+    blank: structural
+    note: "BSEE stamps the approval date as free-floating text, which
+           furniture_patterns drops before segmentation precisely because it lands
+           inside field 18. Recoverable only by changing that filter - deferred."
+  "Close out Approval - Name":     {blank: structural}
+  "Close out Approval - Position": {blank: structural}
+  "Close out Date":                {blank: structural}
+
+  # --- Incident Description -------------------------------------------------
+  "What happened?  ":     {source: f17, extract: subhead, subhead: "INCIDENT SUMMARY"}
+  "What was the outcome?":
+    blank: extractable
+    note: "Stated within the field 17 narrative but not separable as a field."
+
+  # --- Incident Classificatioin (Section 3) ---------------------------------
+  # Every field below asks what could reasonably have happened. BSEE records only
+  # what did happen. All judgement, none extractable.
+  "Incident Classification": {source: f28, extract: text}
+  "What was the worst outcome that could reasonably be expected to have happened?": {blank: judgement}
+  "Health & Safety Incident - Classification":                    {blank: judgement}
+  "Health & Safety - Risk Score":                                 {blank: judgement}
+  "Health & Safety  - Consequence":                               {blank: judgement}
+  "Health & Safety - Likelihood":                                 {blank: judgement}
+  "Environment & Reputation - Incident Classification":           {blank: judgement}
+  "Environment & Reputation - Risk Score":                        {blank: judgement}
+  "Environment & Reputation  - Consequence":                      {blank: judgement}
+  "Environment & Reputation - Likelihood":                        {blank: judgement}
+  "Financial Cost & Business - Incident Classification":          {blank: judgement}
+  "Financial Cost & Business Interruption - Risk Score":          {blank: judgement}
+  "Financial Cost & Business Interruption  - Consequence":        {blank: judgement}
+  "Financial Cost & Business Interruption - Likelihood":          {blank: judgement}
+
+  # --- Investigation --------------------------------------------------------
+  "How did the incident occur": {source: f17, extract: sequence}
+
+  # --- Causes ---------------------------------------------------------------
+  "Cause number":      {source: ordinal}
+  "Cause Description": {source: f18_f19, extract: statement}
+  "Cause type":
+    blank: judgement
+    note: "BSEE's field 18 vs 19 split (probable vs contributing) is adjacent to
+           Immediate/Underlying/Root but is not the same axis. Which field a statement
+           came from is kept in the sidecar."
+  "Risk Management Cause":        {blank: judgement}
+  "Human Factors  Cause":         {blank: judgement}
+  " Failed PSM Framework Element": {blank: judgement}
+
+  # --- Recommendation -------------------------------------------------------
+  "Recommendation Number":      {source: ordinal}
+  "Recommendation Description": {source: f22, extract: text}
+  "Unmittigated Risk - Score":       {blank: judgement}
+  "Unmittigated Risk - Consequence": {blank: judgement}
+  "Unmittigated Risk - Likelihood":  {blank: judgement}
+  "Mittigated Risk - Score":         {blank: judgement}
+  "Mittigated Risk - Consequence":   {blank: judgement}
+  "Mittigated Risk - Likelihood":    {blank: judgement}
+  "Agreed Completion Date":          {blank: structural}
+  "Responsible Owner - Name":        {blank: structural}
+  "Responsible Owner - Position":    {blank: structural}
+
+  # --- Recommendation Status / Close Out ------------------------------------
+  # Keys populate; the table is otherwise empty by construction. Emitted anyway so
+  # the schema is complete and the emptiness is visible rather than implied.
+  "Schedule Status": {blank: structural}
+  "Date Completed":  {blank: structural}
+
+# BSEE data with no E19 home under verbatim rules. Written to
+# data/processed/e19/bsee_unmapped.csv, keyed on Incident Number. Not part of the
+# E19 output; this is where a later crosswalk will draw from.
+sidecar:
+  - {from: f06, as: bsee_activity}
+  - {from: f07, as: bsee_type_checkboxes}
+  - {from: f08, as: bsee_operation}
+  - {from: f09, as: bsee_cause_checkboxes}
+  - {from: f10, as: bsee_water_depth}
+  - {from: f21, as: bsee_property_damaged}
+  - {from: f23, as: bsee_possible_ocs_violations}
+  - {from: f24, as: bsee_violations_narrative}
+  - {from: f25, as: bsee_onsite_investigation_date}
+  - {from: f02, as: bsee_operator}
+  - {from: src_form_revision, as: bsee_form_revision}
+  - {from: src_extract_status, as: bsee_extract_status}
+  - {from: src_url, as: bsee_source_url}
+  - {from: src_sha256, as: bsee_sha256}

@@ -1,0 +1,139 @@
+"""The exactness test.
+
+The project's stated requirement is that E19 output columns match the source
+workbook's field labels exactly. Every mismatch found in review so far came from
+a human retyping a label, so this asserts against labels read from
+``schema/e19_labels.yaml`` -- which is itself generated from the workbook by
+``psm.e19_schema`` -- rather than against anything typed here.
+
+This is the test that would have caught all 23 missing fields and every renamed
+column in the earlier hand-built attempt.
+"""
+
+from __future__ import annotations
+
+import csv
+
+import pytest
+
+from psm.project import (
+    DEFAULT_OUT,
+    LABELS_PATH,
+    PROJECTION_PATH,
+    _iso_date,
+    _time,
+    label_groups,
+    load_yaml,
+    pseudonym,
+)
+
+
+@pytest.fixture(scope="module")
+def labels() -> dict:
+    return load_yaml(LABELS_PATH)
+
+
+@pytest.fixture(scope="module")
+def proj() -> dict:
+    return load_yaml(PROJECTION_PATH)
+
+
+class TestProjectionCoversTheWholeTemplate:
+    def test_every_label_is_mapped_or_explicitly_blank(self, labels, proj):
+        """No E19 field may be silently absent. Each is a source or a reason code."""
+        every = {lab for labs in label_groups(labels).values() for lab in labs}
+        mapped = set(proj["mapping"])
+        missing = every - mapped
+        assert not missing, f"unmapped E19 fields: {sorted(missing)}"
+
+    def test_mapping_invents_no_fields(self, labels, proj):
+        every = {lab for labs in label_groups(labels).values() for lab in labs}
+        invented = set(proj["mapping"]) - every
+        assert not invented, f"mapping names fields the template does not have: {invented}"
+
+    def test_every_entry_has_a_source_or_a_blank_reason(self, proj):
+        for lab, spec in proj["mapping"].items():
+            assert ("source" in spec) ^ ("blank" in spec), f"{lab!r}: need exactly one"
+
+    def test_blank_reasons_are_from_the_closed_set(self, proj):
+        allowed = {"structural", "extractable", "judgement"}
+        bad = {lab: s["blank"] for lab, s in proj["mapping"].items()
+               if "blank" in s and s["blank"] not in allowed}
+        assert not bad, bad
+
+    def test_every_table_group_exists_in_the_template(self, labels, proj):
+        known = set(label_groups(labels))
+        for table, spec in proj["tables"].items():
+            unknown = set(spec["groups"]) - known
+            assert not unknown, f"{table}: unknown groups {unknown}"
+
+
+class TestIrregularLabelsSurviveVerbatim:
+    """The template's own typos and whitespace are the real column names."""
+
+    @pytest.mark.parametrize("label", [
+        "Incident Classificatioin",
+        "incident Title",
+        "Human Factors  Cause",
+        " Failed PSM Framework Element",
+        "What happened?  ",
+        "Unmittigated Risk - Score",
+        "Mittigated Risk - Score",
+        "Health & Safety  - Consequence",
+        "Investigation Acceptor/Approver (Owner)- Position",
+    ])
+    def test_label_present_unnormalised(self, labels, proj, label):
+        every = {lab for labs in label_groups(labels).values() for lab in labs}
+        assert label in every, "label was normalised during extraction"
+        assert label in proj["mapping"], "label was normalised in the projection map"
+
+
+@pytest.mark.skipif(not (DEFAULT_OUT / "incidents.csv").exists(),
+                    reason="run `python -m psm.project` first")
+class TestEmittedHeadersMatchTheTemplate:
+    """The assertion the whole projection layer exists to satisfy."""
+
+    @pytest.mark.parametrize("table", ["incidents", "causes", "recommendations", "closeout"])
+    def test_headers_are_exactly_the_template_labels(self, labels, proj, table):
+        with open(DEFAULT_OUT / f"{table}.csv", encoding="utf-8", newline="") as fh:
+            header = next(csv.reader(fh))
+        groups = label_groups(labels)
+        expected = set(proj["tables"][table].get("foreign_keys", []))
+        for g in proj["tables"][table]["groups"]:
+            expected |= set(groups[g])
+        assert set(header) == expected, (
+            f"{table}: extra={set(header) - expected}, missing={expected - set(header)}")
+
+    def test_no_duplicate_columns(self, table="incidents"):
+        with open(DEFAULT_OUT / f"{table}.csv", encoding="utf-8", newline="") as fh:
+            header = next(csv.reader(fh))
+        assert len(header) == len(set(header))
+
+
+class TestExtractors:
+    def test_iso_date(self):
+        assert _iso_date("1. OCCURRED DATE: 06-JUN-2022 TIME: 1030 HOURS") == "2022-06-06"
+
+    def test_iso_date_rejects_bad_month(self):
+        assert _iso_date("29-JUN-0202") == "0202-06-29"  # dirty data stays dirty
+
+    def test_iso_date_empty_when_absent(self):
+        assert _iso_date("no date here") == ""
+
+    def test_time(self):
+        assert _time("DATE: 06-JUN-2022 TIME: 1030 HOURS") == "10:30"
+
+    def test_time_rejects_impossible_hour(self):
+        assert _time("TIME: 9999") == ""
+
+    def test_pseudonym_is_stable(self):
+        assert pseudonym("David Trocquet", "SUP") == pseudonym("david  trocquet ", "SUP")
+
+    def test_pseudonym_distinguishes_people(self):
+        assert pseudonym("David Trocquet", "SUP") != pseudonym("Amy Pellegrin", "SUP")
+
+    def test_pseudonym_empty_stays_empty(self):
+        assert pseudonym("   /  ", "SUP") == ""
+
+    def test_pseudonym_carries_prefix(self):
+        assert pseudonym("Gerald Taylor", "INV").startswith("INV-")
