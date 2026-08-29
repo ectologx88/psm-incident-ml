@@ -1217,3 +1217,221 @@ Distribution: Incident 378, Serious 196, Very Serious 102.
 but not the Consequence × Likelihood matrix producing them, and it was not
 recoverable from the workbook. A plain 5×5 product reproduces the range. Replace
 when the author supplies the real matrix; nothing else changes.
+
+## 2026-08-29 — Adversarial review: five independent agents
+
+Five agents, each attacking a different surface, none sharing context. Their
+findings are recorded here by **root cause**, because one three-line defect
+explains four of the symptoms and that was not visible from any single report.
+
+Every headline claim below was reproduced directly before being recorded.
+
+---
+
+### R0 — `_rows()` quantises instead of clustering. Root cause of four defects.
+
+`src/psm/layout.py`:
+
+```python
+buckets.setdefault(round(w["top"] / tol), []).append(w)
+```
+
+This is a **fixed bin edge, not a tolerance**. Two words on the same visual
+baseline land in different rows whenever the bin edge falls between them —
+`BLOCK:` at `top=308.8` (bin 124) and its value `25` at `top=308.3` (bin 123),
+0.5pt apart.
+
+**Measured across all 1,289 PDFs: 23,400 of 237,714 true visual rows (9.84%) are
+shattered, affecting 1,274 of 1,289 documents.** The docstring's claimed
+behaviour holds only when a pair happens to straddle no bin edge.
+
+It explains, in descending order of harm:
+
+**(a) `src_form_revision` is wrong on ≥45 of 1,219 records (3.7%)**, mostly 32
+revision-B documents recorded as A. `detect_form_revision` treats the *absence*
+of a field-3 anchor as evidence for revision A, and the shattering manufactures
+exactly that absence: `3.` and `OPERATOR/CONTRACTOR` fall in adjacent bins so
+`ANCHOR_RE` never fires.
+
+**This is the most dangerous defect in the repository.** It is the
+stratification key — findings.md, the schema comments and the P1 plan all scope
+work "by revision" — so it launders errors into the instrument built to detect
+them, and any per-revision field remap applied to those 32 files would convert
+missing fields into confidently wrong ones.
+
+**(b) D2 — block number reads as the next field's ordinal.** `RE_BLOCK`'s `\s*`
+crosses a newline into `5. A-Hoover Spar`. **41 of 42 `Area == "5"` records are
+wrong** (one genuinely is block 5). Verified against page geometry on 12 PDFs:
+true blocks are 25, 857, 50, 364, 757, 602 — all matching their filenames.
+Corpus-wide block accuracy: 985 exact, 130 empty, **58 confidently wrong**.
+Area *letters* are clean: 1,151 exact, **0 wrong**.
+
+Fixing only the regex would turn 41 confident wrong answers into 41 blanks,
+because the value *precedes* its label. Fixing `_rows` fixes them at source.
+
+**(c) D3 — `Incident Classificatioin` is 230 of 234 label bleed.** Field 28's
+true content *is* MAJOR/MINOR and is recoverable — an independent band-aware
+reconstruction recovers it cleanly. `find_gutter` succeeds on only **127 of 434
+admin pages (29.3%)** because it is a whole-page test applied to a page whose
+upper two-thirds is single-column narrative: **column detection is per-page, the
+layout is per-region.**
+
+**(d) Field 5 is blank on 124 of 127 revision-A records** — its content sits
+inside `src_f04`. Indistinguishable downstream from a form that left the box
+empty.
+
+### Extraction reliability, measured against page geometry (n=29 PDFs)
+
+| Field | rev A | rev B | rev C |
+|---|---|---|---|
+| f17 findings | 9/9 | 9/9 | 9/9 |
+| f18 probable cause | 9/9 | 9/9 | 8/9 |
+| f22 recommendations | 8/9 | 8/9 | 8/9 |
+| f04 lease/area/block | **1/9** | 9/9 | 8/9 |
+| f05 platform | **1/9** | 9/9 | 8/9 |
+
+Approximate field error rate: **rev A ~27%, rev B ~6%, rev C ~5%**, concentrated
+in f01/f04/f05. **The narrative fields are the reliable ones.**
+
+**The field-17 recovery holds and exceeds its claim: non-empty on 1,219/1,219,
+100% in every revision**, content verified on all 28 sampled documents, character
+counts matching an independent reconstruction to within ~25 chars — no silent
+truncation. The two label alternates were the right fix.
+
+---
+
+### R1 — `Incident Classification` ships 234 illegal values that suppress 149 valid ones
+
+BSEE field 28 is MAJOR/MINOR; the E19 picklist is VSI/SI/Incident. Disjoint
+vocabularies, mapped as raw text in `e19_projection.yaml`. **234 of 234 verbatim
+values are illegal**, and because verbatim-wins they **block 149 rows that had a
+valid crosswalk classification available**.
+
+`e19_projection.yaml` has no concept of a vocabulary constraint, and
+`test_projection.py` checks headers but never values.
+
+---
+
+### R2 — the recommendations table has a false grain
+
+Declared "one row per recommendation"; delivers **exactly one row per incident on
+all 1,079**. The blank-line splitter never fires — no `src_f22` in 1,128 records
+contains a blank line. 72 cells hold multiple enumerated recommendations
+concatenated. 38 rows record `none` / `N/A` as a recommendation.
+
+Downstream: `closeout.csv` inherits the false grain. Any per-recommendation count
+or closure rate is wrong.
+
+---
+
+### R3 — the headline statistic fails, and the failure propagates into the risk scores
+
+**BSEE's vocabulary is not stationary.** `LTA` codes begin 2006; `Other Lifting
+Device` begins 2007; `Blowout` ends 2013. Pre-2006 records sit in the denominator
+while being structurally incapable of entering the numerator (the coarse `Injury`
+atom, extinct after 2012, is excluded). **Lifting and Blowout never coexist.**
+
+Restricted to 2007–2026, where every code is active:
+
+| | pooled (claimed) | 2007+ (correct) |
+|---|---|---|
+| Lifting vs Fire | 5.2× | **2.53×** [1.44, 4.45] |
+| Lifting vs Explosion | — | **0.94** [0.45, 1.96] |
+| Lifting vs Blowout | 7× | **undefined**, n=2 |
+
+Explosion at 25.9% is nominally the *highest* rate in the corpus. **"The dramatic
+hazards damage plant; the routine ones hurt people" is contradicted by the only
+comparable explosion data.**
+
+Direction survives: leave-one-year-out on lifting vs fire within 2007+ gives RR
+between 2.26 and 2.82 across all 20 years. Only the magnitude was an artifact.
+
+**This propagates.** `xw_consequence_tiers.yaml` hard-codes the pooled rates as
+likelihood bands. Re-banding on 2007+ rates moves Explosion 4→5 and Fire 2→3, and
+leaves Blowout and Collision with no estimable rate. The finding "every Very
+Serious Incident is a lifting incident" is **not independent corroboration — it
+is the same artifact propagating through the banding.** Under corrected rates
+every explosion joins the VSI class.
+
+Selection bias was investigated and is *not* the killer: 30 CFR 250.188 requires
+reporting of all fires and explosions **and** all crane/material-handling
+incidents unconditionally, so there is no regulatory injury threshold that would
+admit fires while excluding uninjurious lifts.
+
+---
+
+### R4 — the test suite does not protect what it claims to
+
+**Coverage measured:** `crosswalk.py` 243 statements **0%**, `evidence.py` 190
+**0%**, `e19_schema.py` 145 **0%**, `spine.py` 122 **0%**, `fetch.py` 99 **0%**.
+Total 30%. **The five modules that produce every committed table have no test
+importing them.** `tests/test_crosswalk.py` tests `schema/crosswalk.yaml` — a
+different artifact with a confusingly similar name, which likely explains why
+nobody noticed.
+
+**13 of 28 tests in `test_crosswalk.py` cannot fail from any defect.** They assert
+that English words appear in YAML: `assert "ASSUMED" in tiers[...]`,
+`assert "70%" in rej["why"]`, `assert crosswalk["version"] >= 2`. Swapping any two
+categories' element numbers leaves all 28 green — in a file whose docstring claims
+to prevent exactly that.
+
+`test_bullet_endash_form` asserts the parser handles U+2022. The corpus contains
+U+0081. The test passes while 12 real rows are corrupted.
+
+`tests/test_conventions.py` — named in CLAUDE.md as the enforcer of the
+provenance-prefix rule — is 30 lines, tests only `synth.py`, and its docstring
+still says `crosswalk.py` "does not exist yet". **186 of 187 columns across the
+eleven committed tables carry no provenance prefix.** The deviation is defensible
+(E19 columns must be byte-exact, so provenance moved to a parallel file) but it is
+undocumented, and CLAUDE.md, README and `crosswalk.yaml` all still assert the
+prefix rule.
+
+---
+
+### R5 — nothing in this repository can currently be scored
+
+`gold/gold_labels.csv`: 100 rows, **all six `gold_*` columns empty**. By the
+project's own rule — score against `gold_` only — there is no reportable number.
+
+Three further problems, all measured:
+
+- **The join does not exist.** Gold keys on `report_id` = sha256; the tables key
+  on `Incident Number`. **Direct join: 0 of 100.** A two-hop via
+  `bsee_unmapped.csv` recovers 99, but it is undocumented and untested.
+- **Stratification is year-uniform, not corpus-proportional.** 2003 (3 reports)
+  and 2007 (97 reports) get equal weight. Any accuracy computed is a year-balanced
+  macro-average, and nothing says so.
+- **n=100 cannot carry the metric anyone wants.** `gold_psm_element` has 20
+  classes — ~5 rows per class. Per-element accuracy is out by a factor of ten.
+
+**Train/test leak is already baked in at four sites**, all self-documented: the
+cause vocabulary was induced on all 3,462 statements; the likelihood rates were
+measured on the same 2,014 spine rows they label; the likelihood banding was
+chosen *by inspecting the resulting label distribution* ("an earlier absolute
+banding left the VSI class empty"); the qualifier patterns were fit to the 309
+observed subcategories.
+
+---
+
+### R6 — the README contradicts the shipped data
+
+- It lists risk scores as **`syn_`**; `provenance.csv` labels all 676 **`xw`**.
+- `findings.md` says the panel severity bias "belongs in the README". **It is
+  still not there.** A reader is warned about `llm_` columns and not told half the
+  fatalities are missing.
+- Only **3 `Injury Fatality`** records reach the output against 86 in the spine.
+  Panel exclusion explains 46. **The remaining ~37 are still unexplained.**
+
+---
+
+### Where an agent overstated, and it matters
+
+One agent concluded the hazard-energy method "rates zero near misses". Technically
+true, materially misleading: it conflates E19's Type A `Near Hit` (nothing
+happened — **24 records**, all correctly showing no Section 3, a real structural
+gap) with the colloquial sense of a near miss (something happened, nobody hurt).
+There are **584** of the latter and they *are* rated. The gap is 24 records, not
+the method's purpose.
+
+Recorded because the difference decides whether the method is broken or merely
+incomplete. It is incomplete.
