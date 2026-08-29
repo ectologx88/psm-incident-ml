@@ -179,18 +179,25 @@ def section3(atoms: list[str], marks: list[str], damage: float | None, tiers: di
                   if a in tiers["actual_outcome_floor"]]
         consequence = max([worst] + floors)
 
-        rates = tiers["likelihood"]["observed_rates"]
-        rate = max((rates[a]["rate"] for a in present if a in rates), default=0.0)
-        lik = _band(rate, tiers["likelihood"]["bands"], "at_least")
-        score = (SEV.index(consequence) + 1) * int(lik)
-
         out["Health & Safety  - Consequence"] = consequence
-        out["Health & Safety - Likelihood"] = str(lik)
-        out["Health & Safety - Risk Score"] = str(score)
-        cls = _band(score, tiers["classification_bands"], "at_least")
-        out["Health & Safety Incident - Classification"] = cls
-        out["Incident Classification"] = cls
-        out["Incident Classificatioin"] = cls
+
+        # Likelihood only where a rate could be estimated in the window where the
+        # relevant codes were actually in use. A mechanism whose code was retired
+        # before the outcome codes existed (Blowout, last used 2013) has no
+        # estimable rate, and borrowing one from the pooled series would reinstate
+        # the era artifact this file exists to remove. Consequence still applies;
+        # score and classification do not, because they depend on likelihood.
+        rates = tiers["likelihood"]["observed_rates"]
+        estimable = [rates[a]["rate"] for a in present if a in rates]
+        if estimable:
+            lik = _band(max(estimable), tiers["likelihood"]["bands"], "at_least")
+            score = (SEV.index(consequence) + 1) * int(lik)
+            cls = _band(score, tiers["classification_bands"], "at_least")
+            out["Health & Safety - Likelihood"] = str(lik)
+            out["Health & Safety - Risk Score"] = str(score)
+            out["Health & Safety Incident - Classification"] = cls
+            out["Incident Classification"] = cls
+            out["Incident Classificatioin"] = cls
 
     if "Pollution" in atoms:
         out["Environment & Reputation  - Consequence"] = energy["Pollution"]

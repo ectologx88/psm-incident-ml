@@ -1638,3 +1638,100 @@ without its final period — against this project's verbatim principle. Only
 leading separator characters are stripped now.
 
 Tests 235 → 243, 2 skipped.
+
+## 2026-08-29 — R3 applied: likelihood re-banded, headline claim retracted
+
+### The claim is withdrawn
+
+> ~~"Lifting operations are 5x more likely to seriously injure someone than fire,
+> and 7x more than a blowout. The dramatic hazards damage plant; the routine ones
+> hurt people."~~
+
+**Do not present this.** BSEE's accident-type vocabulary is not stationary, and
+the rates were pooled across 1995–2026 as though it were.
+
+| code | first used | last used |
+|---|---|---|
+| Blowout | 1996 | **2013** |
+| Other Lifting Device | **2007** | 2026 |
+| `LTA (>3 days)` / `LTA (1-3) days` | **2006** | 2026 |
+| `Injury` (coarse, excluded from the numerator) | 1995 | 2012 |
+
+Two independent breaks, either fatal on its own. Pre-2006 records sit in the
+denominator while being **structurally incapable** of entering the numerator,
+because their injuries carry the coarse `Injury` atom the metric excludes. And
+**Blowout and Other Lifting Device never coexist in the data at all** — the 7x
+compared a 2007–2026 mechanism against one whose code was retired in 2013.
+
+Restricted to 2007–2026, where every code is in use:
+
+| mechanism | n | rate | band | was |
+|---|---|---|---|---|
+| Explosion | 27 | **0.259** | **5** | 4 |
+| Other Lifting Device | 94 | 0.245 | 5 | 5 |
+| Crane | 170 | 0.241 | 5 | 5 |
+| Fire | 186 | **0.097** | **3** | 2 |
+| Structural Damage | 36 | 0.083 | 3 | 3 |
+| Pollution | 176 | 0.017 | 2 | 2 |
+| Blowout | **2** | — | **unestimable** | 2 |
+| Collision | **5** | — | **unestimable** | 1 |
+
+Lifting vs fire falls **5.2x → 2.5x**. Lifting vs explosion is **0.94** —
+explosion is nominally the highest rate in the corpus. The rhetorical half of the
+claim is contradicted by the only explosion data comparable to the only lifting
+data.
+
+**The defensible wording**, if the finding is kept:
+
+> Among BSEE investigations 2007–2026 — the period in which both the lifting and
+> lost-time-injury codes were in use — 24% of investigations tagged Crane or Other
+> Lifting Device also record a fatality or lost-time injury (n=264), against 10%
+> of those tagged Fire (n=186): a rate ratio of 2.5 (95% CI 1.4–4.5). Explosion is
+> indistinguishable from lifting at 26% (n=27). Blowout and Collision cannot be
+> compared — their codes were retired before the lifting code came into use. These
+> are per-investigated-incident conditional rates, not per-lift or per-exposure
+> risks, over incidents BSEE chose to investigate.
+
+The *direction* survives: leave-one-year-out within the window gives a lifting/fire
+ratio between 2.26 and 2.82 across all 20 years. Only the magnitude was artifact.
+
+### It propagated, exactly as predicted
+
+The rates are not just a slide — they are the likelihood bands. Re-banding moved
+every Section 3 score:
+
+| | before | after |
+|---|---|---|
+| Likelihood distribution | 1:16 2:362 3:30 4:31 5:237 | 1:10 2:193 **3:177** 5:265 |
+| Incident | 378 | **203** |
+| Serious Incident | 196 | **310** |
+| Very Serious Incident | 102 | **132** |
+
+And the claim that looked like independent corroboration was the same artifact:
+
+| Very Serious Incident composition | before | after |
+|---|---|---|
+| Other Lifting Device | 55 | 59 |
+| Crane | 38 | 41 |
+| **Explosion** | **0** | **32** |
+| **Fire** | **0** | **14** |
+
+*"Every Very Serious Incident is a lifting incident — zero fires"* was true of the
+output and false about the world. It was the era artifact reappearing downstream,
+and it read as confirmation.
+
+### Unestimable is now a first-class outcome
+
+A mechanism whose code was retired before the outcome codes existed gets **no
+likelihood, and therefore no risk score and no classification** — but it keeps its
+consequence. Borrowing a rate from the pooled series would reinstate precisely the
+artifact this correction removes. 15 records lose a score this way (660
+consequence, 645 scored).
+
+A minimum of n=20 in-window is required for a rate; `Blowout` (2), `Collision` (5)
+and `Damaged/Disabled Safety Sys.` (15) fall below it and are listed with their
+in-window counts.
+
+Tests 243 → 249, including guards that the rates declare their window, that no
+unestimable mechanism carries a rate, that every rate meets the n floor, and that
+explosion is not banded below lifting.

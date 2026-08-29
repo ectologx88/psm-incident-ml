@@ -103,18 +103,43 @@ likelihood:
     0.20 anchors likelihood 5. An earlier absolute banding at 0.40 was too
     demanding -- it left the Very Serious Incident class empty across the whole
     corpus, which says more about the threshold than about the data.
+  window: "2007-2026 only"
+  window_reason: >
+    BSEE's vocabulary is NOT stationary, and the first version of this file
+    pooled across 1995-2026 as though it were. LTA codes begin 2006; Other
+    Lifting Device begins 2007; Blowout's last use is 2013. Pre-2006 records sat
+    in the denominator while being structurally incapable of entering the
+    numerator, because injuries were coded with the coarse atom `Injury` (extinct
+    after 2012) which this metric excludes. And Blowout and Other Lifting Device
+    never coexist in the data at all.
+
+    Effect of the correction: lifting vs fire falls from 5.2x to 2.5x, and
+    Explosion -- previously band 4 -- becomes the HIGHEST rate in the corpus at
+    25.9%, nominally above lifting. The claim "the dramatic hazards damage plant;
+    the routine ones hurt people" is contradicted by the only explosion data
+    comparable to the only lifting data. See docs/findings.md.
+
   observed_rates:
     "Other Lifting Device":        {rate: 0.245, n: 94,  likelihood: 5}
-    Crane:                         {rate: 0.237, n: 177, likelihood: 5}
-    Explosion:                     {rate: 0.123, n: 73,  likelihood: 4}
-    "Structural Damage":           {rate: 0.075, n: 40,  likelihood: 3}
-    Fire:                          {rate: 0.047, n: 514, likelihood: 2}
-    Blowout:                       {rate: 0.034, n: 58,  likelihood: 2}
-    "Shutdown from Gas Release":   {rate: 0.027, n: 37,  likelihood: 2}
-    Pollution:                     {rate: 0.011, n: 435, likelihood: 2}
-    "Damaged/Disabled Safety Sys.": {rate: 0.011, n: 15, likelihood: 2}
-    Collision:                     {rate: 0.0,   n: 48,  likelihood: 1}
-    "Collision >$25K":             {rate: 0.0,   n: 28,  likelihood: 1}
+    Crane:                         {rate: 0.241, n: 170, likelihood: 5}
+    Explosion:                     {rate: 0.259, n: 27,  likelihood: 5}
+    Fire:                          {rate: 0.097, n: 186, likelihood: 3}
+    "Structural Damage":           {rate: 0.083, n: 36,  likelihood: 3}
+    "Shutdown from Gas Release":   {rate: 0.028, n: 36,  likelihood: 2}
+    Pollution:                     {rate: 0.017, n: 176, likelihood: 2}
+    "Collision >$25K":             {rate: 0.0,   n: 24,  likelihood: 1}
+
+  # Codes retired before, or introduced after, the window in which the outcome
+  # codes were in use. Their in-window n is too small to estimate a rate, and a
+  # rate from the pooled series would be the artifact this file exists to remove.
+  # A record whose only mechanism is unestimable gets a CONSEQUENCE but no
+  # likelihood, and therefore no risk score and no classification. That is the
+  # honest result: we cannot estimate it.
+  unestimable:
+    Blowout:                        {n_in_window: 2,  last_used: 2013}
+    Collision:                      {n_in_window: 5,  note: "superseded by Collision >$25K"}
+    "Damaged/Disabled Safety Sys.": {n_in_window: 15, note: "below the n>=20 floor"}
+  minimum_n: 20
 
 # --- Risk score and classification ---------------------------------------
 risk_score:

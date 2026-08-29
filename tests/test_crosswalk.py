@@ -244,3 +244,50 @@ class TestConsequenceTiers:
         unders = [b["under"] for b in tiers["financial_consequence"]["bands"]]
         assert unders[-1] is None
         assert unders[:-1] == sorted(u for u in unders if u is not None)
+
+
+class TestLikelihoodWindowRestriction:
+    """R3. BSEE's vocabulary is not stationary and the first version pooled
+    across 1995-2026 as though it were. LTA codes begin 2006, Other Lifting
+    Device begins 2007, Blowout's last use is 2013 -- so pre-2006 records sat in
+    the denominator while being structurally unable to enter the numerator, and
+    Blowout and lifting never coexist at all."""
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def tiers() -> dict:
+        return yaml.safe_load(
+            (LABELS_PATH.parent / "xw_consequence_tiers.yaml").read_text(encoding="utf-8"))
+
+    def test_rates_declare_their_window(self, tiers):
+        lk = tiers["likelihood"]
+        assert "2007" in lk["window"], "rates must state the window they were measured on"
+        assert "not stationary" in lk["window_reason"].lower()
+
+    def test_retired_codes_have_no_estimated_rate(self, tiers):
+        """Borrowing a rate from the pooled series reinstates the artifact."""
+        rates = tiers["likelihood"]["observed_rates"]
+        for mech in tiers["likelihood"]["unestimable"]:
+            assert mech not in rates, f"{mech} has a rate despite being unestimable"
+
+    def test_unestimable_entries_state_why(self, tiers):
+        for mech, spec in tiers["likelihood"]["unestimable"].items():
+            assert "n_in_window" in spec, f"{mech}: no in-window n recorded"
+            assert spec["n_in_window"] < tiers["likelihood"]["minimum_n"]
+
+    def test_every_rate_meets_the_minimum_n(self, tiers):
+        lk = tiers["likelihood"]
+        for mech, spec in lk["observed_rates"].items():
+            assert spec["n"] >= lk["minimum_n"], f"{mech}: n={spec['n']} below the floor"
+
+    def test_explosion_is_not_below_lifting(self, tiers):
+        """The corrected data's headline: on the comparable window, explosion is
+        nominally the HIGHEST rate. 'The dramatic hazards damage plant; the
+        routine ones hurt people' is contradicted by it."""
+        r = tiers["likelihood"]["observed_rates"]
+        assert r["Explosion"]["rate"] >= r["Other Lifting Device"]["rate"]
+        assert r["Explosion"]["likelihood"] == r["Crane"]["likelihood"] == 5
+
+    def test_fire_is_not_the_lowest_band(self, tiers):
+        """Pooled, fire banded 2. On the corrected window it is 3."""
+        assert tiers["likelihood"]["observed_rates"]["Fire"]["likelihood"] == 3
