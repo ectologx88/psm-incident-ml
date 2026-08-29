@@ -30,6 +30,21 @@ DEFAULT_INTERIM = REPO / "data" / "interim"
 # because the admin block is two-column ("25. DATE ...   28. ACCIDENT CLASS...").
 ANCHOR_RE = re.compile(r"(?:(?<=^)|(?<=\s))(\d{1,2})\s*\.\s+(?=[A-Z(])")
 
+# A PDF whose fonts carry no ToUnicode mapping extracts as "(cid:N)" tokens. The
+# text layer is present, so nothing errors and fields are "found" -- they just
+# hold mojibake. Silent, plausible, wrong: the failure mode this project keeps
+# meeting. Found on 15 of 1,289 reports, 14 of which were reported ok.
+CID_RE = re.compile(r"\(cid:\d+\)")
+# Judged by the share of characters that are cid tokens, not by their count: a
+# few stray unmapped glyphs (bullets, symbols) in an otherwise clean report are
+# harmless, while a document whose body is largely cid is unusable. Observed
+# extremes in the corpus: 3 tokens in a readable report vs 282 in a garbled one.
+CID_CHAR_SHARE = 0.05
+
+# "src_f" alone also matches src_form_revision and src_fields_found, which would
+# make the body look non-empty and suppress the raw-text fallback below.
+FIELD_KEY_RE = re.compile(r"^src_f\d{2}_")
+
 
 def load_schema(path: Path = SCHEMA_PATH) -> dict:
     with open(path, encoding="utf-8") as fh:
@@ -262,6 +277,26 @@ def extract_report(pdf_path: Path, schema: dict) -> dict:
                 rec["src_checkboxes_page0"] = [
                     lbl for lbl, _, _ in checkbox_labels(pdf.pages[0], 0)
                 ]
+            # Check the extracted fields, falling back to the raw line stream:
+            # when the labels themselves are cid-garbled no anchor matches, so
+            # there are no fields to inspect and the document would otherwise be
+            # misread as "not an investigation report".
+            body = " ".join(v for k, v in rec.items()
+                            if FIELD_KEY_RE.match(k) and isinstance(v, str))
+            if not body.strip():
+                body = " ".join(ln.text for ln in lines)
+            cid_chars = sum(len(m.group(0)) for m in CID_RE.finditer(body))
+            if body and cid_chars / max(len(body), 1) > CID_CHAR_SHARE:
+                rec["src_extract_status"] = "text_layer_unmapped"
+                rec["anomalies"].append({
+                    "type": "text_layer_unmapped",
+                    "note": "font carries no ToUnicode mapping; text extracts as (cid:N) "
+                            "tokens. The text layer exists, so nothing errors and fields may "
+                            "appear located -- their content is simply unreadable. Needs OCR.",
+                    "cid_share": round(cid_chars / max(len(body), 1), 3),
+                    "body_chars": len(body),
+                })
+                return rec
             if not fields:
                 rec["src_extract_status"] = "parse_failed"
                 # A text layer but no form anchors at all: either a genuinely

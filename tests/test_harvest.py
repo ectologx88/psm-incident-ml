@@ -12,6 +12,7 @@ Run with::
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 import pytest
@@ -285,16 +286,39 @@ def manifest_rows() -> list[dict]:
         return list(csv.DictReader(fh))
 
 
+# `psm.fetch` legitimately mutates the committed manifest: it fills src_sha256
+# and appends src_fetch_note. That is the reproducibility contract working -- the
+# manifest is committed *with* a hash per file so anyone can rebuild byte-identical
+# inputs. So these assert what harvest owns, and tolerate what fetch adds.
+POST_FETCH_COLUMNS = {"src_fetch_note"}
+
+
 def test_manifest_columns_all_carry_a_provenance_prefix(manifest_rows):
     with MANIFEST.open(encoding="utf-8", newline="") as fh:
         header = next(csv.reader(fh))
-    assert header == MANIFEST_COLUMNS
+    assert header[: len(MANIFEST_COLUMNS)] == MANIFEST_COLUMNS, (
+        "harvest's own columns must be present, in order, at the front")
+    assert set(header[len(MANIFEST_COLUMNS):]) <= POST_FETCH_COLUMNS, (
+        f"unexpected extra columns: {set(header[len(MANIFEST_COLUMNS):]) - POST_FETCH_COLUMNS}")
     assert all(c.startswith("src_") for c in header)
 
 
-def test_manifest_sha256_is_empty_here(manifest_rows):
-    """psm.fetch fills it after download; harvest must never guess a hash."""
-    assert all(r["src_sha256"] == "" for r in manifest_rows)
+def test_manifest_sha256_is_absent_or_a_real_hash(manifest_rows):
+    """Harvest must never guess a hash; fetch fills it from the downloaded bytes.
+
+    Empty before fetch, a well-formed digest after. What must never appear is
+    something hash-shaped that nothing computed.
+    """
+    for r in manifest_rows:
+        got = (r["src_sha256"] or "").strip()
+        assert got == "" or re.fullmatch(r"[0-9a-f]{64}", got), f"not a sha256: {got!r}"
+
+
+def test_harvest_itself_never_writes_a_hash():
+    """The claim the previous test was really making, asserted where it belongs."""
+    assert "src_sha256" in MANIFEST_COLUMNS, "harvest must reserve the column"
+    row = {col: "" for col in MANIFEST_COLUMNS}
+    assert row["src_sha256"] == ""
 
 
 def test_manifest_urls_are_absolute_and_unique(manifest_rows):

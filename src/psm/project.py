@@ -144,8 +144,13 @@ def _sequence(text: str) -> str:
     return text[i:].strip() if i >= 0 else ""
 
 
+FIELD_KEY_RE = re.compile(r"^src_f\d{2}_")
+
+
 def whole_record_text(rec: dict) -> str:
-    return " ".join(v for k, v in rec.items() if k.startswith("src_f") and isinstance(v, str))
+    """All extracted field text. Matches src_fNN_ strictly: a bare "src_f" prefix
+    also catches src_form_revision and src_fields_found."""
+    return " ".join(v for k, v in rec.items() if FIELD_KEY_RE.match(k) and isinstance(v, str))
 
 
 def field(rec: dict, num: str) -> str:
@@ -228,18 +233,41 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
     collisions: list[str] = []
     seen_ids: set[str] = set()
 
+    # Pass 1: assemble candidate rows and their keys, so collisions can be
+    # resolved deterministically rather than by whichever file was read first.
+    staged: list[tuple[str, dict, dict]] = []
+    skipped = Counter()
     for path in sorted(interim.glob("*.json")):
         rec = json.loads(path.read_text(encoding="utf-8"))
         if rec.get("src_extract_status") != "ok":
+            skipped[rec.get("src_extract_status", "unknown")] += 1
             continue
         mrow = manifest_by_sha.get(rec.get("src_sha256", ""), {})
-        inc_id = incident_number(rec, mrow, mapping)
-        if not inc_id:
-            inc_id = f"UNKEYED-{rec.get('src_sha256','')[:12]}"
-        if inc_id in seen_ids:
-            collisions.append(inc_id)
-        seen_ids.add(inc_id)
+        # Panel reports are a structurally different document that this pipeline
+        # was never built against -- 57 of 61 fail outright and the 4 that report
+        # ok matched a single anchor each, producing near-empty rows. Excluded
+        # here for the same reason gold_sample.py excludes them.
+        if mrow.get("src_report_type", "district") != "district":
+            skipped["panel_report"] += 1
+            continue
+        staged.append((incident_number(rec, mrow, mapping), rec, mrow))
 
+    # A composite of area, block, date and minute is not unique: two different
+    # incidents can share a block and timestamp, and a few documents are
+    # published twice. Suffix every member of a colliding group with a short
+    # content hash -- applied to all members, so the result does not depend on
+    # read order.
+    counts = Counter(k for k, _, _ in staged if k)
+    for idx, (key, rec, mrow) in enumerate(staged):
+        if not key:
+            key = f"UNKEYED-{rec.get('src_sha256','')[:12]}"
+        elif counts[key] > 1:
+            collisions.append(key)
+            key = f"{key}-{rec.get('src_sha256','')[:8]}"
+        staged[idx] = (key, rec, mrow)
+
+    for inc_id, rec, mrow in staged:
+        seen_ids.add(inc_id)
         row = {}
         for lab in cols("incidents"):
             spec = mapping.get(lab, {})
@@ -281,7 +309,7 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
             reasons[spec["blank"]] += 1
 
     return {"tables": tables, "sidecar": sidecar_rows, "cols": {t: cols(t) for t in tables},
-            "reasons": reasons, "collisions": collisions}
+            "reasons": reasons, "collisions": collisions, "skipped": skipped}
 
 
 def write_csv(path: Path, cols: list[str], rows: list[dict]) -> None:
@@ -313,10 +341,12 @@ def main(argv=None) -> int:
         print(f"  bsee_unmapped.csv: {len(built['sidecar'])} rows x {len(side_cols)} cols")
 
     print(f"\nblank-by-reason: {dict(built['reasons'])}")
+    if built["skipped"]:
+        print(f"\nskipped: {dict(built['skipped'])}")
     if built["collisions"]:
-        print(f"\nERROR: {len(built['collisions'])} Incident Number collisions: "
-              f"{built['collisions'][:5]}")
-        return 1
+        uniq = sorted(set(built["collisions"]))
+        print(f"\n{len(built['collisions'])} rows in {len(uniq)} colliding key groups, "
+              f"suffixed with a content hash: {uniq[:4]}")
     return 0
 
 
