@@ -122,3 +122,38 @@ class TestE19TablesCarryParallelProvenance:
                     assert d[c] == b[c], f"{c!r}: enriched value differs from verbatim"
                 if p[c] == "xw":
                     assert not (b[c] or "").strip(), f"{c!r}: xw wrote over a verbatim value"
+
+
+class TestReadmeMatchesTheData:
+    """The README stated risk scores were `syn_` while provenance.csv said `xw`,
+    and omitted the panel severity bias entirely. Both were true for weeks.
+
+    These are documentation tests, and named so. But they are tied to computed
+    values rather than asserting that prose exists, so they fail when the data
+    moves and the README does not."""
+
+    @staticmethod
+    def _readme() -> str:
+        return (DEFAULT_OUT.parents[2] / "README.md").read_text(encoding="utf-8")
+
+    def test_panel_fatality_share_matches_the_spine(self):
+        """The headline bias figure must be the one the data actually shows."""
+        import csv as _csv
+        spine = DEFAULT_OUT.parents[0] / "investigations_index.csv"
+        if not spine.exists():
+            pytest.skip("spine not built")
+        with spine.open(encoding="utf-8", newline="") as fh:
+            rows = [r for r in _csv.DictReader(fh) if "Fatality" in (r["src_accident_type"] or "")]
+        share = 100 * sum(1 for r in rows if r["src_panel_district"] == "PANEL") / len(rows)
+        assert f"{share:.1f}%" in self._readme(), (
+            f"README does not state the measured panel share of fatalities ({share:.1f}%)")
+
+    def test_readme_does_not_call_risk_scores_synthetic(self):
+        """They are computed from real BSEE fields through a versioned rule file."""
+        text = self._readme().lower()
+        i = text.find("risk-matrix fields")
+        assert i > 0, "README no longer describes the risk-matrix fields"
+        assert "not synthetic" in text[i:i + 400]
+
+    def test_readme_documents_the_provenance_file(self):
+        assert "provenance.csv" in self._readme()

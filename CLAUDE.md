@@ -23,7 +23,38 @@ this project deliberately mixes real and generated data.
 | `gold_` | assigned by a human — the only thing you may score against |
 | `syn_`  | fully generated, corresponds to nothing real |
 
-A column with no prefix is a bug. `tests/test_conventions.py` enforces this.
+A column with no prefix is a bug — **except in the E19 output tables, where it is
+required.** See below.
+
+### The E19 tables carry provenance in a parallel file, not in the name
+
+`data/processed/e19/*.csv` must carry the source workbook's field labels
+**byte-exact**, including its own irregularities: `Incident Classificatioin`
+(sic), ` Failed PSM Framework Element` (leading space), `What happened?  `
+(trailing spaces). Prefixing them would break the exactness guarantee the whole
+projection layer exists to provide, so the prefix rule is suspended there and
+provenance moves to a **parallel file of identical shape** — every cell holding
+`src`, `xw` or empty:
+
+```
+enriched/incidents.csv        the values, under exact E19 labels
+enriched/provenance.csv       same shape; per-cell src / xw / empty
+enriched/causes_provenance.csv
+enriched/causes_confidence.csv   per-cell confidence where a mapping is graded
+```
+
+This is **stronger** than a prefix, not a concession. A prefix labels a whole
+column; the parallel file labels every cell — and the same E19 column is read
+verbatim on one row and inferred on another, which a column-level prefix cannot
+express.
+
+The prefix rule still applies everywhere the exactness constraint does not:
+`synth.py` output, the sidecar (`bsee_*`), and the interim records (`src_f*`).
+
+`tests/test_conventions.py` enforces both halves: prefixes where they apply, and
+for the E19 tables that a provenance file exists with matching shape, that its
+tokens come from a closed set, that no non-empty cell lacks a provenance, and
+that **`xw` never overwrote a verbatim value**.
 
 ## The crosswalk is data, not code
 
