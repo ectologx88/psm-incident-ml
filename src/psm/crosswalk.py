@@ -36,6 +36,7 @@ E19 = REPO / "data" / "processed" / "e19"
 SPINE = REPO / "data" / "processed" / "investigations_index.csv"
 XW_TYPE = REPO / "schema" / "xw_incident_type.yaml"
 XW_ELEMENT = REPO / "schema" / "crosswalk.yaml"
+XW_QUAL = REPO / "schema" / "xw_cause_qualifiers.yaml"
 DEFAULT_OUT = E19 / "enriched"
 
 RE_HHMM = re.compile(r"(\d{1,2}):?(\d{2})")
@@ -144,7 +145,16 @@ def resolve_types(atoms: list[str], spec: dict) -> dict[str, str]:
 PSM_COLUMN = " Failed PSM Framework Element"   # leading space is the template's
 
 
-def enrich_causes(causes: list[dict], spec: dict) -> tuple[list[dict], list[dict], dict]:
+def _first_pattern(text: str, patterns: list[dict]) -> dict | None:
+    """First match wins, in listed order -- so sharper rules are listed first."""
+    low = (text or "").lower()
+    for p in patterns:
+        if p["match"].lower() in low:
+            return p
+    return None
+
+
+def enrich_causes(causes: list[dict], spec: dict, qual: dict) -> tuple[list[dict], list[dict], dict]:
     """Attach a PSM element number to each typed cause statement.
 
     Untyped statements and orphan subcategories are left blank on purpose --
@@ -175,6 +185,23 @@ def enrich_causes(causes: list[dict], spec: dict) -> tuple[list[dict], list[dict
                 stats[f"  -> {canon}"] += 1
             else:
                 stats["typed_but_unaliased"] += 1
+
+            sub = getattr(st, "subcategory", None)
+            if sub:
+                rmc = _first_pattern(sub, qual["risk_management_cause"]["patterns"])
+                if rmc:
+                    e["Risk Management Cause"] = rmc["value"]
+                    p["Risk Management Cause"] = "xw"
+                    stats["risk_mgmt_cause"] += 1
+                hf_spec = qual["human_factors"]
+                if canon in hf_spec["applies_to_categories"]:
+                    hf = _first_pattern(sub, hf_spec["patterns"])
+                    if hf:
+                        e["Human Factors  Cause"] = hf["value"]
+                        p["Human Factors  Cause"] = "xw"
+                        e["_xw_human_factor_confidence"] = hf["confidence"]
+                        stats["human_factor"] += 1
+                        stats[f"    hf_{hf['confidence']}"] += 1
         out.append(e)
         prov.append(p)
     return out, prov, stats
@@ -217,8 +244,15 @@ def main(argv=None) -> int:
 
     causes = load(E19 / "causes.csv")
     espec = yaml.safe_load(XW_ELEMENT.read_text(encoding="utf-8"))
-    c_enriched, c_prov, c_stats = enrich_causes(causes, espec)
+    qspec = yaml.safe_load(XW_QUAL.read_text(encoding="utf-8"))
+    c_enriched, c_prov, c_stats = enrich_causes(causes, espec, qspec)
     ccols = list(causes[0])
+    conf_rows = [{"Incident Number": r["Incident Number"], "Cause number": r["Cause number"],
+                  "xw_human_factor_confidence": r.pop("_xw_human_factor_confidence", "")}
+                 for r in c_enriched]
+    with (args.out / "causes_confidence.csv").open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(conf_rows[0]))
+        w.writeheader(); w.writerows(conf_rows)
     for name, data in (("causes.csv", c_enriched), ("causes_provenance.csv", c_prov)):
         with (args.out / name).open("w", encoding="utf-8", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=ccols, extrasaction="ignore")
@@ -234,11 +268,15 @@ def main(argv=None) -> int:
 
     nc = len(causes)
     print(f"\nenriched {nc} cause statements")
-    for k in ("mapped", "typed_but_unaliased", "untyped_freetext"):
+    for k in ("mapped", "risk_mgmt_cause", "human_factor",
+              "typed_but_unaliased", "untyped_freetext"):
         print(f"  {k:22} {c_stats[k]:5}/{nc} = {100*c_stats[k]/nc:5.1f}%")
     for k, v in sorted(c_stats.items()):
         if k.startswith("  ->"):
             print(f"    {k[5:]:26} {v:5}")
+    for k, v in sorted(c_stats.items()):
+        if k.startswith("    hf_"):
+            print(f"    human factor {k[7:]:15} {v:5}")
     return 0
 
 

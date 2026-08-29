@@ -132,3 +132,48 @@ class TestIncidentTypeCrosswalk:
 
     def test_unreachable_values_are_recorded(self, xw):
         assert "Injury Permenant Disability" in xw["unreachable_values"]
+
+
+class TestCauseQualifiers:
+    """Session 3. Matching is by pattern because level 2 is an OPEN vocabulary --
+    309 subcategories with free-text drift, not a closed list."""
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def qual() -> dict:
+        return yaml.safe_load(
+            (LABELS_PATH.parent / "xw_cause_qualifiers.yaml").read_text(encoding="utf-8"))
+
+    def test_all_values_come_from_the_template_picklists(self, qual):
+        labels = load_yaml(LABELS_PATH)
+        vocab = {v["name"]: set(map(str, v["values"]))
+                 for v in labels.get("vocabularies", []) if v.get("name")}
+        for section, name in (("risk_management_cause", "Risk Management Cause"),
+                              ("human_factors", "Human Factors")):
+            permitted = vocab[name]
+            for p in qual[section]["patterns"]:
+                assert p["value"] in permitted, f"{section}: {p['value']!r} not in {name} picklist"
+
+    def test_cause_type_is_unmapped_with_a_stated_reason(self, qual):
+        """Probable/contributing is an axis of primacy; Immediate/Underlying/Root
+        is an axis of depth. Not the same axis, so not mapped."""
+        assert qual["cause_type"]["policy"] == "leave_unmapped"
+        assert "primacy" in qual["cause_type"]["note"].lower()
+
+    def test_every_human_factor_pattern_declares_confidence(self, qual):
+        """Half these mappings are attribution, not observation. Unlabelled ones
+        would be indistinguishable from the explicit ones in the output."""
+        allowed = {"high", "medium", "low"}
+        for p in qual["human_factors"]["patterns"]:
+            assert p.get("confidence") in allowed, f"{p['match']!r} has no usable confidence"
+
+    def test_human_factors_scoped_to_human_categories(self, qual):
+        """Equipment Failure has no person in it to attribute a cognitive mode to."""
+        applies = set(qual["human_factors"]["applies_to_categories"])
+        assert "Equipment Failure" not in applies
+        assert "Human Performance Error" in applies
+
+    def test_sharper_rules_are_listed_before_the_catch_alls(self, qual):
+        """First match wins, so 'inadequate' must not precede 'not follow'."""
+        matches = [p["match"] for p in qual["risk_management_cause"]["patterns"]]
+        assert matches.index("not follow") < matches.index("inadequate")

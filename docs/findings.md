@@ -1009,3 +1009,76 @@ by crosswalking. It is the LLM-assisted path, which is downstream of a gold set.
 `tests/test_crosswalk.py` (15 tests) asserts every element number resolves to a
 real template element, that each entry records what it was before, and that the
 incident-type values come from the template's own picklists.
+
+## 2026-08-29 — Session 3: cause qualifiers
+
+Three E19 fields: `Cause type`, `Risk Management Cause`, `Human Factors  Cause`.
+Prep changed the shape of all three before any mapping was written.
+
+### Level 2 is confirmed OPEN, not closed
+
+`findings.md` flagged subcategory closure as unverified at n=63. At full scale it
+is **open**: 309 statements carry a subcategory, long-tailed free text with
+drift — `Inadequate preventive maintenance` / `Inadequate preventative
+maintenance`, `Inadequate supervision` / `Inadequate Supervision` /
+`No supervision`. Exact-string lookup would match the modal spelling and silently
+drop the rest, so `schema/xw_cause_qualifiers.yaml` matches by **case-insensitive
+substring pattern, first match wins**, with sharper rules listed before
+catch-alls (guarded by test).
+
+`(cid` also appears as a subcategory: CID-encoded text sitting *below* the 5%
+guard threshold is leaking into cause statements. Small, but the threshold is
+marginally too permissive.
+
+### `Cause type` — deliberately unmapped
+
+The only available signal is which BSEE field a statement came from: field 18
+*Probable Cause* vs 19 *Contributing Cause*. That is an axis of **primacy**; E19's
+Immediate / Underlying / Root is an axis of **depth**. A contributing cause can be
+a root cause. Mapping one to the other asserts an equivalence that does not hold.
+
+**A gap this exposed:** `psm.project` concatenates fields 18 and 19 without
+recording which a statement came from, despite the projection plan saying it
+would go to the sidecar. Real provenance is being discarded, and it is exactly
+what an LLM-assisted pass would want as a feature.
+
+### Results
+
+| Field | filled | of 3,462 |
+|---|---|---|
+| ` Failed PSM Framework Element` | 451 | 13.0% |
+| `Risk Management Cause` | 206 | 6.0% |
+| `Human Factors  Cause` | 120 | 3.5% |
+| `Cause type` | 0 | by policy |
+
+### Human Factors: filled against my recommendation, and instrumented for it
+
+E19's Human Factors classifies **cognition** (competency / mistake / violation);
+BSEE subcategories describe **behaviour** (`Inattention to task`, `Placing hand
+near striking point`). My recommendation was to leave the field null on the
+grounds that inferring a cognitive mode from a behavioural description is
+attribution dressed as data. **Session 3 ruled to map the full subcategory set.**
+
+Implemented, with every pattern carrying a confidence and
+`causes_confidence.csv` written to the sidecar so the two kinds can be told
+apart. The split is the argument, quantified:
+
+| confidence | n | what it means |
+|---|---|---|
+| high | 30 | the source names the cognitive mode (`not following procedures` → Violation) |
+| medium | 36 | reasonably direct (`not aware` → missing information) |
+| **low** | **54** | **attribution: the source names only what the person did** |
+
+**45% of the values in this column are inference about mental state from a
+description of behaviour.** They are marked, filterable, and `xw_` — never
+scorable. Anyone using this column for analysis should filter on confidence
+first, and anyone reporting a metric over it should not use it at all.
+
+Human factors are scoped to human-attributable categories only; Equipment
+Failure and weather subcategories get nothing, because there is no person in them
+to attribute a cognitive mode to.
+
+### Coverage ceiling, unchanged
+
+80.4% of statements are untyped free text and no crosswalk reaches them. Of the
+679 typed, 66.4% carry a mapped category. Everything above is bounded by that.
