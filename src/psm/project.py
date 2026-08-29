@@ -52,6 +52,27 @@ RE_BLOCK = re.compile(r"BLOCK:\s*(\d{1,4})\b")
 RE_RIG = re.compile(r"RIG NAME:\s*(.+)", re.IGNORECASE)
 RE_OTHER = re.compile(r"\bOTHER\s+([A-Za-z][A-Za-z /&'-]{2,60})")
 
+# Recommendations are enumerated, not paragraph-separated. An earlier splitter
+# used a blank line and NEVER FIRED: zero of 1,077 non-empty field-22 values
+# contain one, so every incident got exactly one row and the declared grain
+# ("one row per recommendation") was false for the whole table.
+RE_REC_ITEM = re.compile(r"\n\s*(?:\d{1,2}\s*[.)]|[a-h]\s*\)|[\u2022\u25cf\u25aa])\s+")
+
+# BSEE writes a nil return as prose. Per the repo's absent_legitimate convention
+# these are not recommendations and must not be counted as one.
+NIL_RETURN = {"none", "n/a", "na", "no", "nil", "none.", "n/a.", "no recommendations"}
+
+
+def split_recommendations(text: str) -> list[str]:
+    """One string per recommendation. Empty list for a nil return."""
+    body = (text or "").strip()
+    if not body or body.lower().rstrip(".") in NIL_RETURN:
+        return []
+    # Only leading separator debris is stripped. A trailing full stop is part of
+    # the sentence, and this project keeps source text verbatim.
+    parts = [p.lstrip(" .);:-") for p in RE_REC_ITEM.split("\n" + body)]
+    return [" ".join(p.split()) for p in parts if p.strip()]
+
 
 def load_yaml(path: Path) -> dict:
     with open(path, encoding="utf-8") as fh:
@@ -323,12 +344,12 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
             cause_fields.append({"Incident Number": inc_id, "Cause number": str(i),
                                  "bsee_source_field": src_field})
 
-        recs22 = [b.strip() for b in re.split(r"\n\s*\n", field(rec, "f22") or "") if b.strip()]
+        recs22 = split_recommendations(field(rec, "f22"))
         for i, block in enumerate(recs22, start=1):
             r = {c: "" for c in cols("recommendations")}
             r["Incident Number"] = inc_id
             r["Recommendation Number"] = str(i)
-            r["Recommendation Description"] = " ".join(block.split())
+            r["Recommendation Description"] = block
             tables["recommendations"].append(r)
             c = {k: "" for k in cols("closeout")}
             c["Incident Number"] = inc_id

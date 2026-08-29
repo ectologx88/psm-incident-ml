@@ -197,3 +197,53 @@ class TestValuesAreLegal:
         for col in ("Incident Classification", "Incident Classificatioin"):
             assert "source" not in proj["mapping"][col], (
                 f"{col} must not take a verbatim source -- BSEE field 28 is MAJOR/MINOR")
+
+
+class TestRecommendationGrain:
+    """The declared grain was "one row per recommendation" and the table
+    delivered exactly one row per INCIDENT on all 1,079. The splitter used a
+    blank line; zero of 1,077 non-empty field-22 values contain one, so it never
+    fired once. Nothing noticed, because nothing asserted the grain."""
+
+    def test_nil_returns_are_not_recommendations(self):
+        from psm.project import split_recommendations
+        for nil in ("None", "N/A", "no", "NIL", "none."):
+            assert split_recommendations(nil) == [], f"{nil!r} counted as a recommendation"
+
+    def test_enumerated_items_split(self):
+        from psm.project import split_recommendations
+        body = "1. Conduct inspections\n2. Survey bulkheads\n3. Verify isolation"
+        assert len(split_recommendations(body)) == 3
+
+    @pytest.mark.parametrize("marker", ["1)", "a)", "•"])
+    def test_other_enumeration_styles(self, marker):
+        from psm.project import split_recommendations
+        second = {"1)": "2)", "a)": "b)", "•": "•"}[marker]
+        body = f"{marker} first item\n{second} second item"
+        assert len(split_recommendations(body)) == 2, body
+
+    def test_a_blank_line_is_not_the_separator(self):
+        """Guards the original defect directly: prose split by a blank line is
+        still ONE recommendation unless it is enumerated."""
+        from psm.project import split_recommendations
+        assert len(split_recommendations("first para\n\nsecond para")) == 1
+
+    def test_single_prose_recommendation_stays_one(self):
+        from psm.project import split_recommendations
+        body = "The district recommends a safety alert be issued to operators."
+        assert split_recommendations(body) == [body]
+
+    @pytest.mark.skipif(not (DEFAULT_OUT / "recommendations.csv").exists(),
+                        reason="run `python -m psm.project` first")
+    def test_shipped_table_has_a_real_grain(self):
+        """The check that would have caught it: if every incident has exactly one
+        recommendation, the splitter is not working."""
+        import csv as _csv
+        from collections import Counter
+        _csv.field_size_limit(10 ** 9)
+        with (DEFAULT_OUT / "recommendations.csv").open(encoding="utf-8", newline="") as fh:
+            rows = list(_csv.DictReader(fh))
+        per = Counter(r["Incident Number"] for r in rows)
+        assert max(per.values()) > 1, "every incident has exactly one recommendation"
+        assert len({r["Recommendation Number"] for r in rows}) > 1, \
+            "Recommendation Number is constant"

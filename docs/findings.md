@@ -1568,3 +1568,73 @@ classifications are now 119, but the column still mixes BSEE MAJOR/MINOR with
 E19's VSI/SI/Incident and still suppresses crosswalk values), R2 recommendation
 grain, R3 the retracted statistic and re-banded likelihood, R4 test honesty,
 R5 gold set, R6 README, R7 the ~37 unexplained missing fatalities.
+
+## 2026-08-29 — R1 and R2 applied
+
+### R1 — vocabulary constraints, and field 28 moved to the sidecar
+
+BSEE field 28 is `MAJOR`/`MINOR`. The E19 `Incident Classification` picklist is
+`Very Serious Incident` / `Serious Incident` / `Incident`. Disjoint vocabularies,
+mapped as raw text — so 234 illegal values shipped, and because verbatim wins
+they **suppressed 149 rows that had a valid crosswalked classification**.
+
+Field 28 now goes to the sidecar as `bsee_accident_classification` (with field 29
+alongside); the E19 column is filled by the crosswalk from the risk score.
+
+| | before | after |
+|---|---|---|
+| illegal values, **all committed tables** | 234 | **0** |
+| `Incident Classification` legitimate | 527 | **660** |
+| `Incident Classification` junk | 234 | **0** |
+
+Three things beyond the immediate fix:
+
+**A `vocabularies:` block** declaring which E19 columns are picklist-backed,
+enforced in `psm.project`: an illegal value is blanked and counted, never
+written. Blank beats wrong in a controlled column.
+
+**A `vocabulary_exempt:` block** for `Site` / `Area` / `Unit`. The template ships
+those as placeholder facility names (`Alpha`/`Beta`, `One`/`Two`) and this project
+repurposes them for BSEE geography deliberately; a strict validator would
+otherwise flag 2,237 cells. The exemption is now a recorded decision with a
+stated reason per column, and a test requires the reason.
+
+**A value-legality test** across all four tables and both directories. The point
+the review made was that header tests passed throughout while 234 illegal values
+shipped: nothing checked values.
+
+### R2 — recommendation grain
+
+The splitter used a blank line. **Zero of 1,077 non-empty field-22 values contain
+one**, so it never fired and every incident got exactly one row — the declared
+grain, "one row per recommendation", was false for the whole table.
+
+Recommendations are *enumerated*, not paragraph-separated. Measured across the
+corpus: 51 values carry `\n<digit>[.)]`, 24 use `2)` style, 9 use bullets, 7 use
+`b)`. Splitting on those, and treating nil returns (`None`, `N/A`) as
+`absent_legitimate` per the repo's existing convention rather than as
+recommendation text:
+
+| | before | after |
+|---|---|---|
+| rows | 1,079 | **1,244** |
+| incidents with 2+ recommendations | **0** | **56** |
+| max per incident | 1 | **12** |
+| distinct `Recommendation Number` values | 1 | **12** |
+| nil returns counted as recommendations | 38 | **0** |
+
+Worth stating plainly: the false grain was real but **narrower than the audit
+implied**. Only ~56 of 1,079 incidents genuinely hold multiple recommendations;
+the rest were correctly one row. The defect was that the number was meaningless,
+not that a thousand rows were wrong.
+
+A test now asserts the shipped table has a real grain — `max(per_incident) > 1`
+and `Recommendation Number` takes more than one value. That is the check that
+would have caught it, and it did not exist.
+
+**A test caught a lossy behaviour in the fix.** The first splitter stripped
+trailing full stops as separator debris. A single prose recommendation came back
+without its final period — against this project's verbatim principle. Only
+leading separator characters are stripped now.
+
+Tests 235 → 243, 2 skipped.
