@@ -208,9 +208,34 @@ def incident_number(rec: dict, manifest_row: dict, mapping: dict) -> str:
     return "-".join(parts) if len(parts) >= 3 else ""
 
 
+def picklists(labels: dict, proj: dict) -> dict[str, set[str]]:
+    """E19 column -> its legal values, for the columns declared picklist-backed.
+
+    Without this a raw text dump lands in a controlled column and nothing
+    notices: BSEE field 28 (MAJOR/MINOR) put 234 illegal values into
+    `Incident Classification`, whose picklist is Very Serious Incident / Serious
+    Incident / Incident -- and because verbatim wins, those illegal values
+    suppressed 149 rows that had a valid crosswalked classification.
+
+    Columns in `vocabulary_exempt` are skipped: the template ships Site/Area/Unit
+    as placeholder facility names, and this project repurposes them for BSEE
+    geography on purpose.
+    """
+    by_name = {v["name"]: {str(x) for x in v["values"]}
+               for v in labels.get("vocabularies", []) if v.get("name")}
+    exempt = set(proj.get("vocabulary_exempt") or {})
+    out: dict[str, set[str]] = {}
+    for col, vocab in (proj.get("vocabularies") or {}).items():
+        if col not in exempt and vocab in by_name:
+            out[col] = by_name[vocab]
+    return out
+
+
 def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
     groups = label_groups(labels)
     mapping = proj["mapping"]
+    legal = picklists(labels, proj)
+    illegal: Counter = Counter()
 
     manifest_by_sha: dict[str, dict] = {}
     if manifest.exists():
@@ -272,7 +297,11 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
         row = {}
         for lab in cols("incidents"):
             spec = mapping.get(lab, {})
-            row[lab] = inc_id if lab == "Incident Number" else resolve(rec, spec, mrow)
+            val = inc_id if lab == "Incident Number" else resolve(rec, spec, mrow)
+            if val and lab in legal and val not in legal[lab]:
+                illegal[lab] += 1
+                val = ""          # blank beats a wrong value in a controlled column
+            row[lab] = val
         tables["incidents"].append(row)
 
         # Tag each statement with the field it came from. BSEE's field 18 is
@@ -320,7 +349,7 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
 
     return {"tables": tables, "sidecar": sidecar_rows, "cols": {t: cols(t) for t in tables},
             "reasons": reasons, "collisions": collisions, "skipped": skipped,
-            "cause_fields": cause_fields}
+            "cause_fields": cause_fields, "illegal": illegal}
 
 
 def write_csv(path: Path, cols: list[str], rows: list[dict]) -> None:
@@ -356,6 +385,8 @@ def main(argv=None) -> int:
         print(f"  bsee_unmapped.csv: {len(built['sidecar'])} rows x {len(side_cols)} cols")
 
     print(f"\nblank-by-reason: {dict(built['reasons'])}")
+    if built["illegal"]:
+        print(f"\nblanked as outside the column's picklist: {dict(built['illegal'])}")
     if built["skipped"]:
         print(f"\nskipped: {dict(built['skipped'])}")
     if built["collisions"]:

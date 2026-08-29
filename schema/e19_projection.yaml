@@ -51,7 +51,14 @@ mapping:
     note: "BSEE publishes no incident identifier; confirmed against the Data Center
            field definitions, which list seven columns and no ID. Structural, not data."
   "incident Title":       {blank: structural}
-  "Incident Classificatioin": {source: f28, extract: text}
+  # NOT the same vocabulary. BSEE field 28 is MAJOR/MINOR; the E19 picklist is
+  # Very Serious Incident / Serious Incident / Incident. Mapping raw text into a
+  # picklist column put 234 illegal values in it -- and because verbatim wins,
+  # they SUPPRESSED 149 rows that had a valid crosswalked classification.
+  # Field 28 now goes to the sidecar under its own name; the E19 column is filled
+  # by the crosswalk from the risk score.
+  "Incident Classificatioin": {blank: structural,
+    note: "BSEE MAJOR/MINOR is a different vocabulary; see bsee_accident_classification in the sidecar"}
   "Date of Incident":     {source: f01, extract: date}
   "Time of Incident":     {source: f01, extract: time}
   "Date of Report":
@@ -111,7 +118,8 @@ mapping:
   # --- Incident Classificatioin (Section 3) ---------------------------------
   # Every field below asks what could reasonably have happened. BSEE records only
   # what did happen. All judgement, none extractable.
-  "Incident Classification": {source: f28, extract: text}
+  "Incident Classification": {blank: structural,
+    note: "as Incident Classificatioin -- BSEE MAJOR/MINOR is not the E19 vocabulary"}
   "What was the worst outcome that could reasonably be expected to have happened?": {blank: judgement}
   "Health & Safety Incident - Classification":                    {blank: judgement}
   "Health & Safety - Risk Score":                                 {blank: judgement}
@@ -160,6 +168,40 @@ mapping:
   "Schedule Status": {blank: structural}
   "Date Completed":  {blank: structural}
 
+# --- Vocabulary constraints ------------------------------------------------
+# A picklist-backed column must not receive a value outside its picklist. Without
+# this, a raw text dump lands in a controlled column and nothing notices: field 28
+# put 234 illegal values into Incident Classification and blocked 149 valid ones.
+# Vocabularies are read from schema/e19_labels.yaml by name.
+vocabularies:
+  "Incident Type A": "Incident Type"
+  "Incident Type B": "B"
+  "Incident Type C": "C"
+  "Incident Type D": "D"
+  "Incident Classification": "Incident Classification"
+  "Incident Classificatioin": "Incident Classification"
+  "Health & Safety  - Consequence": "Consequence"
+  "Health & Safety - Likelihood": "Likelihood"
+  "Health & Safety - Risk Score": "Risk Score"
+  "Health & Safety Incident - Classification": "Incident Classification"
+  "Environment & Reputation  - Consequence": "Consequence"
+  "Financial Cost & Business Interruption  - Consequence": "Consequence"
+  "Cause type": "Cause Type"
+  "Risk Management Cause": "Risk Management Cause"
+  "Human Factors  Cause": "Human Factors"
+  " Failed PSM Framework Element": "Failed PSM Framework Element"
+
+# Columns whose template picklist is demo placeholder data that this project
+# deliberately repurposes. The template ships Site as Alpha/Beta/Gamma/Delta and
+# Area as One/Two/Three/Four -- placeholders for a single company's facilities.
+# BSEE geography (MC, GC, block numbers) is the real content, so these columns
+# are exempt from the constraint above. Recorded rather than left implicit,
+# because a strict validator would otherwise flag 2,237 cells.
+vocabulary_exempt:
+  Site: "template picklist is placeholder facility names; BSEE area codes used instead"
+  Area: "template picklist is placeholder area numbers; BSEE block numbers used instead"
+  Unit: "template picklist is placeholder unit letters; BSEE platform designators used instead"
+
 # BSEE data with no E19 home under verbatim rules. Written to
 # data/processed/e19/bsee_unmapped.csv, keyed on Incident Number. Not part of the
 # E19 output; this is where a later crosswalk will draw from.
@@ -173,6 +215,8 @@ sidecar:
   - {from: f23, as: bsee_possible_ocs_violations}
   - {from: f24, as: bsee_violations_narrative}
   - {from: f25, as: bsee_onsite_investigation_date}
+  - {from: f28, as: bsee_accident_classification}
+  - {from: f29, as: bsee_panel_formed}
   - {from: f02, as: bsee_operator}
   - {from: src_form_revision, as: bsee_form_revision}
   - {from: src_extract_status, as: bsee_extract_status}

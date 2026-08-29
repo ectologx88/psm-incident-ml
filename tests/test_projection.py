@@ -137,3 +137,63 @@ class TestExtractors:
 
     def test_pseudonym_carries_prefix(self):
         assert pseudonym("Gerald Taylor", "INV").startswith("INV-")
+
+
+class TestValuesAreLegal:
+    """Header tests are not enough: nothing checked the VALUES.
+
+    BSEE field 28 (MAJOR/MINOR) was mapped as raw text into
+    `Incident Classification`, whose picklist is Very Serious Incident / Serious
+    Incident / Incident. 234 illegal values shipped, and because verbatim wins
+    they suppressed 149 rows that had a valid crosswalked classification. Every
+    header test passed throughout.
+    """
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def vocab() -> dict:
+        labels = load_yaml(LABELS_PATH)
+        proj = load_yaml(PROJECTION_PATH)
+        by_name = {v["name"]: {str(x) for x in v["values"]}
+                   for v in labels.get("vocabularies", []) if v.get("name")}
+        exempt = set(proj.get("vocabulary_exempt") or {})
+        return {c: by_name[v] for c, v in (proj.get("vocabularies") or {}).items()
+                if c not in exempt and v in by_name}
+
+    def test_declared_vocabularies_resolve(self, vocab):
+        proj = load_yaml(PROJECTION_PATH)
+        exempt = set(proj.get("vocabulary_exempt") or {})
+        assert len(vocab) == len({c for c in proj["vocabularies"] if c not in exempt})
+
+    def test_exemptions_are_justified(self):
+        """An exemption is a decision. Unexplained, it is a hole in the guard."""
+        proj = load_yaml(PROJECTION_PATH)
+        for col, why in (proj.get("vocabulary_exempt") or {}).items():
+            assert why and len(why) > 20, f"{col}: exemption with no stated reason"
+
+    @pytest.mark.skipif(not (DEFAULT_OUT / "incidents.csv").exists(),
+                        reason="run `python -m psm.project` first")
+    @pytest.mark.parametrize("table", ["incidents", "causes", "recommendations", "closeout"])
+    @pytest.mark.parametrize("subdir", ["", "enriched"])
+    def test_no_illegal_values_in_any_committed_table(self, vocab, table, subdir):
+        import csv as _csv
+        _csv.field_size_limit(10 ** 9)
+        path = (DEFAULT_OUT / subdir / f"{table}.csv") if subdir else (DEFAULT_OUT / f"{table}.csv")
+        if not path.exists():
+            pytest.skip(f"{path.name} not built")
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(_csv.DictReader(fh))
+        if not rows:
+            pytest.skip("empty table")
+        for col, allowed in vocab.items():
+            if col not in rows[0]:
+                continue
+            bad = [r[col] for r in rows if (r[col] or "").strip() and r[col] not in allowed]
+            assert not bad, f"{path.name}:{col!r} has {len(bad)} illegal, e.g. {bad[0]!r}"
+
+    def test_bsee_classification_is_not_mapped_into_the_e19_column(self):
+        """The specific defect: two disjoint vocabularies, one column."""
+        proj = load_yaml(PROJECTION_PATH)
+        for col in ("Incident Classification", "Incident Classificatioin"):
+            assert "source" not in proj["mapping"][col], (
+                f"{col} must not take a verbatim source -- BSEE field 28 is MAJOR/MINOR")
