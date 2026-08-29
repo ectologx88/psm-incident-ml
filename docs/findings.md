@@ -1120,3 +1120,100 @@ It is deliberately **not** crosswalked to `Cause type` — probable/contributing
 an axis of primacy, Immediate/Underlying/Root an axis of depth. But it is the
 obvious feature for a later LLM-assisted pass, and it should not have been thrown
 away.
+
+## 2026-08-29 — Session 4: Section 3 from hazard energy
+
+E19 Section 3 asks for the worst outcome that could **reasonably be expected**.
+BSEE records what **did** happen. Bridging that is the whole session, and two
+approaches failed before one worked.
+
+### Measured: actual-outcome-only does not work
+
+| Method | A | B | C | D | E | blank |
+|---|---|---|---|---|---|---|
+| Actual outcome only | 15 | 185 | 219 | **0** | 3 | **666 (61%)** |
+| Hazard energy | 11 | 138 | 318 | 325 | 189 | 107 (10%) |
+
+**559 incidents receive a consequence from hazard energy where actual-outcome
+records nothing** — every fire, dropped load and explosion that happened to hurt
+nobody. Zero records reach consequence D under the actual method. This is the
+near-miss burial quantified, and it is why consequence is derived from what an
+event *could* do. The approach follows the EEI Safety Classification and Learning
+model, whose categories are High-Energy SIF and *Potential* SIF.
+
+### Failure 1: the exposure proxy was circular
+
+An "event with people present is worse" bump initially used
+`Required Evacuation` / `Required Muster`. **84% of the most severe rating came
+from that flag, not from hazard energy** — E fell from 172 to 27 without it. And
+it is circular: an evacuation is ordered *because* something was serious.
+
+Replaced with positional checkbox marks `DRILLING` / `WORKOVER` / `COMPLETION`,
+which describe what work was underway rather than what happened. Better coverage
+(196 vs 162 of 622) and **independently validated**: a rig name appears in field 5
+on **45%** of crewed-flagged records against **4%** of production-only ones —
+12.8× more likely, from a different part of the form extracted by a different
+mechanism.
+
+Known limit: it identifies definitely-crewed records but cannot identify
+definitely-unmanned ones, since `PRODUCTION` covers both manned platforms and
+unmanned satellites. The bias is toward under-rating, which is the safer
+direction.
+
+### Failure 2: likelihood from the actual-vs-potential gap
+
+Deriving likelihood from how close the actual came to the potential gave **70% of
+records likelihood 1**, and collapsed every near miss straight back into
+"Incident" — reintroducing the exact burial the consequence work had just fixed.
+
+The error was conceptual, not a tuning problem: that formula measures
+**realisation** (did it happen this time), where likelihood means **how likely
+the outcome is when the scenario recurs**. Recorded in the rule file so it is not
+retried.
+
+### What worked: likelihood measured from the corpus
+
+P(serious injury | mechanism), across 2,014 spine rows. **The result is the most
+interesting finding of the session:**
+
+| Mechanism | n | severe-injury rate | likelihood |
+|---|---|---|---|
+| Other Lifting Device | 94 | **24.5%** | 5 |
+| Crane | 177 | **23.7%** | 5 |
+| Explosion | 73 | 12.3% | 4 |
+| Structural Damage | 40 | 7.5% | 3 |
+| Fire | 514 | 4.7% | 2 |
+| Blowout | 58 | 3.4% | 2 |
+| Pollution | 435 | 1.1% | 2 |
+| Collision | 48 | 0.0% | 1 |
+
+**Lifting operations are 5× more likely to seriously injure someone than fire, and
+7× more than a blowout.** The dramatic hazards rarely hurt people; the routine
+ones do. Consequently **every Very Serious Incident in the output is a lifting
+incident** — 55 Other Lifting Device, 38 Crane, zero fires — which the model
+arrived at independently of the classification bands.
+
+A first banding at ≥40% → likelihood 5 left the VSI class **empty across the
+entire corpus**, which said more about the threshold than the data. Rebanded at
+≥20%, on the reasoning that a one-in-five chance of serious injury given the event
+is genuinely high.
+
+### Result
+
+| | verbatim | enriched |
+|---|---|---|
+| Incident columns with any value | 15 / 43 | **25 / 43** |
+
+| Section 3 field | filled | src / xw |
+|---|---|---|
+| Incident Classification | 62.6% | 234 / 527 |
+| Health & Safety Consequence, Likelihood, Risk Score, Classification | 55.6% each | 0 / 676 |
+| Financial Cost Consequence | 39.3% | 0 / 478 |
+| Environment & Reputation Consequence | 15.1% | 0 / 184 |
+
+Distribution: Incident 378, Serious 196, Very Serious 102.
+
+**The Risk Score formula is assumed, not sourced.** The template lists scores 1-25
+but not the Consequence × Likelihood matrix producing them, and it was not
+recoverable from the workbook. A plain 5×5 product reproduces the range. Replace
+when the author supplies the real matrix; nothing else changes.

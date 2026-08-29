@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import json
 import re
 from collections import Counter
 from pathlib import Path
@@ -37,6 +38,8 @@ SPINE = REPO / "data" / "processed" / "investigations_index.csv"
 XW_TYPE = REPO / "schema" / "xw_incident_type.yaml"
 XW_ELEMENT = REPO / "schema" / "crosswalk.yaml"
 XW_QUAL = REPO / "schema" / "xw_cause_qualifiers.yaml"
+XW_TIERS = REPO / "schema" / "xw_consequence_tiers.yaml"
+INTERIM = REPO / "data" / "interim"
 DEFAULT_OUT = E19 / "enriched"
 
 RE_HHMM = re.compile(r"(\d{1,2}):?(\d{2})")
@@ -143,6 +146,58 @@ def resolve_types(atoms: list[str], spec: dict) -> dict[str, str]:
 
 
 PSM_COLUMN = " Failed PSM Framework Element"   # leading space is the template's
+SEV = "ABCDE"
+RE_MONEY = re.compile(r"\$\s*([\d,]+)")
+CREWED_MARKS = ("DRILLING", "WORKOVER", "COMPLETION")
+
+
+def _band(value: float, bands: list[dict], key: str) -> object:
+    for b in bands:
+        if key == "at_least" and value >= b["at_least"]:
+            return b.get("likelihood", b.get("value"))
+        if key == "under" and (b["under"] is None or value < b["under"]):
+            return b["value"]
+    return None
+
+
+def section3(atoms: list[str], marks: list[str], damage: float | None, tiers: dict) -> dict:
+    """E19 Section 3 from hazard energy, corpus-measured likelihood and cost.
+
+    Consequence answers what the event COULD have done, not what it did --
+    see the header of schema/xw_consequence_tiers.yaml for why that matters.
+    """
+    out: dict[str, str] = {}
+    energy = tiers["hazard_energy"]
+    present = [a for a in atoms if a in energy]
+
+    if present:
+        worst = max(energy[a] for a in present)
+        crewed = any(any(c in m.upper() for c in CREWED_MARKS) for m in marks)
+        if crewed and worst < "E":
+            worst = SEV[SEV.index(worst) + 1]
+        floors = [tiers["actual_outcome_floor"][a] for a in atoms
+                  if a in tiers["actual_outcome_floor"]]
+        consequence = max([worst] + floors)
+
+        rates = tiers["likelihood"]["observed_rates"]
+        rate = max((rates[a]["rate"] for a in present if a in rates), default=0.0)
+        lik = _band(rate, tiers["likelihood"]["bands"], "at_least")
+        score = (SEV.index(consequence) + 1) * int(lik)
+
+        out["Health & Safety  - Consequence"] = consequence
+        out["Health & Safety - Likelihood"] = str(lik)
+        out["Health & Safety - Risk Score"] = str(score)
+        cls = _band(score, tiers["classification_bands"], "at_least")
+        out["Health & Safety Incident - Classification"] = cls
+        out["Incident Classification"] = cls
+        out["Incident Classificatioin"] = cls
+
+    if "Pollution" in atoms:
+        out["Environment & Reputation  - Consequence"] = energy["Pollution"]
+    if damage is not None:
+        out["Financial Cost & Business Interruption  - Consequence"] = _band(
+            damage, tiers["financial_consequence"]["bands"], "under")
+    return out
 
 
 def _first_pattern(text: str, patterns: list[dict]) -> dict | None:
@@ -217,6 +272,13 @@ def main(argv=None) -> int:
     by_time, by_ab = spine_index(load(SPINE))
     cols = list(inc[0])
 
+    tiers = yaml.safe_load(XW_TIERS.read_text(encoding="utf-8"))
+    marks_by_sha = {}
+    for pth in INTERIM.glob("*.json"):
+        d = json.loads(pth.read_text(encoding="utf-8"))
+        marks_by_sha[d.get("src_sha256", "")] = [str(m) for m in (d.get("src_checkboxes_page0") or [])]
+    side_by_id = {r["Incident Number"]: r for r in load(E19 / "bsee_unmapped.csv")}
+
     filled: dict[str, int] = {}
     unjoined = 0
     enriched, prov = [], []
@@ -225,6 +287,10 @@ def main(argv=None) -> int:
         if not atoms:
             unjoined += 1
         xw = resolve_types(atoms, spec)
+        sr = side_by_id.get(row["Incident Number"], {})
+        dm = RE_MONEY.search(sr.get("bsee_property_damaged", "") or "")
+        xw.update(section3(atoms, marks_by_sha.get(sr.get("bsee_sha256", ""), []),
+                           float(dm.group(1).replace(",", "")) if dm else None, tiers))
         e = dict(row)
         p = {c: ("src" if (row.get(c) or "").strip() else "") for c in cols}
         for col, val in xw.items():
@@ -262,9 +328,14 @@ def main(argv=None) -> int:
     n = len(inc)
     print(f"enriched {n} incidents -> {args.out}")
     print(f"  unjoined to spine (no atoms available): {unjoined} ({100*unjoined/n:.1f}%)")
-    for col in ("Incident Type A", "Incident Type B", "Incident Type C", "Incident Type D"):
+    for col in ("Incident Type A", "Incident Type B", "Incident Type C", "Incident Type D",
+                "Health & Safety  - Consequence", "Health & Safety - Likelihood",
+                "Health & Safety - Risk Score", "Health & Safety Incident - Classification",
+                "Environment & Reputation  - Consequence",
+                "Financial Cost & Business Interruption  - Consequence",
+                "Incident Classification"):
         k = filled.get(col, 0)
-        print(f"  {col:20} filled by crosswalk: {k:5}/{n} = {100*k/n:5.1f}%")
+        print(f"  {col[:46]:46} {k:5}/{n} = {100*k/n:5.1f}%")
 
     nc = len(causes)
     print(f"\nenriched {nc} cause statements")

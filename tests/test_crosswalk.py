@@ -177,3 +177,70 @@ class TestCauseQualifiers:
         """First match wins, so 'inadequate' must not precede 'not follow'."""
         matches = [p["match"] for p in qual["risk_management_cause"]["patterns"]]
         assert matches.index("not follow") < matches.index("inadequate")
+
+
+class TestConsequenceTiers:
+    """Session 4. Consequence answers what the event COULD have done.
+
+    Deriving potential from actual under-rates near misses -- measured, not
+    asserted: actual-outcome-only leaves 61% of incidents blank with zero at
+    consequence D. These guard the method, not the numbers.
+    """
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def tiers() -> dict:
+        return yaml.safe_load(
+            (LABELS_PATH.parent / "xw_consequence_tiers.yaml").read_text(encoding="utf-8"))
+
+    def test_consequence_values_are_template_picklist_values(self, tiers):
+        labels = load_yaml(LABELS_PATH)
+        allowed = next(set(map(str, v["values"])) for v in labels["vocabularies"]
+                       if v.get("name") == "Consequence")
+        for src in ("hazard_energy", "actual_outcome_floor"):
+            for atom, val in tiers[src].items():
+                assert val in allowed, f"{src}.{atom} = {val!r} is not a Consequence value"
+
+    def test_classification_bands_match_the_template(self, tiers):
+        """VSI 25-21, SI 20-11, I 10-1 are the template's own, from Monthly Data."""
+        labels = load_yaml(LABELS_PATH)
+        allowed = next(set(map(str, v["values"])) for v in labels["vocabularies"]
+                       if v.get("name") == "Incident Classification")
+        assert {b["value"] for b in tiers["classification_bands"]} == allowed
+        assert [b["at_least"] for b in tiers["classification_bands"]] == [21, 11, 1]
+
+    def test_likelihood_bands_are_monotonic(self, tiers):
+        bands = tiers["likelihood"]["bands"]
+        assert [b["at_least"] for b in bands] == sorted(
+            (b["at_least"] for b in bands), reverse=True)
+        assert [b["likelihood"] for b in bands] == [5, 4, 3, 2, 1]
+
+    def test_observed_rates_resolve_to_their_stated_band(self, tiers):
+        """The recorded likelihood must be what the recorded rate actually yields."""
+        bands = tiers["likelihood"]["bands"]
+        for mech, spec in tiers["likelihood"]["observed_rates"].items():
+            got = next(b["likelihood"] for b in bands if spec["rate"] >= b["at_least"])
+            assert got == spec["likelihood"], f"{mech}: rate {spec['rate']} -> {got}, not {spec['likelihood']}"
+
+    def test_the_failed_likelihood_approach_is_recorded(self, tiers):
+        """Deriving likelihood from actual-vs-potential gap measures realisation,
+        not likelihood. It gave 70% of records likelihood 1. Recorded so it is
+        not retried."""
+        rej = tiers["likelihood"]["rejected_approach"]
+        assert "gap" in rej["method"]
+        assert "REALISATION" in rej["why"]
+        assert "70%" in rej["why"], "the measured failure rate is the point"
+
+    def test_risk_score_declares_it_is_assumed(self, tiers):
+        """The template's C x L matrix was not recoverable. Saying so is the point."""
+        assert "ASSUMED" in tiers["risk_score"]["assumption"]
+
+    def test_exposure_proxy_records_the_rejected_circular_alternative(self, tiers):
+        rej = tiers["exposure_bump"]["rejected_alternative"]
+        assert "Evacuation" in rej["signal"]
+        assert "circular" in rej["why"].lower()
+
+    def test_financial_bands_ascend(self, tiers):
+        unders = [b["under"] for b in tiers["financial_consequence"]["bands"]]
+        assert unders[-1] is None
+        assert unders[:-1] == sorted(u for u in unders if u is not None)
