@@ -287,7 +287,8 @@ class TestTheGapFillSplit:
                 # `would_dominate` case; `no_generator` applies at any share --
                 # `Date of Incident` is 97.0% real and still unfillable, because
                 # inventing a date asserts when a real incident happened.
-                assert entry.get("blank_reason") in ("would_dominate", "no_generator"), \
+                assert entry.get("blank_reason") in (
+                    "would_dominate", "no_generator", "degenerate_fill"), \
                     f"{table}.{col!r}: leave_blank with no blank_reason"
                 if entry["blank_reason"] == "would_dominate":
                     assert share < 0.5, (
@@ -396,3 +397,80 @@ class TestRealOnlyExport:
         assert "why" in spec and spec["why"].strip()
         for name, meta in spec["regimes"].items():
             assert meta["what"].strip(), f"{name} has no description"
+
+
+def _tvd(a: dict, b: dict) -> float:
+    """Total variation distance between two value distributions. 0 = identical,
+    1 = disjoint."""
+    na, nb = sum(a.values()), sum(b.values())
+    return 0.5 * sum(abs(a.get(k, 0) / na - b.get(k, 0) / nb) for k in set(a) | set(b))
+
+
+class TestSyntheticFidelity:
+    """Where `syn` and real values share a column, they must not be trivially
+    separable -- otherwise the fill carries no information and any model gets a
+    free "is this row synthetic" feature.
+
+    This check found and killed four fills. `Incident Classification` was 100%
+    the constant "Incident" against a real 31.5/48.1/20.5 spread; `Health &
+    Safety - Risk Score` was a 9/5/2 encoding against a real 1-25 product, with
+    almost disjoint value sets.
+    """
+
+    MAX_TVD = 0.60
+
+    @staticmethod
+    def _cols():
+        import collections
+        import csv as _csv
+        from psm.ledger import E19
+        _csv.field_size_limit(10 ** 9)
+        with (E19 / "enriched" / "incidents.csv").open(encoding="utf-8", newline="") as fh:
+            data = list(_csv.DictReader(fh))
+        with (E19 / "enriched" / "provenance.csv").open(encoding="utf-8", newline="") as fh:
+            prov = list(_csv.DictReader(fh))
+        out = {}
+        for c in data[0]:
+            real = collections.Counter(d[c] for d, p in zip(data, prov)
+                                       if p[c] in ("src", "xw") and (d[c] or "").strip())
+            syn = collections.Counter(d[c] for d, p in zip(data, prov)
+                                      if p[c] == "syn" and (d[c] or "").strip())
+            if real and syn:
+                out[c] = (real, syn)
+        return out
+
+    def test_shared_columns_are_not_trivially_separable(self, spec):
+        """Identity columns are exempt and must be: a hash token is SUPPOSED to
+        announce itself. Everything else has to overlap the real distribution or
+        it should not be filled at all."""
+        bad = []
+        for c, (real, syn) in self._cols().items():
+            if "Name" in c or "Position" in c:
+                continue
+            d = _tvd(real, syn)
+            if d > self.MAX_TVD:
+                bad.append(f"{c!r} TVD={d:.3f} (syn={dict(syn)})")
+        assert not bad, "synthetic fill is separable from real values: " + "; ".join(bad)
+
+    def test_shared_columns_share_a_value_scale(self, spec):
+        """TVD alone would pass a fill that used the right values in the wrong
+        proportions AND fail one that used a different scale -- but only this
+        catches the scale error, which is the worse defect. `syn_hs_risk_score`
+        emitted {2,5,9} where the real column emits {4,5,6,8,10,12,15,20,25}."""
+        for c, (real, syn) in self._cols().items():
+            if "Name" in c or "Position" in c:
+                continue
+            shared = set(real) & set(syn)
+            assert len(shared) >= max(1, len(set(syn)) // 2), (
+                f"{c!r}: syn values {sorted(set(syn))} barely intersect "
+                f"real values {sorted(set(real))} -- different scales")
+
+    def test_identity_columns_are_deliberately_separable(self):
+        """The exemption above, made explicit rather than implied. If these ever
+        became indistinguishable from real names, that would be the defect."""
+        cols = self._cols()
+        idc = [c for c in cols if "Name" in c or "Position" in c]
+        assert idc, "no identity column carries synthetic fill"
+        for c in idc:
+            real, syn = cols[c]
+            assert _tvd(real, syn) > 0.9, f"{c!r}: synthetic identities blend in"

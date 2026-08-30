@@ -2737,3 +2737,58 @@ alone passes trivially — one by exporting nothing, the other by exporting
 everything.
 
 Suite 350 → 356.
+
+---
+
+## 2026-08-29 — P2c: the fidelity check killed four of the seven synthetic fills
+
+Where `syn` and real values share a column they must not be trivially
+separable, or the fill carries no information and hands any model a free
+"is this row synthetic" feature. Measured, total variation distance between the
+two distributions:
+
+| column | real n | syn n | TVD | what syn actually emitted |
+|---|---|---|---|---|
+| `Incident Classification` | 645 | 390 | **0.685** | the constant `"Incident"`, 100% |
+| `Incident Classificatioin` | 645 | 390 | **0.685** | same |
+| `Health & Safety Incident - Classification` | 645 | 390 | **0.685** | same |
+| `Health & Safety - Risk Score` | 645 | 423 | **0.994** | `{2, 5, 9}` |
+
+The risk-score case is worse than a distribution mismatch — it is a **scale
+error**. `syn_hs_risk_score` is a 9/5/2 encoding of a three-value
+classification; the real column is a consequence x likelihood product on 1-25,
+emitting `{4,5,6,8,10,12,15,20,25}`. The two value sets intersect on the single
+value `5`, where they mean different things. Putting them in one column is a
+category error, not an approximation.
+
+The cause is structural, not a bug in synth: **synth fills exactly the rows the
+real method declined** — those with no spine atoms or an unestimable mechanism —
+and those are systematically the low-severity, low-information ones. So the fill
+collapses to a constant by construction.
+
+All four moved to `leave_blank` with a new `blank_reason: degenerate_fill`. A
+column filled this way looks like data and is not.
+
+**Three fills survive**, all identity columns, and their separability is the
+design rather than a defect: `SYN-Approver-da5b09` is supposed to announce
+itself. A separate test asserts their TVD stays **above** 0.9 — if synthetic
+identities ever blended in with real ones, that would be the failure.
+
+### A second bug, found by the same test
+
+After the four columns moved to `leave_blank`, `Incident Classificatioin` kept
+filling. The crosswalk built its generator map from the presence of a
+`generator:` key and never consulted `gap_policy`, so a stale key left behind by
+the policy change carried on producing 390 constant cells. **A generator key is
+not permission to fill** -- the policy decides, the generator only says how.
+Fixed, and the stale keys removed.
+
+### Result
+
+| | before P2c | after |
+|---|---|---|
+| synthetic cells | 17,583 | **15,990** |
+| deliberately blank | 18.0% | **20.0%** |
+| columns still fabricating | 7 | **3** |
+
+Suite 356 → 359. Phase 2 complete.

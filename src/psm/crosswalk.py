@@ -378,8 +378,15 @@ def main(argv=None) -> int:
     # column -> syn_* generator, for the incidents table only. `synthetic_column`
     # entries fill wholesale; `fabricate` entries fill only where src/xw left a
     # hole. Both are marked `syn`, never `src` or `xw`.
+    # A `generator` key alone is NOT permission to fill. `Incident
+    # Classificatioin` kept a stale generator after being moved to
+    # leave_blank/degenerate_fill and carried on producing 390 constant-valued
+    # cells; the fidelity test caught it. The POLICY decides, the generator only
+    # says how.
     gen_for = {c: e["generator"] for c, e in disp["fields"]["incidents"].items()
-               if e.get("generator")}
+               if e.get("generator")
+               and (e["disposition"] == "synthetic_column"
+                    or e.get("gap_policy") == "fabricate")}
     marks_by_sha = {}
     for pth in INTERIM.glob("*.json"):
         d = json.loads(pth.read_text(encoding="utf-8"))
