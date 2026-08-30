@@ -1968,3 +1968,54 @@ second test for the injury group. Both now catch the mutation.
 Recorded because it is the failure mode the project's own standard warns about:
 a test that cannot fail is worse than no test, and only the mutation check found
 it. Suite 291 → 300 passing, 2 skipped.
+
+---
+
+## 2026-08-29 — S3: `Work Group` re-coded `extractable` → `structural`
+
+`extractable` means "present in field 17 prose, not yet pulled out" — a to-do.
+This one could never be discharged, so it was a standing false promise. The
+`extractable` count is now 0; every remaining blank is `structural` (17) or
+`judgement` (27).
+
+**The picklist decides it.** The template vocabulary (named `Shift` in the
+workbook, bound to the Work Group cell) is: A-F Process Ops, Maintenance,
+Projects, Technical, Facilities Management, Admin, Other. **Six of the twelve
+values are one company's named shift crews.** No public federal document can say
+which of an operator's process-ops shifts was on tour.
+
+**The six functional values were measured, not dismissed.** A cue list over
+field 17 prose classifies 233 records (19.1%), 201 (16.5%) unambiguously. That
+looked worth having until the hits were read. Sampling 10 `Maintenance` matches:
+
+* ~4 name a **post-incident actor** — "a mechanic placed the crane out of
+  service for repair", "the crane mechanic found the boom cable stretched"
+  during a post-event inspection.
+* ~3 name the **injured person's trade** — "a Crane Mechanic received a puncture
+  wound", "a contract Mechanic fell through grating".
+* ~3 arguably name the crew doing the work.
+
+Roughly **30% precision for the question actually being asked**. Filling 16% of
+a column at 30% precision, under a provenance mark implying better, is worse
+than a blank — and nothing downstream reads this column.
+
+**Why this is not the Site/Area/Unit case.** Those three are `vocabulary_exempt`
+because the template ships placeholder identifiers (Alpha/Beta/Gamma/Delta,
+One/Two/Three/Four, A/B/C/D) for a concept BSEE *does* publish — so the
+substitution swaps vocabulary while keeping the concept. Work Group has no BSEE
+counterpart at all. Substituting field 6 ACTIVITY (a lifecycle phase) or field 8
+OPERATION (a work type) would swap the *concept*, which the exempt mechanism was
+not built to license.
+
+**Left open for the template author, not decided here.** If the picklist were
+extended with BSEE's own coarse work context — Drilling / Workover / Completion
+/ Production — the column becomes fillable at ~87% from field 6 (`src_f06`
+carries a value on 87.4% of records). That is a change to his template's
+semantics and is his call. Recorded in the projection entry and to be raised in
+the memo.
+
+### Negative result
+
+No code changed. `blank-by-reason` moved from
+`{structural: 16, extractable: 1, judgement: 27}` to
+`{structural: 17, judgement: 27}`; suite unchanged at 300 passing, 2 skipped.

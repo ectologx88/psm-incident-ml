@@ -70,12 +70,37 @@ mapping:
   "Area":                 {source: f04, extract: block, fallback: whole_record}
   "Unit":                 {source: f05, extract: platform}
   "Detail":               {source: f05, extract: rig_name}
-  "Work Group":
-    blank: extractable
-    note: "E19's picklist is org structure (A-F Process Ops, Maintenance, Projects).
-           BSEE ACTIVITY is a lifecycle phase and OPERATION is work type; neither names
-           a team. Crew identity IS stated in field 17 prose - 'a Guardian well
-           abandonment crew', 'Two members of the Emergency Response Team'."
+  # Was `extractable` on the strength of prose mentions like "a Guardian well
+  # abandonment crew". Re-coded `structural` on 2026-08-29 after measuring it,
+  # because `extractable` was a to-do nobody could ever discharge.
+  #
+  # The picklist (vocabulary "Shift" in e19_labels.yaml) is: A-F Process Ops,
+  # Maintenance, Projects, Technical, Facilities Management, Admin, Other. Six
+  # of its twelve values are ONE COMPANY'S NAMED SHIFT CREWS. No public federal
+  # document can say which of an operator's process-ops shifts was on tour, and
+  # no amount of extraction changes that.
+  #
+  # The six functional values were tested rather than assumed. A cue list over
+  # field 17 prose reaches 16.5% unambiguously -- but a 10-sample read of the
+  # Maintenance hits gives roughly 30% precision FOR THIS QUESTION: most matches
+  # are the injured person's trade ("a Crane Mechanic received a puncture
+  # wound") or a post-incident actor ("a mechanic placed the crane out of
+  # service"), neither of which is the work group that was doing the work.
+  # Filling 16% of a column at 30% precision, under a provenance mark implying
+  # otherwise, is worse than a blank -- and nothing downstream reads this column.
+  #
+  # NOT the same case as Site/Area/Unit, which are `vocabulary_exempt`. Those
+  # substitute a different vocabulary for the SAME concept: BSEE publishes
+  # facility identifiers, the template's are placeholders. Here BSEE publishes
+  # no team identifier at all, so substituting field 6 ACTIVITY (a lifecycle
+  # phase) or field 8 OPERATION (a work type) would swap the concept, not the
+  # vocabulary.
+  #
+  # FOR THE TEMPLATE AUTHOR: if the picklist were extended with BSEE's own
+  # coarse work context -- Drilling / Workover / Completion / Production -- this
+  # column becomes fillable at ~87% from field 6. That is a change to his
+  # template's semantics and is his call, not ours. Raised in the memo.
+  "Work Group": {blank: structural}
   "Description":          {source: f07, extract: other_text}
   "Incident Type A":      {blank: judgement}
   "Incident Type B":      {blank: judgement}
