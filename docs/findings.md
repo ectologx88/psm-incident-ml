@@ -2395,3 +2395,82 @@ prose cap, and the cut-to-`NARRATIVE:` strip that would have deleted half a
 sentence. All five caught.
 
 Suite 315 → 332. A8 passes with four columns gaining and none losing.
+
+---
+
+## 2026-08-29 — P0-C: `real` stops meaning `non-empty`
+
+The ledger now reports a third number: **94.3% of checked cells pass their shape
+check** (10,245 of 10,870). Separate from the 40.3% real / 59.7% fabricated
+split, and separate on purpose — a cell can be present and still be form
+furniture, a fragment, or truncated.
+
+### Checks are opt-in, and the reason is measured
+
+A global rule was the obvious design and is wrong. Tested before implementing:
+"at least four words" fails **100%** of `Incident Number`, `Date of Incident`,
+`Incident Type A`, and every risk band — every code, key and picklist value in
+the dataset. A validity layer that fires everywhere reports nothing. Eight
+columns declare checks; the rest declare none because none would distinguish
+good from bad.
+
+`no_form_label` uses `form_label_tokens` in `e19_disposition.yaml`, deliberately
+a **different list in a different file** from `label_bleed_patterns` in
+`bsee_form2010.yaml`, which does the stripping. A detector sharing its patterns
+with the thing it checks can only ever report success. A test asserts the two
+lists differ.
+
+### The check found something on its first run
+
+`Incident Number` came back **80.6% valid, 236 failures** — and the pattern was
+mine, not the data's. The key is documented as
+`{AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}`. It is not: it is **variable arity**, because
+the generator drops components the source did not supply.
+
+| components | keys |
+|---|---|
+| 4 | 1,002 |
+| 3 | 129 |
+| 2 | 79 |
+| 5 | 4 (content-hash suffix on colliding groups) |
+
+162 carry no time at all, and `UNKEYED-<hash>` appears where neither area nor
+date is available. I had written the check without knowing the shape of the
+primary join key.
+
+The pattern was rewritten to admit every legitimate variant and **still fails 38
+keys shaped `AREA-BLOCK-HHMM`** (`SM-6636-1100`) — a key carrying a time but no
+date is ambiguous, and this joins all four tables. All 1,214 are currently
+unique, so nothing is broken today. The check exists so that stops being luck.
+
+### Current validity, per column
+
+| valid | column | failures |
+|---|---|---|
+| 69.1% | `Recommendation Description` | truncated 355, form_label 18, too_short 7 |
+| 94.6% | `Cause Description` | too_short 186, form_label 6 |
+| 96.9% | `Incident Number` | bad_pattern 38 |
+| 99.2% | `What was the outcome?` | truncated 4, too_short 5 |
+| 99.2% | `How did the incident occur` | form_label 2 |
+| 99.7% | `What happened?  ` | form_label 4 |
+
+**Truncation is named separately from contamination** because they are different
+problems: one lost text, the other gained furniture. Collapsing them into a
+boolean would hide which. `Recommendation Description` is now only 1.5%
+contaminated but 28.9% truncated — the remaining defect there is loss, not
+pollution, and it is the P0-B residue plus BSEE's own two-column wrapping.
+
+### Verification
+
+9 new tests. One of them, `test_checks_are_declared_where_they_can_fail`, asserts
+that at least one declared check currently fails somewhere — a validity layer
+that passes everywhere is decoration, and this forces a deliberate decision when
+a column reaches 100% rather than letting the check quietly stop earning its
+place.
+
+Mutation-checked against three plausible wrong implementations: disabling
+`no_form_label`, counting empty cells as invalid (which would double-count
+coverage and make the two headline numbers move together), and folding
+truncation into a generic boolean. All three caught.
+
+Suite 332 → 340. **Phase 0 is complete.**

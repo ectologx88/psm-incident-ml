@@ -15,6 +15,25 @@ Of 66 columns:
 - **real** — 37
 - **synthetic_column** — 29
 
+## Validity
+
+**94.3% of checked cells pass their shape check** (10,245 of 10,870).
+
+Separate from coverage on purpose. `real` used to mean `non-empty`, and under that definition `Recommendation Description` read 100% while 30.4% of its values were BSEE stationery. A cell can be present and still be furniture, a fragment, or truncated.
+
+Only columns that declare a check appear here. A global rule would fail every code, key and picklist value in the dataset.
+
+| valid | column | failures |
+|---|---|---|
+| 69.1% | `Recommendation Description` (recommendations) | form_label 18, too_short 7, truncated 355 |
+| 94.6% | `Cause Description` (causes) | form_label 6, too_short 186 |
+| 96.9% | `Incident Number` (incidents) | bad_pattern 38 |
+| 99.2% | `How did the incident occur` (incidents) | form_label 2 |
+| 99.2% | `What was the outcome?` (incidents) | too_short 5, truncated 4 |
+| 99.7% | `What happened?  ` (incidents) | form_label 4 |
+| 100.0% | `Date of Incident` (incidents) | — |
+| 100.0% | `Description` (incidents) | — |
+
 ## Modelling targets
 
 Columns a hackathon entrant would plausibly try to **predict**. Their real fraction is the ceiling on what any honest evaluation can use; training on the fabricated remainder means learning `schema/synth_rules.yaml`. `psm.ledger --real-only` writes an export with these reduced to their `src`/`xw` cells.

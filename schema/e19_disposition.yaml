@@ -72,6 +72,26 @@ gap_policies:
 # --- Fields, keyed table.label ---------------------------------------------
 # `label` is byte-exact from the workbook, irregular whitespace included.
 #
+# `validity:` declares a SHAPE CHECK for a column, because `real` must not mean
+# `non-empty`. Before these existed the ledger reported `Recommendation
+# Description` as 100% real while 30.4% of its values were BSEE form furniture
+# ("RECOMMENDATIONS TO PREVENT RECURRANCE NATURE OF DAMAGE: none $ NARRATIVE:
+# The New Orleans District makes no recommendations"). Non-empty is not valid,
+# and a ledger that conflates them is the kind of audit that reads as authority
+# while describing something that is not there.
+#
+# Checks are OPT-IN per column, never global. A global "at least four words"
+# rule would fail every code, key, date and picklist value in the dataset --
+# measured: it fires on 100% of `Incident Number`, `Date of Incident`, every
+# risk band. Declare a check only where it can distinguish good from bad.
+#
+#   no_form_label: true    value must not contain BSEE stationery
+#   min_words: N           free-text floor
+#   pattern: '<regex>'     must match in full
+#   terminal_punctuation:  value must end in . ! ? ) or a quote; a prose value
+#                          that does not is TRUNCATED, which is a real loss and
+#                          is counted separately from other failures
+#
 # `modelling_target: true` marks a column whose value is something a hackathon
 # entrant would plausibly try to PREDICT. Fabricating gaps in these is what
 # turns a dataset into a machine for learning its own generator, so they are
@@ -83,22 +103,51 @@ fields:
   incidents:
 
     # --- real: identity, place, time, narrative --------------------------
-    "Incident Number":  {disposition: real, gap_policy: none, note: "constructed key; BSEE publishes no incident identifier"}
-    "Date of Incident": {disposition: real, gap_policy: fabricate}
+    "Incident Number":
+      disposition: real
+      gap_policy: none
+      # Documented as {AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}. It is not: the key is
+      # VARIABLE ARITY, because the generator drops components the source did
+      # not supply. Measured across 1,214 keys -- 1,002 with four components,
+      # 129 with three, 79 with two, 4 with five (the content-hash suffix on
+      # colliding groups). 162 carry no time. `UNKEYED-<hash>` appears when
+      # neither area nor date is available.
+      #
+      # This pattern admits every one of those, and deliberately still FAILS the
+      # 38 keys shaped AREA-BLOCK-HHMM ("SM-6636-1100") -- a key carrying a time
+      # but no date is ambiguous, and this is the primary join key across all
+      # four tables. All 1,214 are currently unique, so nothing is broken today;
+      # the check exists so that stops being luck.
+      validity: {pattern: '(UNKEYED-[0-9a-f]{12}|[A-Z0-9]{1,3}(-[A-Z0-9 ]{1,12})?-\d{8}(-\d{4})?(-[0-9a-f]{8})?)'}
+      note: "constructed key; BSEE publishes no incident identifier"
+    "Date of Incident":
+      disposition: real
+      gap_policy: fabricate
+      validity: {pattern: '\d{4}-\d{2}-\d{2}'}
     "Time of Incident": {disposition: real, gap_policy: fabricate}
     "Site":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE area code replaces the template's placeholder facility names"}
     "Area":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE block number"}
     "Unit":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE platform designator"}
     "Detail": {disposition: real, gap_policy: fabricate}
-    "Description":      {disposition: real, gap_policy: fabricate}
-    "What happened?  ": {disposition: real, gap_policy: fabricate}
+    "Description":
+      disposition: real
+      gap_policy: fabricate
+      validity: {no_form_label: true}
+    "What happened?  ":
+      disposition: real
+      gap_policy: fabricate
+      validity: {no_form_label: true, min_words: 5}
+    # The three narrative columns and the two description columns are where
+    # form-furniture contamination lands, so they carry the checks.
     "What was the outcome?":
       disposition: real
       gap_policy: fabricate
+      validity: {no_form_label: true, min_words: 4, terminal_punctuation: true}
       note: "Two tiers already: verbatim field 17 sentence (src), then xw_outcome.yaml composition."
     "How did the incident occur":
       disposition: real
       gap_policy: fabricate
+      validity: {no_form_label: true, min_words: 5}
       note: >
         19.5%, capped by the source: it requires a SEQUENCE OF EVENTS heading,
         and falling back to the whole narrative would duplicate "What happened?"
@@ -205,7 +254,11 @@ fields:
   causes:
     "Incident Number":   {disposition: real, gap_policy: none, note: "foreign key"}
     "Cause number":      {disposition: real, gap_policy: none, note: "ordinal"}
-    "Cause Description": {disposition: real, gap_policy: none, note: "100%; this column IS the dataset's primary input feature"}
+    "Cause Description":
+      disposition: real
+      gap_policy: none
+      validity: {no_form_label: true, min_words: 5}
+      note: "100%; this column IS the dataset's primary input feature"
 
     # Every remaining causes column is a label over Cause Description, which
     # makes all four modelling targets and makes fabricating their gaps the
@@ -245,7 +298,11 @@ fields:
   recommendations:
     "Incident Number":            {disposition: real, gap_policy: none, note: "foreign key"}
     "Recommendation Number":      {disposition: real, gap_policy: none, note: "ordinal"}
-    "Recommendation Description": {disposition: real, gap_policy: none, note: "100%; real prose from BSEE field 22"}
+    "Recommendation Description":
+      disposition: real
+      gap_policy: none
+      validity: {no_form_label: true, min_words: 4, terminal_punctuation: true}
+      note: "100%; real prose from BSEE field 22"
     "Agreed Completion Date":       {disposition: synthetic_column, generator: syn_agreed_completion_date}
     "Responsible Owner - Name":     {disposition: synthetic_column, generator: syn_responsible_owner_name}
     "Responsible Owner - Position": {disposition: synthetic_column, generator: syn_responsible_owner_position}
@@ -264,3 +321,21 @@ fields:
     "Recommendation Number": {disposition: real, gap_policy: none, note: "foreign key"}
     "Schedule Status":       {disposition: synthetic_column, generator: syn_schedule_status}
     "Date Completed":        {disposition: synthetic_column, generator: syn_action_due_date}
+
+# Stationery this form prints, which must never appear inside a value. Distinct
+# from `label_bleed_patterns` in bsee_form2010.yaml: that list REMOVES text
+# during extraction, this one DETECTS whatever survived. Kept separate on
+# purpose -- a detector that shares its patterns with the thing it is checking
+# can only ever report success.
+form_label_tokens:
+  - 'LIST THE'
+  - 'NARRATIVE'
+  - 'RECURRANCE'
+  - 'ESTIMATED AMOUNT'
+  - 'NATURE OF DAMAGE'
+  - 'PROPERTY DAMAGED'
+  - 'OCS REPORT'
+  - 'PANEL FORMED'
+  - 'POSSIBLE OCS VIOLATIONS'
+  - 'SPECIFY VIOLATIONS'
+  - 'DATE OF ONSITE INVESTIGATION'

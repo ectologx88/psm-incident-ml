@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 from pathlib import Path
 
 import yaml
@@ -34,6 +35,33 @@ DEFAULT_OUT = REPO / "docs" / "e19_field_ledger.md"
 
 ALL_DISPOSITIONS = ("real", "synthetic_column")
 GAP_POLICIES = ("none", "fabricate")
+VALIDITY_CHECKS = ("no_form_label", "min_words", "pattern", "terminal_punctuation")
+_END_PUNCT = ".!?)\u201d\"'"
+
+
+def check_value(value: str, rules: dict, tokens: list[str]) -> str | None:
+    """Which shape check does this value fail? ``None`` means it passes.
+
+    Returns the FIRST failure by name rather than a boolean, so the ledger can
+    report why a column is unhealthy instead of only that it is. Truncation is
+    reported under its own name because it is a different problem from
+    contamination -- it means text was lost, not that furniture was gained.
+    """
+    v = (value or "").strip()
+    if not v:
+        return None                     # emptiness is coverage, not validity
+    up = v.upper()
+    if rules.get("no_form_label") and any(tok in up for tok in tokens):
+        return "form_label"
+    mw = rules.get("min_words")
+    if mw and len(v.split()) < int(mw):
+        return "too_short"
+    pat = rules.get("pattern")
+    if pat and not re.fullmatch(pat, v):
+        return "bad_pattern"
+    if rules.get("terminal_punctuation") and v[-1] not in _END_PUNCT:
+        return "truncated"
+    return None
 
 ORDER = ["incidents", "causes", "recommendations", "closeout"]
 
@@ -46,6 +74,40 @@ def _read(table: str) -> list[dict]:
             with path.open(encoding="utf-8", newline="") as fh:
                 return list(csv.DictReader(fh))
     return []
+
+
+def validity(spec: dict) -> dict[str, dict[str, dict]]:
+    """Per column: how many non-empty cells fail which check.
+
+    Deliberately reads the SAME tables the coverage pass reads, so the two
+    numbers describe one artifact and cannot drift apart.
+    """
+    tokens = [t.upper() for t in spec.get("form_label_tokens", [])]
+    out: dict[str, dict[str, dict]] = {}
+    for table in ORDER:
+        rows = _read(table)
+        if not rows:
+            continue
+        cols = {}
+        for col in rows[0]:
+            rules = (spec["fields"].get(table, {}).get(col) or {}).get("validity")
+            if not rules:
+                continue
+            fails: dict[str, int] = {}
+            checked = 0
+            for r in rows:
+                v = (r[col] or "").strip()
+                if not v:
+                    continue
+                checked += 1
+                why = check_value(v, rules, tokens)
+                if why:
+                    fails[why] = fails.get(why, 0) + 1
+            cols[col] = {"checked": checked, "fails": fails,
+                         "passed": checked - sum(fails.values())}
+        if cols:
+            out[table] = cols
+    return out
 
 
 def measure() -> dict[str, dict[str, tuple[int, int]]]:
@@ -119,7 +181,7 @@ def tally(spec: dict, seen: dict) -> dict:
     }
 
 
-def render(spec: dict, seen: dict, stats: dict) -> str:
+def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
     L: list[str] = []
     A = L.append
     r, f, t = stats["real_cells"], stats["fabricated_cells"], stats["total_cells"]
@@ -144,6 +206,26 @@ def render(spec: dict, seen: dict, stats: dict) -> str:
     for d in ALL_DISPOSITIONS:
         A(f"- **{d}** — {stats['counts'][d]}")
     A("")
+
+    if val:
+        checked = sum(c["checked"] for tb in val.values() for c in tb.values())
+        passed = sum(c["passed"] for tb in val.values() for c in tb.values())
+        A("## Validity\n")
+        A(f"**{100 * passed / checked:.1f}% of checked cells pass their shape "
+          f"check** ({passed:,} of {checked:,}).\n")
+        A("Separate from coverage on purpose. `real` used to mean `non-empty`, "
+          "and under that definition `Recommendation Description` read 100% "
+          "while 30.4% of its values were BSEE stationery. A cell can be "
+          "present and still be furniture, a fragment, or truncated.\n")
+        A("Only columns that declare a check appear here. A global rule would "
+          "fail every code, key and picklist value in the dataset.\n")
+        A("| valid | column | failures |")
+        A("|---|---|---|")
+        rows = [(tb, c, d) for tb, cols in val.items() for c, d in cols.items()]
+        for tb, c, d in sorted(rows, key=lambda x: x[2]["passed"] / max(x[2]["checked"], 1)):
+            why = ", ".join(f"{k} {v}" for k, v in sorted(d["fails"].items())) or "—"
+            A(f"| {100 * d['passed'] / d['checked']:.1f}% | `{c}` ({tb}) | {why} |")
+        A("")
 
     A("## Modelling targets\n")
     A("Columns a hackathon entrant would plausibly try to **predict**. Their "
@@ -208,13 +290,17 @@ def main(argv=None) -> int:
         print("no E19 tables found -- run `python -m psm.project` first")
         return 1
     stats = tally(spec, seen)
+    val = validity(spec)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(spec, seen, stats), encoding="utf-8")
+    args.out.write_text(render(spec, seen, stats, val), encoding="utf-8")
 
     r, f, t = stats["real_cells"], stats["fabricated_cells"], stats["total_cells"]
     print(f"wrote {args.out}")
     print(f"  real cells        : {r:,}/{t:,} = {100 * r / t:.1f}%")
     print(f"  fabricated (proj.): {f:,} = {100 * f / t:.1f}%")
+    checked = sum(c["checked"] for tb in val.values() for c in tb.values())
+    passed = sum(c["passed"] for tb in val.values() for c in tb.values())
+    print(f"  valid (shape)     : {passed:,}/{checked:,} = {100 * passed / checked:.1f}%")
     print(f"  dispositions      : {stats['counts']}")
     print(f"  modelling targets : {len(stats['targets'])}, real fraction "
           f"{min(n / tt for _, _, n, tt in stats['targets']):.1%}"
