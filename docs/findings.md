@@ -2085,3 +2085,73 @@ report can supply, rising to 100% once the synthetic scaffold is wired, and here
 are the 8 fields only your organisation's records can fill"* — a request he can
 act on, rather than a raw percentage that invites him to think the project
 failed. Suite 300 → 313.
+
+---
+
+## 2026-08-29 — S4b: CORRECTION. There is no template author, and no organisation
+
+Entries above this line — including today's S3 and S4 — were written on a
+premise that is false. They refer to "the template author", "his organisation's
+records", and a memo asking him to fill the columns BSEE cannot supply. **There
+is no author and no organisation.** This is a self-contained public dataset
+built from a public corpus for a hackathon. Nobody else is coming to fill
+anything.
+
+The premise came from an early framing in the project and was never re-checked;
+it then propagated into schema files, where it was shaping design decisions.
+`findings.md` is append-only, so the earlier entries stand as written and this
+is the correction of record. The schema files themselves were fixed.
+
+### What was actually wrong, not just mis-worded
+
+Three of the five dispositions in `e19_disposition.yaml` encoded *"somebody
+else fills this, or nobody does"*:
+
+* `not_obtainable` — `Work Group`. Deferred to an organisation that does not
+  exist. It is now a `synthetic_column`: nothing real can go there, and an
+  openly `syn` value beats a blank.
+* `deliberate_blank` — the seven risk columns our method declined to estimate.
+  The methodological reasons remain true and are kept as notes, but "leave it
+  blank" stops being an option when the sheet must be dense.
+* `needs_human` — `Cause type`. There is no separate human. 100% `syn`.
+
+Reduced to two dispositions (`real`, `synthetic_column`) plus a `gap_policy` on
+every real column. The headline metric changed with them: **"percent of
+obtainable fields filled" is meaningless for a dataset that is dense by
+construction** — it would read 100% and say nothing.
+
+### The number that replaces it
+
+**40.1% of this dataset is real.** 39,063 of 97,412 cells carry `src` or `xw`;
+the projected 58,349 remainder is fabricated under `syn`.
+
+That split is the fact a stranger most needs, and it decomposes in a way that
+decides how the fabrication should be done:
+
+| | cells | what filling it means |
+|---|---|---|
+| Wholly synthetic columns — approvers, workflow dates, action tracking, risk components | 37,948 (65% of the gap) | Uniform fabrication. Safe **because** it is uniform; nothing here is confusable with a fact about a real incident. |
+| Gaps **inside** real columns | 20,401 (35%) | A `syn` value in the same column as `src` values, describing the **same real incident**. |
+
+The second row is the hazard. `Incident Type D` is 18.4% real, so four cells in
+five will assert a mechanism for a named incident at a named block on a named
+date that BSEE never asserted. That is defensible for a synthetic dataset and
+indefensible the moment the marking is lost.
+
+### Guarding it
+
+`modelling_target: true` now flags the 16 columns an entrant would plausibly try
+to *predict*, and `psm.ledger --real-only` (to be built with the synth wiring)
+reduces them to their `src`/`xw` cells. The causes table is the sharpest case:
+one real prose input, `Cause Description` at 100% `src`, and four labels over it
+of which the best is 14.4% real. Training on the fabricated 85.6% is learning
+`schema/synth_rules.yaml`.
+
+`tests/test_ledger.py` was rewritten (13 → 15 tests) around the new vocabulary,
+and two new guards were added that can only fail on a real drift:
+`test_the_primary_input_feature_is_not_fabricated` pins `Cause Description` at
+100% real with `gap_policy: none`, and `test_a_meaningful_share_is_real` fails
+if the real share ever drops below 25% — a dataset that drifted to almost
+entirely fabricated would otherwise pass every other test while being useless.
+
+Suite 313 → 315.

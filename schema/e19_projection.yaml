@@ -38,8 +38,10 @@ tables:
 # 'Description' appears twice in Incident Information (cells E18 and E23 - the
 # form's two "Description if Other" fields). A flat table cannot carry two
 # identically named columns, and both would draw from the same BSEE source
-# (field 7's OTHER free text), so they collapse to one column here. Flagged for
-# the template author rather than resolved by inventing a name.
+# (field 7's OTHER free text), so they collapse to one column here. Recorded
+# rather than resolved by inventing a name: the collapse is lossless because
+# both cells draw from one source, and a disambiguating suffix would be our
+# invention appearing in a byte-exact label.
 collapsed_duplicates:
   "Description": ["E18", "E23"]
 
@@ -96,10 +98,13 @@ mapping:
   # phase) or field 8 OPERATION (a work type) would swap the concept, not the
   # vocabulary.
   #
-  # FOR THE TEMPLATE AUTHOR: if the picklist were extended with BSEE's own
-  # coarse work context -- Drilling / Workover / Completion / Production -- this
-  # column becomes fillable at ~87% from field 6. That is a change to his
-  # template's semantics and is his call, not ours. Raised in the memo.
+  # There is no template author to consult and no organisation whose records
+  # could fill this. The dataset is self-contained and synthetic where the
+  # source is silent, so this column is scaffolded by synth.py under a `syn_`
+  # mark rather than left blank. The measurement above still stands and is why
+  # it is NOT filled by inference from field 17: a 30%-precision guess carrying
+  # an `xw` mark would be a false claim about a real incident, where an openly
+  # `syn` value is not.
   "Work Group": {blank: structural}
   "Description":          {source: f07, extract: other_text}
   "Incident Type A":      {blank: judgement}

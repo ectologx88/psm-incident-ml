@@ -6,21 +6,23 @@
 # "The dataset is 38% full" is a meaningless number and was, for weeks, the only
 # one available. Most empty cells in these tables are empty because a BSEE
 # investigation report structurally cannot answer the question -- a federal
-# investigator does not record the operator's internal close-out approver, or
-# the date their action tracker says the recommendation was completed. Those
-# blanks are not gaps. They are the shape of the source.
+# investigator does not record an operator's internal close-out approver, or the
+# date an action tracker says a recommendation was completed. Those blanks are
+# not gaps. They are the shape of the source.
 #
-# Mixed in among them were a handful of genuinely fillable columns nobody had
-# got to. The two kinds of blank were indistinguishable, so no one -- not a
-# hackathon entrant, not the template's author, not us -- could tell whether
-# the project had failed or the source was silent.
+# THIS IS A SELF-CONTAINED PUBLIC DATASET. There is no template author to ask
+# and no organisation whose records could supply the missing columns. An earlier
+# version of this file was written as though there were, and treated some blanks
+# as somebody else's to fill. Nobody else is coming. Every cell the source
+# cannot supply is either fabricated under a `syn` mark or stays empty, and this
+# file records which, per column.
 #
-# This file separates them, so the headline becomes
+# So the headline is not "percent complete" -- the sheet is dense by
+# construction. It is:
 #
-#     percent of OBTAINABLE fields filled
+#     what fraction of this dataset is REAL
 #
-# which is a claim a stranger can check, rather than a number that flatters or
-# maligns depending on how you read it.
+# which is the only number that tells a stranger what they can model on.
 #
 # `src/psm/ledger.py` joins this to measured coverage. `tests/test_ledger.py`
 # makes it self-policing: a field marked `not_obtainable` that starts carrying
@@ -31,163 +33,234 @@
 version: 1
 measured: "2026-08-29, against data/processed/e19/ at commit f8d02e8"
 
-# --- The five dispositions -------------------------------------------------
+# --- The three dispositions ------------------------------------------------
+#
+# Reduced from five on 2026-08-29. `needs_human`, `deliberate_blank` and
+# `not_obtainable` all encoded "somebody else fills this, or nobody does". With
+# no author and a dense sheet as the goal, they collapse into synthesis. The
+# REASONS they were distinct are kept as notes -- a column that is fabricated
+# because the source is structurally silent is a different animal from one
+# fabricated because our method declined to estimate, and a reader deserves to
+# know which.
 dispositions:
-  filled: >
-    Carries data now, from `src` or `xw`. Coverage may be partial -- partial is
-    recorded, not hidden. Counts toward the numerator and the denominator.
-  synthetic: >
-    BSEE cannot supply it, but the field describes a workflow whose SHAPE is
-    reproducible, so src/psm/synth.py scaffolds it under a `syn_` mark. Counts
-    toward the denominator only once wired in; until then it is honest debt.
-  needs_human: >
-    A person must decide. Not a coverage failure and not fixable by extraction.
-    EXCLUDED from the denominator -- it is the labelling backlog, tracked
-    separately in gold/.
-  deliberate_blank: >
-    We could fill it and chose not to, with the reason on record in a schema
-    file. EXCLUDED from the denominator; leaving it blank is the deliverable.
-  not_obtainable: >
-    BSEE structurally does not contain it and no scaffold is appropriate.
-    EXCLUDED from the denominator. This is the list the template's author needs:
-    the fields only his organisation's records can fill.
+  real: >
+    Carries `src` or `xw` values where the source supports them. Coverage is
+    partial for most of these, and the gaps are handled by the column's
+    `gap_policy` below.
+  synthetic_column: >
+    No real counterpart exists anywhere in the source. The whole column is
+    fabricated under a `syn` mark. Safe to fabricate precisely BECAUSE it is
+    uniform: nothing here is ever confusable with a fact about a real incident.
+
+# Every `real` column also carries a `gap_policy`, because a real column is
+# rarely full and what happens in its empty cells is the whole question:
+gap_policies:
+  none: >
+    The column is structurally complete -- a key, an ordinal, or a field BSEE
+    always records. Nothing to fill.
+  fabricate: >
+    Empty cells are filled synthetically. This is the DANGEROUS case and is
+    named rather than implied: a `syn` value ends up in the SAME COLUMN as `src`
+    and `xw` values, describing the SAME REAL INCIDENT, and only
+    enriched/provenance.csv tells them apart. `Incident Type D` is 18.4% real,
+    so four cells in five will be invented -- each one asserting a mechanism for
+    a named incident at a named block on a named date that BSEE never asserted.
+    That is defensible for a synthetic dataset and indefensible if the marking
+    is ever lost. Anything downstream that treats these columns as ground truth
+    must filter on provenance first: `psm.ledger --real-only`.
 
 # --- Fields, keyed table.label ---------------------------------------------
 # `label` is byte-exact from the workbook, irregular whitespace included.
+#
+# `modelling_target: true` marks a column whose value is something a hackathon
+# entrant would plausibly try to PREDICT. Fabricating gaps in these is what
+# turns a dataset into a machine for learning its own generator, so they are
+# flagged here and excluded by the --real-only export.
 
 fields:
 
   # ===== incidents ==========================================================
   incidents:
-    "Incident Number":        {disposition: filled, note: "constructed key; BSEE publishes no incident identifier"}
-    "Date of Incident":       {disposition: filled}
-    "Time of Incident":       {disposition: filled}
-    "Site":                   {disposition: filled, note: "vocabulary_exempt; BSEE area code substituted for the template's placeholder"}
-    "Area":                   {disposition: filled, note: "vocabulary_exempt; BSEE block number"}
-    "Unit":                   {disposition: filled, note: "vocabulary_exempt; BSEE platform designator"}
-    "Detail":                 {disposition: filled}
-    "Description":            {disposition: filled}
-    "What happened?  ":       {disposition: filled}
-    "What was the outcome?":  {disposition: filled, note: "two tiers: verbatim field 17 sentence (src) then xw_outcome.yaml composition"}
-    "How did the incident occur":
-      disposition: filled
-      note: >
-        19.5% and capped there by the source. Requires a SEQUENCE OF EVENTS
-        heading; falling back to the whole narrative would duplicate
-        "What happened?" into both columns and imply a separation the document
-        does not make.
-    "Investigation leader - Name":                      {disposition: filled}
-    "Investigation Acceptor/Approver (Owner) - Name":    {disposition: filled}
-    "Investigation Acceptor/Approver (Owner)- Position": {disposition: filled}
-    "Incident Classificatioin":  {disposition: filled, note: "xw from risk score; NOT BSEE field 28, whose MAJOR/MINOR vocabulary is different"}
-    "Incident Classification":   {disposition: filled}
-    "Incident Type A":           {disposition: filled}
-    "Incident Type B":           {disposition: filled}
-    "Incident Type C":           {disposition: filled}
-    "Incident Type D":           {disposition: filled, note: "18.4%; most atoms map to a deliberate null rather than a guess"}
-    "Health & Safety  - Consequence":            {disposition: filled}
-    "Health & Safety - Likelihood":              {disposition: filled}
-    "Health & Safety - Risk Score":              {disposition: filled}
-    "Health & Safety Incident - Classification": {disposition: filled}
-    "Environment & Reputation  - Consequence":              {disposition: filled}
-    "Financial Cost & Business Interruption  - Consequence": {disposition: filled, note: "from field 21's real dollar figure; basis is ACTUAL, unlike the H&S column"}
 
-    "incident Title":                    {disposition: synthetic, generator: syn_incident_title}
-    "Date of Report":                    {disposition: synthetic, generator: syn_date_of_report}
-    "Approval Date":                     {disposition: synthetic, generator: syn_approval_date}
-    "Close out Date":                    {disposition: synthetic, generator: syn_close_out_date}
-    "Investigation leader - Position":   {disposition: synthetic, generator: syn_investigation_lead_position}
-    "Incident Classified by - Name":     {disposition: synthetic, generator: syn_incident_classified_by_name}
-    "Incident Classified by - Position": {disposition: synthetic, generator: syn_incident_classified_by_position}
-    "Close out Approval - Name":         {disposition: synthetic, generator: syn_close_out_approval_name}
-    "Close out Approval - Position":     {disposition: synthetic, generator: syn_close_out_approval_position}
+    # --- real: identity, place, time, narrative --------------------------
+    "Incident Number":  {disposition: real, gap_policy: none, note: "constructed key; BSEE publishes no incident identifier"}
+    "Date of Incident": {disposition: real, gap_policy: fabricate}
+    "Time of Incident": {disposition: real, gap_policy: fabricate}
+    "Site":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE area code replaces the template's placeholder facility names"}
+    "Area":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE block number"}
+    "Unit":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE platform designator"}
+    "Detail": {disposition: real, gap_policy: fabricate}
+    "Description":      {disposition: real, gap_policy: fabricate}
+    "What happened?  ": {disposition: real, gap_policy: fabricate}
+    "What was the outcome?":
+      disposition: real
+      gap_policy: fabricate
+      note: "Two tiers already: verbatim field 17 sentence (src), then xw_outcome.yaml composition."
+    "How did the incident occur":
+      disposition: real
+      gap_policy: fabricate
+      note: >
+        19.5%, capped by the source: it requires a SEQUENCE OF EVENTS heading,
+        and falling back to the whole narrative would duplicate "What happened?"
+        into both columns and imply a separation the document does not make.
+    "Investigation leader - Name":                       {disposition: real, gap_policy: fabricate}
+    "Investigation Acceptor/Approver (Owner) - Name":     {disposition: real, gap_policy: fabricate}
+    "Investigation Acceptor/Approver (Owner)- Position":  {disposition: real, gap_policy: fabricate}
+
+    # --- real AND a plausible modelling target ---------------------------
+    # Fabricating gaps here is the risky move. Kept dense per the dataset's
+    # design, and excluded wholesale by `psm.ledger --real-only`.
+    "Incident Type A": {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Incident Type B": {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Incident Type C": {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Incident Type D":
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
+      note: "18.4% real. Most atoms map to a deliberate null rather than a guess, so 81.6% of this column will be syn."
+    "Incident Classificatioin":
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
+      note: "xw from the risk score. NOT BSEE field 28, whose MAJOR/MINOR vocabulary is a different scale."
+    "Incident Classification":                    {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Health & Safety  - Consequence":             {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Health & Safety - Likelihood":               {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Health & Safety - Risk Score":               {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Health & Safety Incident - Classification":  {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Environment & Reputation  - Consequence":    {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Financial Cost & Business Interruption  - Consequence":
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
+      note: "From field 21's real dollar figure. Basis is ACTUAL, unlike the H&S column, which is potential."
+
+    # --- synthetic columns: the investigation workflow -------------------
+    # No real counterpart anywhere in a federal report. Uniform fabrication,
+    # and safe precisely because it is uniform.
+    "incident Title":                    {disposition: synthetic_column, generator: syn_incident_title}
+    "Date of Report":                    {disposition: synthetic_column, generator: syn_date_of_report}
+    "Approval Date":                     {disposition: synthetic_column, generator: syn_approval_date}
+    "Close out Date":                    {disposition: synthetic_column, generator: syn_close_out_date}
+    "Investigation leader - Position":   {disposition: synthetic_column, generator: syn_investigation_lead_position}
+    "Incident Classified by - Name":     {disposition: synthetic_column, generator: syn_incident_classified_by_name}
+    "Incident Classified by - Position": {disposition: synthetic_column, generator: syn_incident_classified_by_position}
+    "Close out Approval - Name":         {disposition: synthetic_column, generator: syn_close_out_approval_name}
+    "Close out Approval - Position":     {disposition: synthetic_column, generator: syn_close_out_approval_position}
 
     "Work Group":
-      disposition: not_obtainable
+      disposition: synthetic_column
+      generator: null
       note: >
-        Six of the picklist's twelve values are one company's named shift crews.
-        Prose inference measured at ~16% recall and ~30% precision for the
-        question actually asked -- most matches are the injured person's trade or
-        a post-incident actor. See schema/e19_projection.yaml for the full note
-        and for the picklist extension that would make it fillable.
+        Was `not_obtainable`. Six of the picklist's twelve values are one
+        company's named shift crews, so nothing real can go here -- but with no
+        organisation to defer to, an openly `syn` value is better than a blank.
+        NOT filled by inference from field 17 prose, which measured ~16% recall
+        at ~30% precision: most matches are the injured person's trade or a
+        post-incident actor. A 30%-precision guess carrying an `xw` mark would
+        be a false claim about a real incident; a `syn` value is not.
 
+    # --- synthetic columns: risk judgements our method declined -----------
+    # These were `deliberate_blank`. The reason each was left empty is still
+    # true and still recorded; what changed is that "leave it blank" is no
+    # longer an option when the sheet must be dense. The methodological
+    # objection now lives in the note rather than in the emptiness.
     "What was the worst outcome that could reasonably be expected to have happened?":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: syn_worst_reasonable_outcome
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "The consequence letter is derivable; the sentence describing it is not."
     "Environment & Reputation - Likelihood":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: null
       reason_recorded_in: schema/xw_consequence_tiers.yaml
-      note: "Mechanism rates measure injury, not release volume. A separate empirical pass, not done."
+      note: "Mechanism rates measure injury, not release volume. No empirical pass was done."
     "Environment & Reputation - Risk Score":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: syn_environment_reputation_score
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "Depends on the likelihood above."
     "Environment & Reputation - Incident Classification":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: syn_environment_reputation_classification
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "Depends on the risk score above."
     "Financial Cost & Business Interruption - Likelihood":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: null
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "Damage cost is recorded as an actual; no conditional probability of cost given mechanism has been measured."
     "Financial Cost & Business Interruption - Risk Score":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: syn_financial_score
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "Depends on the likelihood above."
     "Financial Cost & Business - Incident Classification":
-      disposition: deliberate_blank
+      disposition: synthetic_column
+      generator: syn_financial_classification
       reason_recorded_in: schema/xw_consequence_tiers.yaml
       note: "Depends on the risk score above."
 
   # ===== causes =============================================================
   causes:
-    "Incident Number":   {disposition: filled, note: "foreign key"}
-    "Cause number":      {disposition: filled, note: "ordinal"}
-    "Cause Description": {disposition: filled}
-    "Risk Management Cause":
-      disposition: filled
-      note: "7.6%. Low because only ~a third of statements name a subcategory; the rest are prose."
-    "Human Factors  Cause":
-      disposition: filled
-      note: "4.2%. Graded, with per-cell confidence in causes_confidence.csv."
+    "Incident Number":   {disposition: real, gap_policy: none, note: "foreign key"}
+    "Cause number":      {disposition: real, gap_policy: none, note: "ordinal"}
+    "Cause Description": {disposition: real, gap_policy: none, note: "100%; this column IS the dataset's primary input feature"}
+
+    # Every remaining causes column is a label over Cause Description, which
+    # makes all four modelling targets and makes fabricating their gaps the
+    # single most consequential decision in this file. At 14.4% real, the PSM
+    # element column becomes ~86% syn. Anyone training on it without filtering
+    # provenance is learning schema/synth_rules.yaml.
     " Failed PSM Framework Element":
-      disposition: filled
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
       note: >
-        14.4%, and the single most contested column in the project. The mapping
-        is six lines of schema/crosswalk.yaml and has never been validated
-        against an independent human judgement -- see gold/ and R5.
+        14.4% real, and the most contested column in the project. The mapping is
+        six lines of schema/crosswalk.yaml and has never been validated against
+        an independent human judgement -- see gold/ and R5.
+    "Risk Management Cause":
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
+      note: "7.6% real. Low because only about a third of statements name a subcategory; the rest are prose."
+    "Human Factors  Cause":
+      disposition: real
+      gap_policy: fabricate
+      modelling_target: true
+      note: "4.2% real. Graded, with per-cell confidence in causes_confidence.csv."
     "Cause type":
-      disposition: needs_human
+      disposition: synthetic_column
+      generator: null
+      modelling_target: true
       note: >
-        Immediate / Underlying / Root. BSEE's field 18 vs 19 split is an axis of
-        PRIMACY (probable vs contributing), not the axis of DEPTH this column
-        asks for. The sidecar preserves which field each statement came from, so
-        the feature is available to a later pass, but the two axes are not the
-        same and must not be equated.
+        Was `needs_human`. Immediate / Underlying / Root. BSEE's field 18 vs 19
+        split is an axis of PRIMACY (probable vs contributing), not the axis of
+        DEPTH this column asks for; the sidecar preserves which field each
+        statement came from, so the feature is available, but the two axes are
+        not the same and must not be equated. 100% syn.
 
   # ===== recommendations ====================================================
   recommendations:
-    "Incident Number":            {disposition: filled, note: "foreign key"}
-    "Recommendation Number":      {disposition: filled, note: "ordinal"}
-    "Recommendation Description": {disposition: filled}
-    "Agreed Completion Date":     {disposition: synthetic, generator: syn_agreed_completion_date}
-    "Responsible Owner - Name":   {disposition: synthetic, generator: syn_responsible_owner_name}
-    "Responsible Owner - Position": {disposition: synthetic, generator: syn_responsible_owner_position}
-    "Unmittigated Risk - Score":  {disposition: synthetic, generator: syn_unmitigated_risk_score}
-    "Mittigated Risk - Score":    {disposition: synthetic, generator: syn_mitigated_risk_score}
-    # NOTE: synth.py generates the two SCORES but not their component
-    # consequence and likelihood. Listed as synthetic because that is what they
-    # are, with the generator absent and named as absent rather than quietly
-    # omitted from this file.
-    "Unmittigated Risk - Consequence": {disposition: synthetic, generator: null}
-    "Unmittigated Risk - Likelihood":  {disposition: synthetic, generator: null}
-    "Mittigated Risk - Consequence":   {disposition: synthetic, generator: null}
-    "Mittigated Risk - Likelihood":    {disposition: synthetic, generator: null}
+    "Incident Number":            {disposition: real, gap_policy: none, note: "foreign key"}
+    "Recommendation Number":      {disposition: real, gap_policy: none, note: "ordinal"}
+    "Recommendation Description": {disposition: real, gap_policy: none, note: "100%; real prose from BSEE field 22"}
+    "Agreed Completion Date":       {disposition: synthetic_column, generator: syn_agreed_completion_date}
+    "Responsible Owner - Name":     {disposition: synthetic_column, generator: syn_responsible_owner_name}
+    "Responsible Owner - Position": {disposition: synthetic_column, generator: syn_responsible_owner_position}
+    "Unmittigated Risk - Score":    {disposition: synthetic_column, generator: syn_unmitigated_risk_score}
+    "Mittigated Risk - Score":      {disposition: synthetic_column, generator: syn_mitigated_risk_score}
+    # synth.py generates the two SCORES but not their component consequence and
+    # likelihood. Named as absent rather than quietly omitted from this file.
+    "Unmittigated Risk - Consequence": {disposition: synthetic_column, generator: null}
+    "Unmittigated Risk - Likelihood":  {disposition: synthetic_column, generator: null}
+    "Mittigated Risk - Consequence":   {disposition: synthetic_column, generator: null}
+    "Mittigated Risk - Likelihood":    {disposition: synthetic_column, generator: null}
 
   # ===== closeout ===========================================================
   closeout:
-    "Incident Number":       {disposition: filled, note: "foreign key"}
-    "Recommendation Number": {disposition: filled, note: "foreign key"}
-    "Schedule Status":       {disposition: synthetic, generator: syn_schedule_status}
-    "Date Completed":        {disposition: synthetic, generator: syn_action_due_date}
+    "Incident Number":       {disposition: real, gap_policy: none, note: "foreign key"}
+    "Recommendation Number": {disposition: real, gap_policy: none, note: "foreign key"}
+    "Schedule Status":       {disposition: synthetic_column, generator: syn_schedule_status}
+    "Date Completed":        {disposition: synthetic_column, generator: syn_action_due_date}

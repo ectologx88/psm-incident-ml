@@ -148,8 +148,10 @@ risk_score:
     ASSUMED, NOT SOURCED. The template's picklist lists scores 1-25 but not the
     Consequence x Likelihood matrix that produces them, and it was not recoverable
     from the workbook. A plain 5x5 product is the commonest form and reproduces
-    the observed 1-25 range. Replace with the author's real matrix when it
-    arrives; nothing else in this file changes.
+    the observed 1-25 range. There is no author to supply the real matrix -- this
+    is a self-contained public dataset -- so the assumption is permanent and must
+    be read as ours. Anyone who disagrees changes this one block; nothing else in
+    this file depends on it.
 
 # Bands are the template's own, from its Monthly Data sheet: VSI 25-21,
 # SI 20-11, I 10-1. Not our invention.
