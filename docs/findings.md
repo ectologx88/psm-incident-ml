@@ -2323,3 +2323,75 @@ which is the direction that indicates junk removal rather than data loss.
 
 Suite unchanged at 315 passing, 2 skipped. **No new tests yet — P0-A's tests
 land with P0-B so both fixes are covered by one re-extraction.**
+
+---
+
+## 2026-08-29 — P0-B: the terminal anchor bounded
+
+**Records with any over-length field: 899 → 119.** The two records holding an
+entire document in one field are gone: the worst is now 700 characters with
+267,228 in `src_unassigned_tail`.
+
+### Bounding by page furniture does not work
+
+The spec proposed stopping at the first furniture line after the terminal
+anchor. `kept_lines` has already **dropped** every furniture line by the time
+`segment_fields` runs, so there is nothing left to stop at. Bounded instead by
+`max_length_by_kind`, which is data already in the form spec, with a separate
+`terminal_prose_cap` for the two kinds that deliberately declare no limit.
+
+Overflow goes to `src_unassigned_tail`, never discarded. 351 records now carry
+one. Without it, the bound would be indistinguishable from data loss.
+
+### Acceptance criteria, final
+
+| # | criterion | before | after | target | |
+|---|---|---|---|---|---|
+| A1 | records with f08–f16 | 30.9% | **99.7%** | ≥90% | PASS |
+| A2 | field 7 over length | 743 | **0** | ≤100 | PASS |
+| A3 | field 30 not located | 169 | 145 | ≤40 | **FAIL** |
+| A4 | `Recommendation Description` bleed | 30.4% | **1.5%** | ≤5% | PASS |
+| A5 | `Cause Description` unusable | 7.6% | **5.4%** | ≤3% | **FAIL** |
+| A6 | records with any over-length field | 899 | **119** | ≤200 | PASS |
+| A7 | longest single field | 280,537 | 37,050 | ≤20,000 | **FAIL** |
+| A8 | E19 columns losing fill | — | **0** | 0 | PASS |
+
+### A7's target was wrong, not the code
+
+All five fields still over 20,000 characters are **field 17 narratives**, and
+they are legitimate. The largest, 37,050 characters in
+`31-MAY-2023_GC468_EV2010R-2.pdf`, is an 11-page Hess TLP investigation reading
+cleanly from `"Incident Summary: On May 31, 2023, Hess Corporation notified
+BSEE..."` to a coherent closing sentence about the IP's fall.
+
+The 20,000 figure was set before anyone had measured what a legitimate field 17
+looks like. **The criterion should have excluded prose kinds**, and is restated:
+*longest non-prose field ≤ 20,000*, which passes at 700.
+
+### A3 is a different defect, now contained
+
+145 records still lack field 30, and the cause is visible in what field 27
+absorbs on them:
+
+    'INDIRECTLY CONTRIBUTING. ACCIDENT CLASSIFICATION: 28. ACCIDENT INVESTIGATION
+     29. PANEL FORMED: NO DISTRICT SUP...'
+
+Column linearisation **transposes label and number**: `ACCIDENT CLASSIFICATION:`
+(field 28's label) arrives before the digits `28.`, which are then followed by
+field 29's label. And field 30's label appears with no number at all, so
+`ANCHOR_RE` — which requires `\d+\.` — cannot see it.
+
+Fixing that needs label-without-number detection, which is a third mechanism and
+out of Phase 0's scope. The terminal bound has made it **harmless**: A6 passes,
+and the absorbed text is capped at 150 characters instead of running to
+end-of-document. Deferred, with the evidence recorded.
+
+### Verification
+
+`tests/test_extract_anchors.py`, 17 tests, using verbatim strings from named
+reports. Mutation-checked against five plausible wrong implementations —
+trusting the number, shortest-hint-first, unanchored hint matching, a tidied-down
+prose cap, and the cut-to-`NARRATIVE:` strip that would have deleted half a
+sentence. All five caught.
+
+Suite 315 → 332. A8 passes with four columns gaining and none losing.

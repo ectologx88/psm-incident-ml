@@ -71,6 +71,26 @@ def _label_bleed(schema: dict) -> list[re.Pattern]:
     return _LABEL_BLEED_CACHE
 
 
+def _terminal_cap(field_no: int, schema: dict) -> int:
+    """Character ceiling for the LAST anchor in a document.
+
+    Only the terminal anchor needs this: every other field is bounded by the
+    next anchor. The terminal one runs to end-of-document, which is right when
+    it is the form's last field and catastrophic when it is not.
+
+    Uses `max_length_by_kind` where the kind declares one. `prose` and
+    `cause_statements` deliberately declare none -- field 17 narratives are
+    genuinely long -- so they fall back to `terminal_prose_cap`, which exists to
+    catch runaway absorption, not to trim legitimate prose.
+    """
+    spec = schema["fields"].get(field_no) or {}
+    limits = schema.get("max_length_by_kind") or {}
+    cap = limits.get(spec.get("kind"))
+    if cap is not None:
+        return int(cap)
+    return int(schema.get("terminal_prose_cap", 20000))
+
+
 def _hint_index(schema: dict) -> list[tuple[str, int]]:
     """Every label hint in the form spec, longest first, as (HINT, field_no).
 
@@ -273,11 +293,30 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
 
     # Pass 2: content runs from one anchor to the next.
     fields: dict[int, str] = {}
+    tail_overflow = ""
     for a, (li, ci, num) in enumerate(anchors):
+        terminal = False
         if a + 1 < len(anchors):
             lj, cj, _ = anchors[a + 1]
         else:
+            # THE TERMINAL ANCHOR SINK. Running the last anchor to
+            # end-of-document is correct only when the last anchor is the last
+            # field. It usually is -- field 30 closes the form -- but when field
+            # 30 is not located (145 records) whatever anchor happens to be last
+            # swallows the remainder of the PDF. Measured before this bound:
+            # field 27 terminal on 89 records carried label bleed on 95.5% of
+            # them, field 26 on 100%, and two records held the ENTIRE DOCUMENT
+            # in one field (267,928 and 280,537 characters).
+            #
+            # Bounding by page furniture was the obvious idea and does not work:
+            # `kept_lines` has already dropped every furniture line, so there is
+            # nothing left to stop at. Bounded instead by the field's declared
+            # `max_length_by_kind`, which is data already in the form spec, with
+            # a separate ceiling for the uncapped prose kinds. Overflow is kept
+            # in `src_unassigned_tail` rather than discarded, so the loss is
+            # visible and measurable.
             lj, cj = len(kept) - 1, len(kept[-1].text)
+            terminal = True
 
         if li == lj:
             chunk = [kept[li].text[ci:cj]]
@@ -316,8 +355,22 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
         # statements (3,607 -> 2,298) before it was caught: psm.causes.unwrap
         # segments field 18/19 by line, and a bullet or category head that no
         # longer starts a line stops starting a statement.
-        fields[num] = "\n".join(" ".join(ln.split()) for ln in body.splitlines()
-                                if ln.strip()).strip()
+        body = "\n".join(" ".join(ln.split()) for ln in body.splitlines()
+                          if ln.strip()).strip()
+
+        if terminal:
+            cap = _terminal_cap(num, schema)
+            if len(body) > cap:
+                tail_overflow = body[cap:]
+                body = body[:cap]
+                anomalies.append({
+                    "type": "terminal_anchor_truncated", "field": num,
+                    "kept": cap, "discarded_to_tail": len(tail_overflow),
+                })
+        fields[num] = body
+
+    if tail_overflow:
+        fields[0] = tail_overflow      # field 0 == src_unassigned_tail
 
     missing = [n for n in schema["fields"] if n not in fields]
     if missing:
@@ -358,9 +411,15 @@ def extract_report(pdf_path: Path, schema: dict) -> dict:
             rec["anomalies"].extend(anomalies)
             rec["anomalies"].extend(check_field_lengths(fields, schema))
             for num, text in sorted(fields.items()):
+                if num == 0:
+                    # Overflow past the terminal anchor's cap. Kept, not
+                    # discarded: it is the only evidence of what the bound
+                    # removed, and A8-style regressions are invisible without it.
+                    rec["src_unassigned_tail"] = text
+                    continue
                 name = schema["fields"][num]["name"]
                 rec[f"src_f{num:02d}_{name}"] = text
-            rec["src_fields_found"] = sorted(fields)
+            rec["src_fields_found"] = sorted(n for n in fields if n)
             if pdf.pages:
                 rec["src_checkboxes_page0"] = [
                     lbl for lbl, _, _ in checkbox_labels(pdf.pages[0], 0)

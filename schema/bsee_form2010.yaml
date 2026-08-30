@@ -235,3 +235,15 @@ label_bleed_patterns:
   - '\bESTIMATED\s+AMOUNT\s*\(?TOTAL\)?\s*:?'
   - '\bLIST\s+THE\s+(?:PROBABLE|CONTRIBUTING)\s+CAUSE\(?S\)?\s+OF(?:\s+ACCIDENT)?\s*:?'
   - '\bLIST\s+THE\s+ADDITIONAL\s+INFORMATION\s*:?'
+
+# Ceiling for the LAST anchor in a document only. Every other field is bounded
+# by the next anchor; the terminal one runs to end-of-document, which is correct
+# when it is the form's final field (30) and catastrophic when it is not.
+#
+# `max_length_by_kind` covers the structured kinds. `prose` and
+# `cause_statements` declare no limit on purpose -- a field 17 narrative is
+# genuinely long -- so they use this instead. Sized to catch runaway absorption,
+# not to trim legitimate prose: the longest legitimate field 17 in the corpus is
+# well under this, while the two catastrophic cases held 267,928 and 280,537
+# characters. Overflow goes to `src_unassigned_tail`, never discarded.
+terminal_prose_cap: 20000
