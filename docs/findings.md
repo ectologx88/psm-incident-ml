@@ -2540,3 +2540,76 @@ Counting deliberate blanks as fabrication would misreport the dataset as more
 invented than it is, and would make choosing honesty look worse in the headline.
 
 Suite 340 → 343.
+
+---
+
+## 2026-08-29 — D2: single-label kept; secondary elements move to a sidecar
+
+### The question I was going to ask was mostly wrong
+
+I had been citing "48.3% of incidents carry multiple cause categories" as the
+case for a multi-label schema. Measured properly, at both grains:
+
+* **Incident level:** 112 of 231 (48.5%) do carry multiple categories — and the
+  causes table's grain is already *one row per cause statement*, so this is
+  represented today as multiple rows. Nothing to change.
+* **Statement level:** **0 of 3,572** statements carry more than one category.
+
+The multi-label case was an artifact of measuring at the wrong grain. The
+existing schema already handles it.
+
+### What actually remained
+
+Whether one statement's `Failed PSM Framework Element` should hold one element
+or several. `crosswalk.yaml` has declared an `also_touches` for all six
+categories since v1, and **it was emitted by nothing** — the only reference
+anywhere in `src/` was a print statement in `evidence.py`.
+
+It is not hedging. Equipment Failure → 15 (inspection and maintenance) vs 11
+(standards and practices) is the difference between a maintenance finding that
+was not actioned and a design that was wrong the day it was fitted, and the
+cause text usually says which. The 29-row labelling exercise split Equipment
+Failure between exactly those two on exactly that basis.
+
+### Decision: sidecar, not a multi-valued cell
+
+`data/processed/e19/enriched/causes_secondary_element.csv`, keyed on
+`Incident Number` + `Cause number` — the same pattern `causes_confidence.csv`
+and `causes_source_field.csv` already use.
+
+The E19 cell stays single-valued because the template's picklist takes one
+element per cause, and multi-valuing it would break the byte-exact projection
+guarantee the whole layer exists to provide. The sidecar gives anyone doing
+multi-label work the data without forcing multi-label on anyone who wants the
+template.
+
+    primary -> secondary        n
+      3 -> 8                  207
+     15 -> 11                 136
+      8 -> 6                   83
+      9 -> 17                  34
+     17 -> 3                   34
+      6 -> 11                  30
+
+### The measurable payoff, and the ceiling it exposes
+
+Elements reachable from primaries alone: **6 of 20** (3, 6, 8, 9, 15, 17). With
+secondaries: **7** — element 11 joins.
+
+That is a small gain and a large finding. **13 of the Energy Institute's 20
+elements are unreachable from this crosswalk**, no matter how the data is
+labelled, because BSEE's six cause categories do not span the framework.
+Leadership (1), legislation (2), workforce involvement (4), MoC (12), emergency
+preparedness (14), contractor management (18) and the rest can never appear.
+Anyone evaluating a model on "PSM element" is evaluating on a 7-class problem
+wearing a 20-class label, and that should be stated wherever the column is
+described.
+
+### Verification
+
+6 new tests. Mutation-checked against four plausible failures: dropping sidecar
+rows, writing the secondary into the E19 cell, echoing the primary as its own
+secondary, and emitting a secondary where no primary exists. All four caught.
+
+Suite 343 → 348. **Phase 1's two decisions are closed; Phase 2 (synth wiring)
+is unblocked.**

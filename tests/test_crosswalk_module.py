@@ -258,3 +258,75 @@ class TestOutcomeText:
 
     def test_unknown_atoms_are_ignored_not_guessed(self, ospec):
         assert outcome_text(["Some Future BSEE Code"], None, ospec) == ""
+
+
+class TestSecondaryElementSidecar:
+    """`also_touches` existed in crosswalk.yaml from v1 and was emitted by
+    nothing -- the only reference in src/ was a print in evidence.py.
+
+    It is not hedging. Equipment Failure -> 15 (inspection and maintenance) vs
+    11 (standards and practices) is the difference between a maintenance finding
+    not actioned and a design that was wrong the day it was fitted, and the
+    cause text usually says which. Collapsing to the primary discarded that.
+    """
+
+    @staticmethod
+    def _read(name):
+        import csv as _csv
+        from psm.crosswalk import DEFAULT_OUT
+        _csv.field_size_limit(10 ** 9)
+        with (DEFAULT_OUT / name).open(encoding="utf-8", newline="") as fh:
+            return list(_csv.DictReader(fh))
+
+    def test_the_sidecar_matches_the_causes_table_row_for_row(self):
+        """A sidecar that drifts from its table is worse than no sidecar."""
+        c = self._read("causes.csv")
+        s = self._read("causes_secondary_element.csv")
+        assert len(c) == len(s)
+        for a, b in zip(c, s):
+            assert (a["Incident Number"], a["Cause number"]) == \
+                   (b["Incident Number"], b["Cause number"])
+
+    def test_the_e19_cell_stays_single_valued(self):
+        """The reason this is a sidecar at all. The template's picklist takes
+        one element per cause; a multi-valued cell would break the byte-exact
+        projection guarantee the whole layer exists to provide."""
+        c = self._read("causes.csv")
+        col = next(k for k in c[0] if "Failed PSM" in k)
+        for r in c:
+            assert ";" not in (r[col] or ""), f"multi-valued E19 cell: {r[col]!r}"
+
+    def test_a_secondary_exists_exactly_where_a_primary_does(self):
+        """Every one of the six categories declares an `also_touches`, so the
+        two columns must fill together. A row with a secondary and no primary
+        would be an element assignment with no cause category behind it."""
+        c = self._read("causes.csv")
+        s = self._read("causes_secondary_element.csv")
+        col = next(k for k in c[0] if "Failed PSM" in k)
+        for a, b in zip(c, s):
+            has_p = bool((a[col] or "").strip())
+            has_s = bool((b["xw_secondary_elements"] or "").strip())
+            assert has_p == has_s, f"{a['Incident Number']}: primary={has_p} secondary={has_s}"
+
+    def test_a_secondary_never_equals_its_primary(self, types):
+        """`also_touches` that repeats the primary would add nothing and would
+        inflate the apparent element coverage."""
+        c = self._read("causes.csv")
+        s = self._read("causes_secondary_element.csv")
+        col = next(k for k in c[0] if "Failed PSM" in k)
+        for a, b in zip(c, s):
+            sec = [x for x in (b["xw_secondary_elements"] or "").split(";") if x]
+            assert (a[col] or "").strip() not in sec
+
+    def test_the_sidecar_widens_element_coverage(self):
+        """The measurable payoff: 6 of 20 elements are reachable from primaries
+        alone; the sidecar adds element 11 and makes it 7. Still a hard ceiling
+        -- 13 elements this crosswalk can never emit -- and that ceiling is the
+        point of measuring it."""
+        c = self._read("causes.csv")
+        s = self._read("causes_secondary_element.csv")
+        col = next(k for k in c[0] if "Failed PSM" in k)
+        prim = {(r[col] or "").strip() for r in c} - {""}
+        sec = {x for r in s for x in (r["xw_secondary_elements"] or "").split(";") if x}
+        assert len(prim) == 6
+        assert len(prim | sec) > len(prim)

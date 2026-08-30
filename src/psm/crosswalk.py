@@ -246,6 +246,21 @@ def enrich_causes(causes: list[dict], spec: dict, qual: dict) -> tuple[list[dict
                 p[PSM_COLUMN] = "xw"
                 stats["mapped"] += 1
                 stats[f"  -> {canon}"] += 1
+                # `also_touches` has existed in crosswalk.yaml since v1 and was
+                # emitted by nothing -- the only reference in src/ was a print in
+                # evidence.py. It is not hedging: Equipment Failure -> 15
+                # (inspection and maintenance) vs 11 (standards and practices) is
+                # the difference between a maintenance finding not actioned and a
+                # design that was wrong from the day it was fitted, and the cause
+                # text usually says which.
+                #
+                # It goes to a SIDECAR, not into the E19 cell. The template's
+                # `Failed PSM Framework Element` is one picklist value per cause;
+                # multi-valuing it would break the byte-exact projection guarantee
+                # the whole layer exists to provide. Same pattern as
+                # causes_confidence.csv and causes_source_field.csv.
+                e["_xw_secondary_elements"] = ";".join(
+                    str(x) for x in (cats[canon].get("also_touches") or []))
             else:
                 stats["typed_but_unaliased"] += 1
 
@@ -373,6 +388,20 @@ def main(argv=None) -> int:
     with (args.out / "causes_confidence.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(conf_rows[0]))
         w.writeheader(); w.writerows(conf_rows)
+
+    # Secondary elements. Sidecar rather than a second value in the E19 cell --
+    # see enrich_causes. Semicolon-separated because a category may touch more
+    # than one, even though today every entry touches exactly one.
+    sec_rows = [{"Incident Number": r["Incident Number"], "Cause number": r["Cause number"],
+                 "xw_secondary_elements": r.pop("_xw_secondary_elements", "")}
+                for r in c_enriched]
+    with (args.out / "causes_secondary_element.csv").open(
+            "w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(sec_rows[0]))
+        w.writeheader(); w.writerows(sec_rows)
+    n_sec = sum(1 for r in sec_rows if r["xw_secondary_elements"])
+    print(f"  secondary elements       {n_sec}/{len(sec_rows)} = "
+          f"{100 * n_sec / len(sec_rows):5.1f}%")
     for name, data in (("causes.csv", c_enriched), ("causes_provenance.csv", c_prov)):
         with (args.out / name).open("w", encoding="utf-8", newline="") as fh:
             w = csv.DictWriter(fh, fieldnames=ccols, extrasaction="ignore")
