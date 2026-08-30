@@ -39,7 +39,22 @@ BULLET_RE = re.compile(r"^\s*(?:[••●▪·*]|[-–—](?=\s)|\d{1,2}\s*[).]
 # ordinary compounding, not a separator — an earlier `(?<=[a-z])-(?=[A-Z])`
 # alternative split "Flexi-Coil hose" and invented a cause category "The Flexi".
 # En/em dashes are separators regardless of spacing; they never compound here.
-SEP_CLASS = r"[:–—]|(?<=[a-zA-Z])-(?=\s)"
+#
+# The third alternative — a hyphen with whitespace on BOTH sides — was missing
+# until 2026-08-29, and its absence was silent. The letter-lookbehind form
+# requires the hyphen to touch the preceding word, so the equally common spaced
+# form was not a separator at all:
+#
+#     Equipment Failure - Inadequate preventative maintenance- the crane's ...
+#
+# The parser ran past it to the next qualifying separator ("repair- the"),
+# producing an 11-word head that MAX_CATEGORY_WORDS then rejected. Report
+# BM 3 Cantium 5-Aug-2025 names four of the six canonical categories in its
+# text and mapped to none of them. Measured effect of adding this alternative:
+# mapped statements 460 -> 511 (+11%), typed 715 -> 766, and every one of the
+# 51 newly-typed statements also maps — no new junk. "Flexi-Coil" is unaffected
+# because it has no space after the hyphen.
+SEP_CLASS = r"[:–—]|(?<=[a-zA-Z])-(?=\s)|(?<=\s)-(?=\s)"
 SEP_RE = re.compile(SEP_CLASS)
 
 # A category prefix is short and title-ish. Cap the length so a whole prose
@@ -59,6 +74,50 @@ CAUSE_STATUS = ("typed", "freetext", "absent_legitimate", "parse_failed")
 # literally "LIST THE PROBABLE CAUSE(S)"), so it generalises to any field's
 # label bleeding into another field's body, not just field 20's.
 FURNITURE_HEAD_RE = re.compile(r"^(?:NOTE|LIST\s+THE\b.*)$", re.IGNORECASE)
+
+# `LIST THE ...` catches the label only while it is intact. In two-column soup
+# BSEE's own field label wraps, and the tail lands on its own line carrying the
+# colon:
+#
+#     19. LIST THE CONTRIBUTING CAUSE(S) OF
+#     ACCIDENT:
+#
+# The first line is furniture and is rejected; the orphaned tail is short,
+# title-ish and colon-separated, so it becomes a cause category called
+# "ACCIDENT" — 24 statements corpus-wide, the third most common head in the
+# corpus. tests/test_causes.py asserted only that the *unsplit* label is
+# rejected, so the split form shipped untested.
+#
+# The tempting general rule — "an ALL-CAPS head is furniture" — is WRONG, and
+# measurably so: of 11 all-caps heads in the corpus, 6 are the legitimate
+# categories HUMAN ERROR, COMMUNICATION, SUPERVISION, EQUIPMENT FAILURE,
+# MANAGEMENT SYSTEM and WORK ENVIRONMENT, covering 13 statements. So the
+# fragments are listed as data in schema/bsee_form2010.yaml, and the all-caps
+# test is retained only as a guard so a Title Case cause statement that happens
+# to read "Property damaged: ..." is not swallowed.
+_FURNITURE_FRAGMENTS: frozenset[str] | None = None
+
+
+def _label_fragments() -> frozenset[str]:
+    """Orphaned BSEE field-label tails, from the form spec. Cached."""
+    global _FURNITURE_FRAGMENTS
+    if _FURNITURE_FRAGMENTS is None:
+        import yaml
+        from pathlib import Path
+        spec = Path(__file__).resolve().parents[2] / "schema" / "bsee_form2010.yaml"
+        raw = yaml.safe_load(spec.read_text(encoding="utf-8"))
+        _FURNITURE_FRAGMENTS = frozenset(
+            normalise_category(f) for f in raw.get("cause_field_furniture", []))
+    return _FURNITURE_FRAGMENTS
+
+
+def is_label_fragment(head: str) -> bool:
+    """True when ``head`` is an orphaned piece of a BSEE field label.
+
+    Requires ALL CAPS: the leaked fragments always are, and real categories are
+    written in Title Case far more often than not.
+    """
+    return head.isupper() and normalise_category(head) in _label_fragments()
 
 
 @dataclass
@@ -158,7 +217,15 @@ def candidate_category(statement: str) -> tuple[str | None, str]:
     head = body[: m.start()].strip(" .–—-")
     if not head or not head[0].isalpha() or len(head.split()) > MAX_CATEGORY_WORDS:
         return None, "untyped_prose"
-    if FURNITURE_HEAD_RE.match(head):
+    # Title-ish means it starts uppercase. `unwrap` has always required this to
+    # begin a new statement; requiring it here too closes the gap where the
+    # spaced-hyphen separator could pick a mid-sentence head out of prose
+    # ("a well-known issue - the valve stuck - ..."). Measured cost: 2
+    # statements corpus-wide, both junk ("construction", "of this incident
+    # include").
+    if not head[0].isupper():
+        return None, "untyped_prose"
+    if FURNITURE_HEAD_RE.match(head) or is_label_fragment(head):
         return None, "furniture"
     sep = body[m.start(): m.end()]
     form = {":": "colon"}.get(sep, "dash")

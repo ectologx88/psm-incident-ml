@@ -102,6 +102,34 @@ furniture_patterns:
 inline_strip_patterns:
   - '\s*For Public Release\s*'
 
+# Orphaned tails of this form's OWN field labels, which survive into fields
+# 18/19 body text and then satisfy every test for a cause category: short,
+# title-ish, colon-separated. In two-column soup the label wraps and its tail
+# lands alone on a line —
+#
+#     19. LIST THE CONTRIBUTING CAUSE(S) OF
+#     ACCIDENT:
+#
+# — so the `LIST THE ...` furniture rule in psm.causes, which needs the label
+# intact, never sees it. Measured: 24 statements corpus-wide became a cause
+# category named "ACCIDENT" or "OF ACCIDENT", making it the third most common
+# head in the corpus and inflating the "typed but no alias" diagnostic that
+# anyone extending schema/crosswalk.yaml would read.
+#
+# These are matched ONLY when the head is ALL CAPS. The general rule
+# "all-caps head is furniture" was tested and rejected: 6 of the corpus's 11
+# all-caps heads are the legitimate categories HUMAN ERROR, COMMUNICATION,
+# SUPERVISION, EQUIPMENT FAILURE, MANAGEMENT SYSTEM and WORK ENVIRONMENT.
+#
+# This is an observed blocklist, not a derivation, and it is here rather than in
+# psm/causes.py so it stays arguable and versioned.
+cause_field_furniture:
+  - 'ACCIDENT'                          # tail of "...PROBABLE CAUSE(S) OF ACCIDENT"
+  - 'OF ACCIDENT'                       # same label, wrapping one word earlier
+  - 'PROPERTY DAMAGED'                  # field 21's label
+  - 'ESTIMATED AMOUNT (TOTAL)'          # field 21's sub-label
+  - 'ADDITIONAL INFORMATION FROM ITEM 22'  # field 20's label, cross-referencing 22
+
 # --- Integrity guards -------------------------------------------------------
 #
 # A structured field holding paragraphs of prose is the signature of an anchor

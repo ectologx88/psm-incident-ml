@@ -1809,3 +1809,87 @@ R5 gold set (0/100 labelled, joins 0/100 directly — nothing scoreable), R6 REA
 contradictions, R7 the ~37 unexplained missing fatalities. `e19_schema.py`,
 `evidence.py`, `fetch.py` and `spine.py` remain at 0%; they are one-shot
 generators rather than pipeline stages, which is a reason but not a defence.
+
+---
+
+## 2026-08-29 — S1: two silent cause-parser defects, found by adversarial review
+
+Both were **coverage** bugs, not correctness bugs: they withheld mappings rather
+than inventing wrong ones, so nothing downstream ever complained. That is why
+they survived 284 passing tests.
+
+### S1a — `Category - Subcategory` was never a separator
+
+`SEP_CLASS`'s ASCII-hyphen alternative was `(?<=[a-zA-Z])-(?=\s)`, which requires
+the hyphen to touch the preceding word. The equally common spaced form was not a
+separator at all, so the parser ran on to the next qualifying separator and
+produced a head too long for `MAX_CATEGORY_WORDS`:
+
+    Equipment Failure - Inadequate preventative maintenance/Inadequate
+    equipment repair- the crane's aux hoist system ...
+                    ^ not a separator          ^ separator; head is 11 words
+
+Report `BM 3 Cantium 5-Aug-2025` names four of the six canonical categories in
+its own text and mapped to none of them.
+
+Added a third alternative, `(?<=\s)-(?=\s)`. "Flexi-Coil" is unaffected — it has
+no space after the hyphen, which is what the original narrowing was for.
+
+Widening the separator opened one hole: a mid-sentence prose dash could yield a
+head ("a well-known issue - the valve stuck - ..."). Closed by requiring
+`head[0].isupper()` in `candidate_category`, which `unwrap` had always required
+to *begin* a statement. Measured cost of that guard: 2 statements corpus-wide,
+both junk (`construction`, `of this incident include`).
+
+### S1b — a wrapped field label became the corpus's third most common category
+
+`FURNITURE_HEAD_RE` catches `LIST THE ...` only while the label is intact. In
+two-column soup BSEE's own label wraps and the tail lands alone, carrying the
+colon:
+
+    19. LIST THE CONTRIBUTING CAUSE(S) OF
+    ACCIDENT:
+
+`ACCIDENT` is short, title-ish and colon-separated — every test for a cause
+category. 24 statements corpus-wide. `tests/test_causes.py` asserted only that
+the *unsplit* label is rejected, so the split form shipped untested.
+
+**A general rule was tried and rejected on evidence.** "An ALL-CAPS head is
+furniture" is wrong: of the corpus's 11 all-caps heads, **6 are legitimate
+categories** — HUMAN ERROR, COMMUNICATION, SUPERVISION, EQUIPMENT FAILURE,
+MANAGEMENT SYSTEM, WORK ENVIRONMENT — covering 13 statements. A blanket guard
+would have deleted them silently. Fragments are therefore listed as data in
+`schema/bsee_form2010.yaml:cause_field_furniture`, matched only when ALL CAPS.
+
+### Measured effect (full re-run of `psm.project` + `psm.crosswalk`)
+
+| | before | after | |
+|---|---|---|---|
+| cause statements | 3,587 | 3,609 | +22 |
+| mapped to a PSM element | 460 (12.8%) | **521 (14.4%)** | +13.3% |
+| `Risk Management Cause` | 218 (6.1%) | **276 (7.6%)** | +27% |
+| `Human Factors Cause` | 125 (3.5%) | **152 (4.2%)** | +22% |
+| typed but unaliased (junk diagnostic) | 255 | **238** | −17 |
+| gold typed rows | 29 | **30** | |
+| gold rows the crosswalk can score | 19 | **22** | |
+
+The two derived cause fields improved more, proportionally, than the element
+field did — they read the subcategory, which is exactly what the spaced-hyphen
+bug was hiding.
+
+### Verification
+
+5 new tests. Checked that they **fail against the pre-fix code**: 2 of the 5 do
+(the other 3 are guards against regressions the old code did not have). Full
+suite 284 → 291 passing, 2 skipped; `test_conventions.py` and
+`test_projection.py` clean after regeneration, so the parallel provenance files
+still match shape and `xw` still never overwrote a verbatim value.
+
+### Negative result worth recording
+
+`src_cause_status` was suspected of being conflated with crosswalk-mappability.
+It is not used **anywhere** outside `gold_scaffold.py` and `gold_sample.py` — no
+production module reads or branches on it, and no processed table carries it. The
+conflation is a documentation defect (CLAUDE.md defines `typed` as
+"controlled-vocabulary category present", while the code implements a *shape*
+test that consults no vocabulary), not a data defect.
