@@ -2792,3 +2792,101 @@ Fixed, and the stale keys removed.
 | columns still fabricating | 7 | **3** |
 
 Suite 356 → 359. Phase 2 complete.
+
+---
+
+## 2026-08-29 — P3.1: the six cause categories are not the structure of the text
+
+Clustered all 3,354 cause statements of five words or more, with the category
+name **stripped** so the exercise is not circular. Agreement with
+`schema/crosswalk.yaml`'s six categories, over the 503 labelled statements:
+
+| | ARI vs the six | purity |
+|---|---|---|
+| category name **stripped** | **0.031** | 0.410 |
+| category name kept (circular control) | **0.780** | 0.795 |
+| majority-class baseline | — | 0.395 |
+
+Purity of 0.410 against a 0.395 baseline is +1.5pp — noise. The six categories
+are recoverable from the text **only because the text contains their names**.
+
+The circular control is the load-bearing part of this result. Without it, a
+naive run scores ARI 0.78 and "confirms" the crosswalk, which is a tautology
+dressed as a finding: the string `"Human Performance Error:"` is *in the
+statement being clustered*.
+
+### Era is not the confound
+
+Cluster-vs-era ARI is **-0.019** at k=6. The clusters are not tracking the
+reporting regime, which was the obvious alternative explanation given that 87.1%
+of labelled statements are `modern_six`.
+
+### What the clusters actually track
+
+| cluster | top terms |
+|---|---|
+| c0 | ip, placement, hand, pinch, pinch point |
+| c1 | crane, operator, boom, load, lift |
+| c2 | failure, valve, failed, gas, pressure |
+| c3 | work, stop work, stop work authority, hot work |
+| c4 | jsa, job safety analysis |
+| c5 | cause, incident, probable cause, contributing (residual form furniture) |
+
+These are **activity and hazard types** — a lift, a valve, hot work, body
+position. BSEE's six categories are **attributions** — human error, equipment
+failure, management systems. The narrative says *what was happening*; the
+category says *who or what is blamed*. They are close to orthogonal axes, and
+the clustering is measuring that rather than failing.
+
+### But clustering is the wrong instrument for "is there signal"
+
+Unsupervised structure and predictability are different questions, so the
+supervised one was asked directly. Logistic regression on TF-IDF of the stripped
+description, 5-fold stratified CV, n=503:
+
+| | accuracy | macro-F1 |
+|---|---|---|
+| majority baseline | 0.392 | 0.094 |
+| **logistic on TF-IDF** | **0.551** | **0.418** |
+
+So the category **is** partially predictable from the description alone. The
+clustering result does not mean "no signal" — it means the signal is not the
+dominant axis of variation in the text.
+
+Per category, and this is the more useful number:
+
+| category | n | F1 |
+|---|---|---|
+| Equipment Failure | 128 | **0.692** |
+| Human Performance Error | 197 | **0.639** |
+| Management Systems | 81 | 0.400 |
+| Communication | 34 | 0.310 |
+| Supervision | 34 | 0.243 |
+| Work Environment | 29 | 0.222 |
+
+**The six-category task is really a two-class task with four rare classes
+attached.** The top two are 65.5% of the labelled data and carry almost all the
+learnable signal; the bottom three sit at n≈30 with F1 near 0.25.
+
+### Consequences
+
+* **A hackathon task framed as "predict the PSM element from cause text" should
+  expect ~0.55 accuracy, not 0.9**, and should report macro-F1 — accuracy alone
+  rewards predicting the two big classes and ignoring the rest.
+* **Weak supervision (3.2) is worth less than it looked.** Labelling functions
+  keyed on text patterns are fighting an axis the text does not strongly encode,
+  and the four rare categories are where the LFs would be needed most.
+* **The cluster taxonomy is a better-founded alternative target.** Lifting,
+  process containment, body position, work control and JSA quality are
+  data-driven, derivable without any labels, and describe this corpus better
+  than the six do.
+
+### Scope limits
+
+503 labelled statements, 87.1% of them `modern_six`. The CV is stratified by
+class, **not by era** — with 87% in one regime an era-stratified split would
+leave too little elsewhere to train on, which is itself a finding about the
+corpus. TF-IDF rather than sentence embeddings, chosen so a stranger can rebuild
+this from a fresh clone per the reproducibility contract; a stronger encoder
+would likely raise the supervised numbers and would not change the clustering
+conclusion, which is about which axis dominates.
