@@ -204,3 +204,34 @@ form_revisions:
   field3_label:
     "LEASE": A
     "OPERATOR/CONTRACTOR": B
+
+# Label text that survives INTO a field's own body, removed in place.
+#
+# `segment_fields` strips a field's label by cutting to the first colon on the
+# first line. That fails on multi-line labels: field 22 reads
+#
+#     22. RECOMMENDATIONS TO PREVENT RECURRANCE
+#     NARRATIVE:
+#
+# and field 21's "NATURE OF DAMAGE ... ESTIMATED AMOUNT" block linearises
+# BETWEEN the two halves, so the first line carries no colon and nothing is
+# stripped. Measured 2026-08-29: 34.3% of non-empty field-22 values began with
+# their own label. This is NOT the terminal-anchor sink -- field 30 is correctly
+# located on 322 of the 369 affected records.
+#
+# Removed IN PLACE, not by cutting to a terminator: the body is split around the
+# interleaved block ("The Houma District has no recommendation | NATURE OF
+# DAMAGE: Ruptured, melted | NARRATIVE: | for the Regional Office."), so
+# everything-before-NARRATIVE would delete real text.
+#
+# Deliberately conservative. `NATURE OF DAMAGE` and its amount belong to field
+# 21 and are extracted there too, but their extent inside field 22 cannot be
+# bounded without the column-band work, so only the label token is removed and
+# the value it introduces is left visible rather than half-deleted.
+label_bleed_patterns:
+  - '\d{0,2}\s*\.?\s*RECOMMENDATIONS\s+TO\s+PREVENT\s+RECURRANCE'
+  - '\bNARRATIVE\s*[:''"]?'
+  - '\bNATURE\s+OF\s+DAMAGE\s*:?'
+  - '\bESTIMATED\s+AMOUNT\s*\(?TOTAL\)?\s*:?'
+  - '\bLIST\s+THE\s+(?:PROBABLE|CONTRIBUTING)\s+CAUSE\(?S\)?\s+OF(?:\s+ACCIDENT)?\s*:?'
+  - '\bLIST\s+THE\s+ADDITIONAL\s+INFORMATION\s*:?'

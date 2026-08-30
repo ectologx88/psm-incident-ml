@@ -2155,3 +2155,171 @@ if the real share ever drops below 25% — a dataset that drifted to almost
 entirely fabricated would otherwise pass every other test while being useless.
 
 Suite 313 → 315.
+
+---
+
+## 2026-08-29 — P0-0: the 2010–14 label trough is REAL, not an artifact
+
+Diagnosed before starting Phase 0, because the spec's risk table said that if
+the trough turned out to be another form-revision artifact it belonged inside
+Phase 0's scope. **It is not.** Phase 0 proceeds as specced, and the trough is
+Phase 3's problem.
+
+### The revision hypothesis is refuted
+
+| era | n | rev A | rev B | rev C | mapped |
+|---|---|---|---|---|---|
+| 2000–04 | 19 | 9 | 10 | 0 | 0.0% |
+| 2005–09 | 402 | 85 | 316 | 0 | 9.0% |
+| **2010–14** | **288** | **0** | **284** | **0** | **1.7%** |
+| 2015–19 | 239 | 0 | 133 | 106 | 11.7% |
+| 2020–24 | 217 | 0 | 0 | 217 | 56.2% |
+| 2025–29 | 54 | 0 | 0 | 54 | 72.2% |
+
+2010–14 is 100% revision B. So is most of 2005–09, which maps at 9.0%. Same
+form, five times the mapping rate. The form is not the variable.
+
+### What is actually happening: four labelling regimes, not a ramp
+
+Per-year, with `Human Error` counted separately from the crosswalk's other five
+categories:
+
+| year | n | mapped | `Human Error` | modern six |
+|---|---|---|---|---|
+| 2003–06 | 162 | 0% | 0 | 0 |
+| 2007 | 96 | 12% | 12 | 0 |
+| 2008 | 88 | 22% | 17 | 2 |
+| 2009 | 75 | 7% | 3 | 2 |
+| 2010–2014 | 288 | 0–4% | 0–2/yr | 0–1/yr |
+| 2015–2018 | 189 | 3–13% | 0–1/yr | 1–5/yr |
+| **2019** | 50 | **34%** | 2 | **17** |
+| 2020–2026 | 271 | 31–77% | 0–5/yr | 17–29/yr |
+
+Four regimes with sharp edges:
+
+1. **2003–2006** — free prose. No controlled vocabulary at all.
+2. **2007–2009** — a brief `Human Error` era. Almost every mapped statement in
+   this window is that one head.
+3. **2010–2018** — the trough. `Human Error` falls out of use before the modern
+   vocabulary arrives. Investigators write **ad-hoc heads of their own**: 68
+   distinct ones across 105 occurrences in 477 records, e.g. `Poor Body
+   Placement` (6), `Failure to follow company policy` (5), `Inadequate Hazard
+   Analysis` (3), `Poor Communication` (2), `Inadequate JSA` (2). Real
+   categories, not in anyone's controlled list.
+4. **2019 onward** — the modern six. Adoption jumps from 5 occurrences in 2018
+   to 17 in 2019 and never falls back.
+
+### Consequences, which are larger than the trough itself
+
+**`schema/crosswalk.yaml`'s six categories are a 2019+ vocabulary.** 948 of
+1,219 records — 78% of the corpus — predate it. That is not a defect in the
+crosswalk; it is a fact about BSEE that the crosswalk cannot fix and that
+nothing in the repo currently states.
+
+* **Era-stratified splits must use these four regimes, not 5-year bins.** A bin
+  boundary at 2015 or 2020 cuts through the middle of a regime.
+* **The gold set is a regime-4 sample.** Its 30 typed rows are drawn almost
+  entirely from post-2019 reports, so any crosswalk accuracy measured on it
+  describes the modern regime only and must say so.
+* **Weak-supervision labelling functions built on the modern vocabulary will
+  have near-zero coverage on regimes 1–3.** That is 78% of the corpus, and it is
+  the strongest argument yet for the clustering pass: the only route to labels
+  before 2019 is inference from prose, because there is nothing to extract.
+* **The trough is not recoverable by better extraction.** 105 ad-hoc head
+  occurrences across 477 records is thin, and the rest is genuinely free prose.
+  No parser fix reaches it.
+
+### Correction
+
+The completion plan called the trough "probably a form-revision artifact, not a
+real change in reporting practice". Wrong on both counts — it is not the
+revision, and it *is* a real change in reporting practice.
+
+---
+
+## 2026-08-29 — P0-A: anchors resolved by label, not by number
+
+`Recommendation Description` label bleed **30.4% → 1.5%**; records carrying
+fields 8–16 **30.9% → 99.7%**.
+
+### The spec's fix was the wrong one
+
+The spec proposed a per-revision *number* map. Dumping the raw anchor stream of
+a revision-B report showed why that would not have worked:
+
+```
+REJ  6. 'OPERATION:'            hint='ACTIVITY'            -> really field 8
+REJ  8. 'CAUSE:'                hint='OPERATION'           -> really field 9
+REJ  9. 'WATER DEPTH: 23 FT.'   hint='CAUSE'               -> really field 10
+REJ 10. 'DISTANCE FROM SHORE'   hint='WATER DEPTH'         -> really field 11
+REJ  3. 'SEA STATE: FT.'        hint='OPERATOR/CONTRACTOR' -> really field 14
+```
+
+Revision B renumbers the form face **and** two-column linearisation drops
+digits, so "13. SEA STATE" arrives as "3. SEA STATE". A number map handles the
+first and not the second. The label is reliable; the number is not.
+
+`field_for_label()` resolves each anchor by matching its tail against the label
+hints already in `bsee_form2010.yaml`, longest hint first (so "OPERATOR" cannot
+claim an "OPERATOR/CONTRACTOR" anchor), anchored at the start of the tail (so a
+hint inside prose does not open a field). Fired **6,881 times**, and needs no
+per-revision map at all — it fixes A, B and future revisions identically.
+
+### The second defect was not the one diagnosed
+
+The spec attributed field 22's contamination to the terminal-anchor sink. **It
+is not.** On 322 of the 369 affected records field 30 is correctly located. The
+real mechanism, visible in the raw text:
+
+```
+22. RECOMMENDATIONS TO PREVENT RECURRANCE | NATURE OF DAMAGE: N/A $ | NARRATIVE: | <body>
+```
+
+Field 22's label spans two visual lines with field 21's block linearising
+between them, and the label-stripper only cuts to the first colon **on the first
+line** — which has no colon. Fixed by `label_bleed_patterns` in the form spec,
+removing label fragments **in place**: cutting to `NARRATIVE:` would delete real
+text, because the body is split around the interleaved block ("The Houma
+District has no recommendation | NATURE OF DAMAGE: Ruptured, melted |
+NARRATIVE: | for the Regional Office."). Fired 3,632 times.
+
+### A regression I introduced and caught
+
+The first version normalised whitespace with `" ".join(body.split())`, which
+flattens newlines. `psm.causes.unwrap` segments fields 18/19 **by line**, so a
+bullet or category head that no longer starts a line stops starting a statement:
+cause statements fell **3,607 → 2,298**, a 36% loss, with no error anywhere.
+Fixed to normalise within lines only. This is exactly the silent-plausible-wrong
+failure the repo keeps meeting, and it was caught only because the count was
+being watched.
+
+### Acceptance criteria
+
+| # | criterion | before | after | target | |
+|---|---|---|---|---|---|
+| A1 | records with f08–f16 | 30.9% | **99.7%** | ≥90% | PASS |
+| A2 | field 7 over length | 743 | **0** | ≤100 | PASS |
+| A3 | field 30 not located | 169 | 145 | ≤40 | **FAIL** |
+| A4 | `Recommendation Description` bleed | 30.4% | **1.5%** | ≤5% | PASS |
+| A5 | `Cause Description` unusable | 7.6% | **5.4%** | ≤3% | **FAIL** |
+| A6 | records with any over-length field | 899 | 426 | ≤200 | **FAIL** |
+| A7 | longest single field | 280,537 | 267,928 | ≤20,000 | **FAIL** |
+| A8 | E19 columns losing fill | — | **0** | 0 | PASS |
+
+A3, A6 and A7 are **P0-B's** targets, not P0-A's — they are the terminal-anchor
+sink, untouched so far. A7 barely moved because one report still has 267,928
+characters in field 8. A5 is close and the residue is now short fragments rather
+than form furniture.
+
+A8 passes with four columns *gaining*: `Unit` +7.7pp (62.3→70.0),
+`Description` +2.1pp, both Acceptor fields +2.0pp. Nothing lost.
+
+### Row-count changes, and why they are not losses
+
+Cause statements 3,607 → 3,172; recommendations 1,244 → 1,186. Both fell because
+stripped label text was previously being split into spurious statements. The
+mapped *rate* rose 14.4% → **15.3%** and `typed_but_unaliased` fell 238 → 203,
+which is the direction that indicates junk removal rather than data loss.
+
+Suite unchanged at 315 passing, 2 skipped. **No new tests yet — P0-A's tests
+land with P0-B so both fixes are covered by one re-extraction.**
