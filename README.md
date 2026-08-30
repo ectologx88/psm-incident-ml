@@ -1,193 +1,216 @@
 # psm-incident-ml
 
-A public, reproducible dataset and baseline models for **process-safety incident
-investigation** ML, built from US federal offshore incident reports published by
-the Bureau of Safety and Environmental Enforcement (**BSEE**).
+A semi-synthetic process-safety incident dataset built from US federal offshore
+incident reports (BSEE MMS Form 2010), projected onto the Energy Institute PSM
+Framework **Element 19** (Incident Reporting & Investigation) template.
 
-Records are mapped toward the Energy Institute PSM Framework **Element 19**
-(Incident Reporting & Investigation) investigation-report structure.
+Every cell records its own origin. Nothing is filled unless the source supplies
+it, a versioned rule derives it, or a generator can fabricate it without
+asserting something false about a real incident.
 
-> **Status: Stage 1 — data acquisition and vocabulary induction. No models yet.**
-> Numbers marked _(pending)_ below are filled in by the pipeline, not by hand.
+## Read this before modelling
 
----
+Three properties will change what you build. Each is measured, not asserted;
+`docs/findings.md` has the method for all of them.
 
-## How this fits together
+1. **7 of the 20 PSM elements are reachable.** BSEE's six cause categories map to
+   elements 3, 6, 8, 9, 15, 17, plus 11 via secondaries. The other 13 cannot
+   appear at any coverage. A model scored on "PSM element" is running a 7-class
+   problem under a 20-class label.
+2. **Expect ~0.55 accuracy on cause-category prediction, and report macro-F1.**
+   Logistic regression on TF-IDF, n=503, 5-fold CV: 0.551 accuracy against a
+   0.392 majority baseline, macro-F1 0.418. Two categories carry the signal
+   (Equipment Failure F1 0.692, Human Performance Error 0.639); three sit near
+   F1 0.25 at n≈30. Accuracy alone rewards ignoring four of six classes.
+3. **The label vocabulary is non-stationary in four regimes.** Use the shipped
+   split in `data/processed/e19/real_only/splits.json`. A random split leaks the
+   reporting era and part of any score will be "can you tell the decade".
 
-```mermaid
-flowchart TB
-    BSEE["BSEE offshore incident PDFs<br/>(public federal records)"]:::real
-    SRC["src_ fields<br/>extracted verbatim"]:::real
-    E19FILE["Partner's E19 Excel file<br/>(reference only — never committed)"]:::structure
-    SCHEMA["e19_labels.yaml<br/>field labels extracted MECHANICALLY<br/>(never retyped)"]:::structure
-    PROJ["E19 tables<br/>byte-exact template labels<br/>+ per-cell provenance file"]:::real
-    XW["xw_ fields<br/>BSEE cause to EI PSM element<br/>(documented, arguable mapping)"]:::structure
-    SYN["syn_ fields<br/>admin / workflow placeholders<br/>(never real, never scored)"]:::synth
-    GOLD["gold_ fields<br/>hand-labelled by a human<br/>(the only valid scoring target)"]:::gold
-    MODEL["Baseline ML models<br/>(not yet trained)"]:::structure
-
-    BSEE --> SRC
-    E19FILE -. field names & picklists only .-> SCHEMA
-    SRC --> PROJ
-    SCHEMA -. names every column .-> PROJ
-    SRC --> XW
-    XW --> PROJ
-    SCHEMA -. defines required slots .-> SYN
-    SYN --> PROJ
-    SRC --> GOLD
-    PROJ --> MODEL
-    GOLD --> MODEL
-
-    classDef real fill:#e6f4ea,stroke:#2e7d32,color:#1b5e20;
-    classDef structure fill:#e8f0fe,stroke:#1a73e8,color:#174ea6;
-    classDef synth fill:#f3e8fd,stroke:#8430ce,color:#5b21b6;
-    classDef gold fill:#fff8e1,stroke:#f9a825,color:#8d6e00;
-```
-
-**Read it as:** real BSEE reports flow in as `src`; a documented, arguable
-mapping turns some of that into `xw`; where the E19 structure needs
-administrative fields BSEE doesn't publish, we generate clearly-labelled `syn_`
-placeholders; and a human labeller produces `gold_`, the only thing any model is
-ever scored against.
-
-The field labels are **extracted from the workbook mechanically, never retyped** —
-every name mismatch found in review came from a human transcribing them, so
-`psm.e19_schema` reads the labels and `psm.project` uses them at runtime. The E19
-Excel file supplies names and picklists only. It is never a data source and is
-never committed.
-
-## What is real and what is generated
-
-This is the first thing to read. The project deliberately mixes verbatim source
-data, deterministic derivations, model output, and fully synthetic filler — and
-**every column name says which it is.**
-
-| Prefix  | Origin | Real? | May you score against it? |
-|---------|--------|-------|---------------------------|
-| `src_`  | Extracted verbatim from a BSEE PDF or CSV | **Real** — traceable to a source document | It is the input, not a label |
-| `xw_`   | Deterministic crosswalk from a `src_` field via [`schema/crosswalk.yaml`](schema/crosswalk.yaml) | **Derived** — reproducible, but encodes an opinion | Only as a baseline to beat |
-| `llm_`  | Assigned by a language model | **Not ground truth** | **No. Never.** |
-| `gold_` | Assigned by a human annotator | **Real** — hand-labelled | **Yes — this is the only valid target** |
-| `syn_`  | Fully generated administrative wrapper | **Not real.** Corresponds to nothing | No |
-
-Concretely:
-
-| Artifact | Status |
-|---|---|
-| `data/manifest.csv` — URLs + SHA256 of every source PDF | **Real**, committed, verifiable |
-| `data/processed/investigations_index.csv` — BSEE structured listing | **Real**, committed |
-| `data/raw/` — the PDFs themselves | **Real**, gitignored, rebuildable from the manifest |
-| `data/processed/e19/*.csv` — the E19 tables, verbatim only | **Real** (`src`) |
-| `data/processed/e19/enriched/*.csv` — the same tables with crosswalked values filled in | **Real** + **derived**; `enriched/provenance.csv` marks every cell `src` or `xw` |
-| `data/processed/e19/bsee_unmapped.csv` — BSEE data with no E19 home | **Real** (`bsee_*`) |
-| `gold/gold_labels.csv` — evaluation-set scaffold, 100 reports stratified 2003–2026 | `src_*` reference columns are **real**; `gold_*` columns are **blank, not yet hand-labelled**. See [`docs/findings.md`](docs/findings.md) (2026-08-09) |
-| Administrative / workflow fields (reporter names, approval chain, agreed dates, recommendation tracking) | **Synthetic** (`syn_`) — the E19 template needs them; BSEE does not publish them. See [`docs/_synth.md`](docs/_synth.md) |
-| **Risk-matrix fields** (consequence, likelihood, risk score, incident classification) | **Derived (`xw`), not synthetic.** An earlier version of this table called them `syn_`; that was wrong and `enriched/provenance.csv` always said `xw`. They are computed from real BSEE fields — hazard type, operation checkboxes, damage amount — through [`schema/xw_consequence_tiers.yaml`](schema/xw_consequence_tiers.yaml). Reproducible, and an opinion. |
-
-**Why any synthetic data at all?** The E19 investigation-report structure
-includes administrative and risk-scoring fields (who reported it, internal
-tracking IDs, sign-off chains, severity/risk-matrix scores) that BSEE reports
-do not contain and that no public source provides. Those are generated by
-[`src/psm/synth.py`](src/psm/synth.py) from documented, deterministic rules in
-[`schema/synth_rules.yaml`](schema/synth_rules.yaml) — see
-[`docs/_synth.md`](docs/_synth.md) for the plain-language version. They are
-never used as features or labels, and they are always `syn_`-prefixed.
-
-## Known bias: the worst outcomes are thinned
-
-**Read this before drawing any severity-weighted conclusion.**
-
-BSEE convenes a *panel* investigation for death, serious injury or significant
-pollution, and issues a *district* report otherwise. The two are structurally
-different documents. This pipeline was built against the district form
-(MMS Form 2010); of 61 panel reports, 57 fail to parse and the 4 that do produce
-near-empty rows, so panel reports are **excluded**.
-
-That exclusion is correct on parsing grounds and wrong on sampling grounds,
-because panel reports *are* the high-severity tail:
-
-| Accident type | in the BSEE index | panel | share |
+| regime | years | incidents | cause vocabulary |
 |---|---|---|---|
-| **Fatality** | 85 | 46 | **54.1%** |
-| Blowout | 58 | 18 | 31.0% |
-| Explosion | 74 | 5 | 6.8% |
-| Pollution | 436 | 16 | 3.7% |
-| Fire | 514 | 10 | 1.9% |
-| Crane | 197 | 3 | 1.5% |
+| `free_prose` | ≤2006 | 161 | none; 0% of statements map |
+| `human_error` | 2007-2009 | 258 | one head, `Human Error` |
+| `ad_hoc` | 2010-2018 | 438 | 68 investigator-invented heads |
+| `modern_six` | 2019+ | 321 | the modern six; adoption jumps 5→17 between 2018 and 2019 |
 
-**Over half of all fatality investigations are missing from this dataset.** Three
-`Injury Fatality` records reach the output against 85 in the index; panel
-exclusion accounts for 46, and roughly 37 remain unexplained
-([`docs/findings.md`](docs/findings.md)). Any model trained here learns from a
-corpus with its worst outcomes systematically removed.
+87.1% of labelled cause statements are `modern_six`.
 
-## Provenance is per cell, not per column name
+## Tables
 
-The E19 tables are the one place the prefix convention above does **not** apply,
-and deliberately so. Their columns must carry the source workbook's field labels
-byte-exact — including its own irregularities (`Incident Classificatioin`,
-` Failed PSM Framework Element` with a leading space, `What happened?  ` with
-trailing spaces) — so a prefix would break the exactness guarantee the projection
-layer exists to provide.
+`data/processed/e19/enriched/`, byte-exact E19 column labels including the
+template's own typos (`Incident Classificatioin`, a leading space on
+` Failed PSM Framework Element`).
 
-Provenance therefore moves to a **parallel file of identical shape**, every cell
-holding `src`, `xw` or empty:
+| table | rows | grain |
+|---|---|---|
+| `incidents.csv` | 1,214 | one per incident |
+| `causes.csv` | 3,572 | one per cause statement |
+| `recommendations.csv` | 1,230 | one per recommendation |
+| `closeout.csv` | 1,230 | one per recommendation |
 
-```
-enriched/incidents.csv          the values, under exact E19 labels
-enriched/provenance.csv         same shape; per-cell src / xw / empty
-enriched/causes_provenance.csv
-enriched/causes_confidence.csv  per-cell confidence where a mapping is graded
-```
+Sidecars, all keyed on `Incident Number` (+ `Cause number` where applicable):
 
-This is stronger than a prefix: a prefix labels a whole column, while the
-parallel file labels every cell — and the same E19 column is read verbatim on one
-row and inferred on another. `tests/test_conventions.py` enforces both halves,
-including that a crosswalked value **never overwrote a verbatim one**.
+| file | contents |
+|---|---|
+| `provenance.csv`, `causes_provenance.csv` | per-cell `src` / `xw` / `syn` / empty, same shape as the table |
+| `causes_confidence.csv` | per-cell confidence where a mapping is graded |
+| `causes_secondary_element.csv` | `also_touches` element from `crosswalk.yaml` |
+| `bsee_unmapped.csv` | BSEE fields with no E19 counterpart, `bsee_` prefixed |
+| `causes_source_field.csv` | whether a statement came from form field 18 or 19 |
 
-## The reproducibility contract
+`Incident Number` is constructed (`{AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}`) because
+BSEE publishes no incident identifier. It is **variable arity**: components are
+dropped when the source lacks them. 1,002 keys have four components, 129 have
+three, 79 have two, 4 carry a content-hash suffix for colliding groups. 162 carry
+no time. All 1,214 are unique.
 
-`data/raw/` is gitignored — the repo does not redistribute BSEE PDFs. Instead
-`data/manifest.csv` is **committed** with a SHA256 per file. From a fresh clone
-you can rebuild byte-identical inputs and verify you got what we got:
+## Provenance
+
+| mark | meaning |
+|---|---|
+| `src` | read verbatim from a BSEE PDF or CSV |
+| `xw` | derived by a versioned rule in `schema/xw_*.yaml` |
+| `syn` | fabricated by `src/psm/synth.py` under `schema/synth_rules.yaml` |
+| empty | not filled; see `gap_policy` in `schema/e19_disposition.yaml` |
+
+Precedence is `src` > `xw` > `syn`. A `syn` value never displaces a real one.
+Enforced by `tests/test_conventions.py`.
+
+Composition across all four tables: **40.7% real** (`src`+`xw`), 39.0%
+fabricated, 20.4% blank by policy.
+
+Incidents table alone: 25.6% `src`, 15.1% `xw`, 30.6% `syn`, 28.7% blank.
+
+Synthetic identities are hash tokens (`SYN-Approver-da5b09`,
+`Synthetic Role — Investigation Acceptor`), never plausible names. A test asserts
+they stay distinguishable from real values.
+
+## Two artifacts
 
 ```bash
-uv run python -m psm.harvest && uv run python -m psm.fetch && uv run python -m psm.extract
+uv run python -m psm.ledger --real-only
 ```
 
-If a SHA mismatches, the pipeline says so loudly rather than proceeding.
+- `data/processed/e19/enriched/` is the full sheet, including synthetic
+  scaffolding. Use it to demo the E19 workflow end to end.
+- `data/processed/e19/real_only/` is the same tables with all `syn` cells
+  blanked, plus `splits.json`. Use it to train. Rows are blanked, not dropped,
+  so joins hold.
 
-## Data sources and licensing
+## Why cells are blank
 
-See **[DATA_SOURCES.md](DATA_SOURCES.md)** for per-source provenance, retrieval
-dates, and licence basis.
+`schema/e19_disposition.yaml` gives every column a `gap_policy`, and every
+`leave_blank` column a `blank_reason`.
 
-- **Code** in this repo is MIT licensed (see [LICENSE](LICENSE)).
-- **Source data** carries its own terms, documented per source in `DATA_SOURCES.md`.
-- The Energy Institute PSM Framework is referenced for its element structure;
-  no EI publication or workbook is reproduced here.
+| reason | columns | rule |
+|---|---|---|
+| `would_dominate` | 8 | under 50% real; fabrication would be the majority of the column |
+| `no_generator` | 13 | no honest way to produce the value. `Date of Incident` is 97.0% real and still unfillable: inventing a date asserts when a real incident happened |
+| `degenerate_fill` | 4 | a generator exists and its output carries no information. `syn_hs_risk_score` emits {2,5,9} against a real 1-25 consequence×likelihood product; the value sets are almost disjoint |
 
-## Findings
+`docs/e19_field_ledger.md` is generated from this file joined to measured
+coverage. `tests/test_ledger.py` fails the build if any claim in it stops being
+true.
 
-The running verification log — including the induced cause vocabulary, where the
-report-typing boundary actually falls, and extraction failure rate by year —
-lives in **[docs/findings.md](docs/findings.md)**, as dated append-only entries.
+## Validity
+
+Coverage is not correctness. Eight columns declare a shape check; 94.3% of
+checked cells pass.
+
+| valid | column | failures |
+|---|---|---|
+| 69.1% | `Recommendation Description` | truncated 355, form_label 18 |
+| 94.6% | `Cause Description` | too_short 186, form_label 6 |
+| 96.9% | `Incident Number` | bad_pattern 38 (time with no date) |
+
+Checks are opt-in per column. A global rule fails every code, key and picklist
+value in the dataset.
+
+## Known bias
+
+BSEE convenes a panel investigation for the most severe events and publishes
+those separately. **54.1% of fatalities in the incident index are panel cases**
+and are excluded from this corpus, which is district reports only. Severity is
+thinned at the top. Do not read the distribution as representative of offshore
+incident severity.
+
+## Pipeline
+
+Python 3.11+, `uv`. Entry points are modules:
+
+```bash
+uv run python -m psm.harvest     # index -> data/manifest.csv (1,302 rows, SHA256 per file)
+uv run python -m psm.fetch       # manifest -> data/raw/
+uv run python -m psm.extract     # PDFs -> data/interim/*.json
+uv run python -m psm.project     # interim -> data/processed/e19/  (verbatim only)
+uv run python -m psm.crosswalk   # + xw and syn -> enriched/
+uv run python -m psm.ledger --real-only
+uv run python -m psm.cluster     # the six-category partition check
+```
+
+`data/raw/` and `data/interim/` are gitignored. `data/manifest.csv` is committed
+with a SHA256 per file, so a fresh clone rebuilds byte-identical inputs.
+
+Extraction is coordinate-aware (`pdfplumber` bounding boxes). Text-stream order
+is not visual order on this form; naive `extract_text()` produces confidently
+wrong field assignments. Anchors resolve by **label**, not by printed number:
+revision B renumbers the form face, and two-column linearisation drops digits
+(`13. SEA STATE` arrives as `3. SEA STATE`).
+
+## Rules are data
+
+| file | decides |
+|---|---|
+| `bsee_form2010.yaml` | field map, furniture, label-bleed patterns, length caps |
+| `crosswalk.yaml` | BSEE cause category → PSM element |
+| `xw_incident_type.yaml` | accident-type atoms → E19 Type A/B/C/D |
+| `xw_consequence_tiers.yaml` | hazard energy, likelihood, risk score |
+| `xw_cause_qualifiers.yaml` | subcategory → Risk Management / Human Factors cause |
+| `xw_outcome.yaml` | outcome atoms → prose |
+| `e19_projection.yaml` | E19 label → BSEE source, or a blank reason |
+| `e19_disposition.yaml` | per-column disposition, gap policy, validity checks |
+| `synth_rules.yaml` | every synthetic field, with a frozen `reference_date` |
+
+Each carries its reasoning and, where relevant, the alternatives that were
+tested and rejected. `crosswalk.yaml` in particular is an opinion and is meant to
+be argued with.
+
+## Not validated
+
+`gold/gold_labels.csv` has 100 sampled cause statements and **0 hand labels**.
+Nothing in this repo has been scored against an independent human judgement. The
+crosswalk's six category→element mappings have never been checked. Any accuracy
+number you see elsewhere in these docs is model-vs-model or model-vs-rule.
+
+Also outstanding: ~37 unexplained missing fatalities in the spine join; 145
+records where form field 30 is not located because linearisation transposes its
+label and number; `e19_schema.py`, `evidence.py`, `fetch.py` and `spine.py` at 0%
+test coverage.
+
+## Sources and licensing
+
+Source documents are US federal government works (BSEE), public domain. The
+derived tables, schema files and code in this repo are released under the
+repository licence. The Energy Institute PSM Framework element *names* are
+referenced with attribution; the E19 workbook itself is not included and no
+derivative of it is committed.
 
 ## Repo layout
 
 ```
-schema/     e19_target.yaml   target schema (hand-written, no workbook)
-            bsee_form2010.yaml  source field map incl. bbox hints
-            crosswalk.yaml    BSEE cause -> E19. Versioned, human-readable, arguable
-src/psm/    harvest -> fetch -> extract -> causes -> crosswalk -> synth
-data/       manifest.csv (committed) | raw, interim (gitignored) | processed (committed)
-gold/       hand-labelled evaluation set
-docs/       findings.md — dated verification log
+data/manifest.csv           committed; SHA256 per source PDF
+data/processed/e19/         the dataset
+gold/                       sampling frame for hand labels (unlabelled)
+schema/                     every rule, as data
+src/psm/                    pipeline
+tests/                      359 tests
+docs/findings.md            append-only log: what was verified, by what method
+docs/e19_field_ledger.md    generated
 ```
 
-## Contributing / arguing with us
+## Arguing with this
 
-The crosswalk in `schema/crosswalk.yaml` is an **opinion** about how BSEE cause
-categories map onto EI PSM elements. It is deliberately kept in one readable
-screen of YAML so you can disagree with it in a pull request. If you think a
-mapping is wrong, that is the file to change — not the Python.
+`docs/findings.md` records negative results and reversals as well as successes,
+including several cases where a test corrected the rule it was written to
+encode. If a mapping looks wrong, the file that decides it is named above and the
+reasoning is inline. Open an issue against the schema file, not the CSV.

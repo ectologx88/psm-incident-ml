@@ -39,7 +39,7 @@ around 2.0. This is acceptable provided the service environment is considered, t
 are no flaws in the manufacturing process and it sustains no damage throughout its
 life. A better design would have a much higher safety factor to overcome the effects
 of the environment and to negate flaws that are not discovered.
-20. LIST THE ADDITIONAL INFORMATION:
+20.
 17. (Cont.) INVESTIGATION FINDINGS:
 1. EAC was confirmed as a failure mechanism.
 2. Stress analysis showed stresses alone were not
@@ -67,7 +67,7 @@ casing shear ram closed approximately 29 seconds after the start of the sequence
 the wellbore secured via the lower blind shear ram approximately 30 seconds later. It
 is believed that the drill pipe had parted when the riser collapsed just above the
 LMRP and fallen into the wellbore before the casing shear ram closed.
-22. (Cont.) RECOMMENDATIONS TO PREVENT RECURRENCE NARRATIVE:
+22. (Cont.) RECOMMENDATIONS TO PREVENT RECURRENCE
 1. Course of Action for MMS (Cont.)
 According to API RP 16Q (a non-referenced document) all riser systems should be
 inspected yearly with liquid penetrant or magnetic particle inspection performed in
@@ -130,12 +130,12 @@ clutch slippage is generally present especially during heavy rain or foggy condi
 These weather conditions existed and contributed to this incident.","In reviewing the reason for the boom hoist clutch becoming wet, it was determined that
 preventive maintenance activities need improvement as they relate to maintaining the
 crane house seals.",,,,,,
-c1910c975417e203bd2befba7ba82a56c17b3a6b540d37e67305d8fdec713b71,district,2003,p00188,,,11-apr-2003,2003-04-11,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/11-apr-2003-p00188.pdf,11-apr-2003-p00188.pdf,ok,freetext,"18. LIST THE PROBABLE CAUSE(S) OF ACCIDENT,
+c1910c975417e203bd2befba7ba82a56c17b3a6b540d37e67305d8fdec713b71,district,2003,p00188,,,11-apr-2003,2003-04-11,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/11-apr-2003-p00188.pdf,11-apr-2003-p00188.pdf,ok,freetext,"18. ,
 Pressurized fluids were trapped between the flow safety valve and a downstream header
 block valve. Once the flowline connection was partially opened, the trapped fluids
 were free to escape. Interviews with wellbay operators indicate that the system does
 not provide the means by which to bleed down trapped pressure downstream of the flow
-safety valve.","19. LIST THE CONTRIBUTING CAUSE(S) OF ACCIDENT,
+safety valve.","19. ,
 Worker may not have followed proper procedure or safe work practice in electing to
 remove threaded studs by cutting rather than unscrewing. Cutting of the studs may have
 resulted in a sudden separation at the connection flange rather than a gradual
@@ -298,7 +298,7 @@ re-issued in September 1995) as a potential hazard.",,,,,,
 37646d86bb75e7951dbc537270575ea8bb8fbdca40dff019224fe86a7c0bcf07,district,2007,,,,071024-pdf,2007-10-24,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/071024-pdf.pdf,071024-pdf.pdf,ok,freetext,"1) Worn/defective drill bit or improper drill bit being used for the job.
 2) Equipment was not thoroughly inspected before",,,,,,,
 233d1399f9028eaf51ef63545fb318332f77121971f38e39a366068e68341c1b,district,2007,,,,071115-pdf,2007-11-15,https://www.bsee.gov/sites/bsee.gov/files/reports/inspection-and-enforcement/071115-pdf.pdf,071115-pdf.pdf,ok,typed,"Human Error:
-Lack of communications between crew member",19. LIST THE CONTRIBUTING CAUSE(S) OF,,,,,,
+Lack of communications between crew member",19.,,,,,,
 56cd81559e727e96beebc9d3c4c7c46508feca84b9661480d9e4781a3482f2d7,district,2008,,,,080616-pdf,2008-06-16,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/inspection-and-enforcement/080616-pdf.pdf,080616-pdf.pdf,ok,freetext,"The drawworks has six motors to operate the top drive, but two of the motors were
 found not operating properly. As a result, the drawworks were not capable of
 operating at its full power capacity. The problem found with the two motors was
@@ -349,8 +349,7 @@ shifted.
 Equipment on boats, that is capable of movement should always be secured. Personnel
 should be aware of all hazards present and situations where an incident could occur.
 These should have been addressed in
-work.","19. LIST THE CONTRIBUTING CAUSE(S) OF
-High seas",,,,,,
+work.",19. High seas,,,,,,
 df38c6985b4d24ac249996ef33f9ccce52617467f111cdd0da2ad562ea38743e,district,2009,,,,090515-pdf,2009-05-15,https://www.bsee.gov/sites/bsee.gov/files/incident-summaries/data-type/090515-pdf.pdf,090515-pdf.pdf,ok,typed,"Rolls Royce, DNV, and SBMA each performed forensic engineering studies to identify the
 root cause of the incident.
 - Rolls Royce performed internal re-analysis.
@@ -369,8 +368,7 @@ goods, aerosol cans, cleaners, etc.) located inside the hot work zone causing ig
 of the fire. When workers went on break, the cutting torch was left unaccompanied
 inside the how work zone with charged fuel and oxygen in the hoses. The torch and
 hoses were melted and destroyed, allowing a continuous flow of fuel creating a larger
-fire.","19. LIST THE CONTRIBUTING CAUSE(S) OF
-1. Personnel did not remain in the
+fire.","19. 1. Personnel did not remain in the
 work ended.
 2. There was not a designated fire
 3. All flammable materials had not
@@ -523,8 +521,8 @@ risks involved before continuing with the operation",,,,,,
 0948a4ba368a58047116b3b1a6b6be30eed16a0a47f6489cf1105d5ebabb6da2,district,2012,eni,EW,921,17-august-2012,2012-08-17,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/ew-921-eni-17-august-2012.pdf,ew-921-eni-17-august-2012.pdf,ok,typed,"Equipment Failure:
 ENI final investigation revealed that the resulting fire was caused by a failed
 internal thrust bearing that allowed
-temperature increase in the presence",19. LIST THE CONTRIBUTING CAUSE(S) OF,,,,,,
-b5343d161b631f75164a031594b9f881da8afb25573b95c4df25e3df0035dc26,district,2013,mcmoran oil and gas,HI,A 536,18-july-2013,2013-07-18,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,ok,freetext,"The IP lost control of the 65# site glass after the upper pipe nipple broke. After the
+temperature increase in the presence",19.,,,,,,
+b5343d161b631f75164a031594b9f881da8afb25573b95c4df25e3df0035dc26,district,2013,mcmoran oil and gas,HI,A 536,18-july-2013,2013-07-18,https://www.bsee.gov/sites/bsee.gov/files/reports/safety/hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,hi-a-536-mcmoran-oil-and-gas-18-july-2013.pdf,text_layer_unmapped,parse_failed,"The IP lost control of the 65# site glass after the upper pipe nipple broke. After the
 upper pipe nipple broke, the weight of the sight glass and momentum caused his left
 index finger to strike the corroded edge of the ASME code plate bracket.","The IP was not wearing gloves.
 The BJSA did not include sight glass removal.
@@ -709,13 +707,11 @@ watch out for your co-worker to insure that they are
 line of fire before making lift from the platform.",,,,,,
 1074f9a8a2b583ed8a11b41c4e91e8df0c91a00119824557f1616f3ff80394c2,district,2017,bp exploration,GC,782,13-sep-2017,2017-09-13,https://www.bsee.gov/sites/bsee.gov/files/gc-782-bp-exploration-13-sep-2017.pdf,gc-782-bp-exploration-13-sep-2017.pdf,ok,freetext,"1) Improper valve alignment allowed SBM to be discharged into the Gulf of Mexcio.
 2) Personnel failed to properly verify valve alignment prior to pumping water
-overboard.","19. LIST THE CONTRIBUTING CAUSE(S) OF
-The leaking splitter valve may have",,,,,,
+overboard.",19. The leaking splitter valve may have,,,,,,
 1ece2626cebdad105abfd2188fe704526d9190275c5e2ef00013031a0938b1a0,district,2018,chevron,MC,607,01dec2018,2018-12-01,https://www.bsee.gov/sites/bsee.gov/files/reports/mc607-chevron-01dec2018.pdf,mc607-chevron-01dec2018.pdf,ok,freetext,"The extreme unexpected changes in wind speed and direction due to strong thunderstorms
 caused an excursion of the vessel's planned position. Due to these rapid changes, the
 vessel was unable to maintain position while being latched up to the well. This event
-subsequently resulted in an Emergency","19. LIST THE CONTRIBUTING CAUSE(S) OF
-N/A",,,,,,
+subsequently resulted in an Emergency",19. N/A,,,,,,
 a173db4d7adebc8cdacf2ab467b5774ec4ac82025c3669fe3dcdd18854e44a9e,district,2018,gc787a bp,,,08-may-2018,2018-05-08,https://www.bsee.gov/sites/bsee.gov/files/gc787a-bp-08-may-2018.pdf,gc787a-bp-08-may-2018.pdf,ok,freetext,"Based on BSEE's investigation and BP's internal investigation, the following findings
 were identified:
 The correct seals were not installed due to personnel not having knowledge of the
@@ -781,12 +777,10 @@ b2febb71716d60c5987b5f5a63f9dd5deed4eb1e3f87dcf5736abd234571e729,district,2020,e
 The JSA and the Nabors procedure “OPS-WIN-019” did not contain specific instructions
 on how to slow the block speed; and to set the overpull to accommodate the weight of
 the block and single casing joint.
-LIST THE CONTRIBUTING CAUSE(S) OF ACCIDENT:
 19.
 The crane was not used to control the free lower end of the joint of casing through the
 V-door, which would have helped change the positioning of the casing while picking it
 up into the derrick.
-LIST THE ADDITIONAL INFORMATION:
 20.",,,,,,,
 f8c59061e4c7493303c31c7f52965ad4bf04e366b795be22cfca504aae123548,district,2020,arena,EI,252,16-jan-2020,2020-01-16,https://www.bsee.gov/sites/bsee.gov/files/ei252-arena-16-jan-2020.pdf,ei252-arena-16-jan-2020.pdf,ok,freetext,"The crane operator did not follow the Job Safety Analysis procedures while lifting the
 personnel basket. According to the Job Safety Analysis, the crane operator was to
@@ -833,8 +827,7 @@ IP became complacent with the job.",,,,,,
 Failure to follow procedure for transferring permitted",Inadequate communication between tour change.,,,,,,
 aecc68513403334f22cc48958df81eeebe3ae86d70846e08598e2bf1e02bc9cf,district,2021,cox,ST,26 D,14-mar-2021,2021-03-14,https://www.bsee.gov/sites/bsee.gov/files/cox-st-26-d-14-mar-2021-revised.pdf,cox-st-26-d-14-mar-2021-revised.pdf,ok,freetext,"Poor communication between the dock crane operator and
 basket weight to be mislabeled.",None,,,,,,
-076fe9111e4508b2dbd1e23617701475253e394385749818c6c28d4133e97782,district,2022,enven,EW,873,03-mar-2022,2022-03-03,https://www.bsee.gov/sites/bsee.gov/files/ew_873_enven_03-mar-2022.pdf,ew_873_enven_03-mar-2022.pdf,ok,typed,Equipment Failure: Piston rod failed.,"19. LIST THE CONTRIBUTING CAUSE(S) OF
-Piston rod penetrated engine housing",,,,,,
+076fe9111e4508b2dbd1e23617701475253e394385749818c6c28d4133e97782,district,2022,enven,EW,873,03-mar-2022,2022-03-03,https://www.bsee.gov/sites/bsee.gov/files/ew_873_enven_03-mar-2022.pdf,ew_873_enven_03-mar-2022.pdf,ok,typed,Equipment Failure: Piston rod failed.,19. Piston rod penetrated engine housing,,,,,,
 4aa850016b01eeb4a182f7521444bd7a938aa61bd5039447d1551a4f4ff120ad,district,2022,shell,MC,809 A,20-aug-2022,2022-08-20,https://www.bsee.gov/sites/bsee.gov/files/shell-mc-809-a-20-aug-2022.pdf,shell-mc-809-a-20-aug-2022.pdf,ok,typed,"• Human Performance Error - Inattention to task: Torch was stored away without closing
 the bottle valves, depressurizing the lines, and ensuring the torch head valves were
 fully tightened.
@@ -1013,8 +1006,7 @@ review their emergency plans and procedures
 event of future evacuations.",,,,,,
 8d7c767c5ae3d2f5a0c15eb71a1ba271d906df141b09dfad210062a5393df85b,district,2026,Beacon Growtco Operating,MC,759,20-Feb-26,2026-02-20,https://www.bsee.gov/sites/bsee.gov/files/2026-07/MC%20759%20Beacon%20Growtco%20Operating%2020-Feb-26.pdf,MC 759 Beacon Growtco Operating 20-Feb-26.pdf,ok,typed,"- Loss of winch gear mesh function. - The electric umbilical winch lost gear mesh
 function during recovery of ROV ML242, resulting in uncontrolled payout of the
-umbilical cable.","19. LIST THE CONTRIBUTING CAUSE(S) OF
-1. Inadequate lubrication practices -
+umbilical cable.","19. 1. Inadequate lubrication practices -
 gear greasing had been completed, OEM
 ACCIDENT:
 Although scheduled maintenance records indicated

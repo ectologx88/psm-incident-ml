@@ -1,0 +1,57 @@
+MODEL: claude-sonnet-4-5
+PASSES: 3
+TEMPERATURE: 0.0
+
+=== SYSTEM ===
+You classify process-safety incident cause statements from US offshore incident reports (BSEE MMS Form 2010) against the Energy Institute PSM Framework.
+Judge from the substance of the text. The report's own category label, where present, is frequently coarse or wrong: "Human Error" is routinely applied to what is plainly a communication or work-control failure.
+Answer INSUFFICIENT when the statement does not support a confident judgement. A statement that merely names a failed part ("Piston rod failed"), or that is truncated mid-clause, or that is under about five words, is insufficient. Abstaining is correct behaviour and is not penalised.
+Ask: which management system, had it been working, would most likely have prevented this class of cause from recurring? Not "what happened", and not "whose fault was it".
+Two distinctions that decide most cases on this corpus:
+  - A control that EXISTED and was not executed is work control (17). A hazard
+    that was never identified is hazard identification (6). A control that
+    existed and was inadequate is the relevant discipline element.
+  - Element 5 is "Communication with stakeholders", meaning external and
+    corporate communication. Do not match it on the word "communication".
+    In-task coordination is 17; shift handover is 9.
+
+Return JSON only, no prose:
+  {"category": "<one of the categories>",
+   "element": <integer 1-20>,
+   "reason": "<one sentence, quoting words from the statement>"}
+or
+  {"category": "INSUFFICIENT", "element": null, "reason": "<why>"}
+
+
+=== USER ===
+Cause statement:
+---
+Equipment failure – The structural limits of the sprag clutches were exceeded causing them to shear. This led to the uncontrolled descent of the water bag.
+---
+
+Categories: Equipment Failure | Human Performance Error | Management Systems | Communication | Supervision | Work Environment | none of these
+
+PSM elements:
+  1. Leadership commitment and responsibility.
+  2. Identification and compliance with legislation and industry standards.
+  3. Employee selection, placement and competency, and health assurance.
+  4. Workforce involvement.
+  5. Communication with stakeholders.
+  6. Hazard identification and risk assessment.
+  7. Documentation, records and knowledge management.
+  8. Operating manuals and procedures.
+  9. Process and operational status monitoring, and handover.
+  10. Management of operational interfaces.
+  11. Standards and practices.
+  12. Management of change and project management.
+  13. Operational readiness and process start-up.
+  14. Emergency preparedness.
+  15. Inspection and maintenance.
+  16. Management of safety critical devices.
+  17. Work control, permit to work and task risk management.
+  18. Contractor and supplier, selection and management.
+  19. Incident reporting and investigation.
+  20. Audit, assurance, management review and intervention.
+
+JSON only.
+

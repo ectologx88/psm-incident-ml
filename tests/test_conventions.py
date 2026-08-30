@@ -177,12 +177,36 @@ class TestReadmeMatchesTheData:
         assert f"{share:.1f}%" in self._readme(), (
             f"README does not state the measured panel share of fatalities ({share:.1f}%)")
 
-    def test_readme_does_not_call_risk_scores_synthetic(self):
-        """They are computed from real BSEE fields through a versioned rule file."""
+    def test_readme_attributes_risk_scores_to_the_rule_file(self):
+        """Risk scores are `xw`, computed from real BSEE fields through
+        schema/xw_consequence_tiers.yaml. Describing them as synthetic would
+        understate what the dataset actually contains.
+
+        Rewritten 2026-08-29 with the README. The previous version keyed on a
+        prose phrase ("risk-matrix fields ... not synthetic") that a rewrite
+        removed; it now keys on the rule file being named, which survives
+        editing and is the substantive claim."""
+        text = self._readme()
+        assert "xw_consequence_tiers.yaml" in text, \
+            "README does not name the file that decides risk scores"
+        i = text.find("xw_consequence_tiers.yaml")
+        assert "risk score" in text[i:i + 200].lower(), \
+            "xw_consequence_tiers.yaml is named but not tied to the risk score"
+
+    def test_readme_states_the_element_ceiling(self):
+        """7 of 20 elements are reachable. An entrant who misses this is scoring
+        a 7-class problem under a 20-class label, and no amount of labelling
+        changes it."""
+        text = self._readme()
+        assert "7 of the 20" in text or "7 of 20" in text, \
+            "README does not state that only 7 of 20 PSM elements are reachable"
+
+    def test_readme_states_that_nothing_is_validated(self):
+        """gold/ is 0 of 100 labelled. A dataset that reads as authoritative
+        while having no ground truth is the worst outcome for a public release."""
         text = self._readme().lower()
-        i = text.find("risk-matrix fields")
-        assert i > 0, "README no longer describes the risk-matrix fields"
-        assert "not synthetic" in text[i:i + 400]
+        assert "0 hand labels" in text or "0 of 100" in text, \
+            "README does not state that the gold set is unlabelled"
 
     def test_readme_documents_the_provenance_file(self):
         assert "provenance.csv" in self._readme()

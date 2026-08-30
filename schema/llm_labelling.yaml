@@ -1,0 +1,98 @@
+# LLM cause labelling. Prompt and decoding policy, as data.
+#
+# Output goes to `llm_` columns and is NEVER scored against, per CLAUDE.md.
+# An `llm_` label is a second opinion, not a ground truth: it is derived from
+# the same text as `schema/crosswalk.yaml`'s rule, by similar reasoning, so
+# agreement between the two measures consensus and not correctness.
+#
+# What it IS good for:
+#   - coverage. The crosswalk maps 524 of 3,572 statements. This reaches the
+#     2,809 freetext ones and the pre-2019 regimes the crosswalk has no
+#     vocabulary for.
+#   - an active-learning queue. Rows where the LLM and the crosswalk disagree
+#     are where a human hour is worth most.
+#
+# Versioned here rather than embedded in Python so a run is reproducible and the
+# prompt is arguable, same as every other rule in this repo.
+
+version: 1
+model_default: "claude-sonnet-4-5"
+temperature: 0.0
+passes: 3          # self-consistency; disagreement across passes is the confidence signal
+max_chars: 1200    # truncate the statement, not the instructions
+
+# --- Closed vocabularies. A response outside these is discarded, not coerced.
+cause_categories:
+  - Equipment Failure
+  - Human Performance Error
+  - Management Systems
+  - Communication
+  - Supervision
+  - Work Environment
+  - none of these
+
+# Elements are supplied at runtime from schema/e19_labels.yaml so this file
+# cannot drift from the template's own list.
+element_source: "schema/e19_labels.yaml"
+
+# --- Abstention is a first-class answer -------------------------------------
+# Measured on this corpus: 7.6% of statements are unusable (form-label residue
+# or under five words) and 28.2% end mid-sentence. A labeller with no abstain
+# option produces a confident label for "Piston rod failed." and for a truncated
+# fragment, and those labels are indistinguishable from good ones downstream.
+abstain_token: "INSUFFICIENT"
+
+system: >
+  You classify process-safety incident cause statements from US offshore
+  incident reports (BSEE MMS Form 2010) against the Energy Institute PSM
+  Framework.
+
+  Judge from the substance of the text. The report's own category label, where
+  present, is frequently coarse or wrong: "Human Error" is routinely applied to
+  what is plainly a communication or work-control failure.
+
+  Answer INSUFFICIENT when the statement does not support a confident judgement.
+  A statement that merely names a failed part ("Piston rod failed"), or that is
+  truncated mid-clause, or that is under about five words, is insufficient.
+  Abstaining is correct behaviour and is not penalised.
+
+  Ask: which management system, had it been working, would most likely have
+  prevented this class of cause from recurring? Not "what happened", and not
+  "whose fault was it".
+
+  Two distinctions that decide most cases on this corpus:
+    - A control that EXISTED and was not executed is work control (17). A hazard
+      that was never identified is hazard identification (6). A control that
+      existed and was inadequate is the relevant discipline element.
+    - Element 5 is "Communication with stakeholders", meaning external and
+      corporate communication. Do not match it on the word "communication".
+      In-task coordination is 17; shift handover is 9.
+
+  Return JSON only, no prose:
+    {"category": "<one of the categories>",
+     "element": <integer 1-20>,
+     "reason": "<one sentence, quoting words from the statement>"}
+  or
+    {"category": "INSUFFICIENT", "element": null, "reason": "<why>"}
+
+user_template: |
+  Cause statement:
+  ---
+  {statement}
+  ---
+
+  Categories: {categories}
+
+  PSM elements:
+  {elements}
+
+  JSON only.
+
+# --- Confidence, from self-consistency --------------------------------------
+# Not the model's stated confidence, which is not calibrated. Agreement across
+# independent passes at temperature 0 varies only where the prompt genuinely
+# underdetermines the answer, which is the property worth measuring.
+confidence:
+  high: "all passes agree on the element"
+  medium: "a majority agree"
+  low: "no majority, or any pass abstained"
