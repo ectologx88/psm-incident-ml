@@ -94,18 +94,29 @@ class TestTheClaimsAreTrue:
             assert n == total, (
                 f"{table}.{col!r} claims gap_policy: none but is {n}/{total}")
 
-    def test_synthetic_columns_are_empty_until_the_synth_layer_is_wired(self, spec, seen):
-        """When synth IS wired, replace this with an assertion that every cell
-        in these columns carries provenance `syn`. Do not delete it -- the
-        failure is the reminder, and an unmarked fabricated column is the single
-        worst outcome available to this project."""
-        for table, col, entry in _entries(spec):
-            if entry["disposition"] != "synthetic_column":
+    def test_synthetic_columns_carry_syn_provenance(self, spec):
+        """Rewritten 2026-08-29 when synth was wired, as its predecessor's
+        failure message instructed. It previously asserted these columns were
+        EMPTY; it now asserts every value in them is marked `syn`.
+
+        An unmarked fabricated column is the single worst outcome available to
+        this project, so the assertion moved rather than being deleted."""
+        import csv as _csv
+        from psm.ledger import E19
+        _csv.field_size_limit(10 ** 9)
+        with (E19 / "enriched" / "incidents.csv").open(encoding="utf-8", newline="") as fh:
+            data = list(_csv.DictReader(fh))
+        with (E19 / "enriched" / "provenance.csv").open(encoding="utf-8", newline="") as fh:
+            prov = list(_csv.DictReader(fh))
+        checked = 0
+        for col, entry in spec["fields"]["incidents"].items():
+            if entry["disposition"] != "synthetic_column" or not entry.get("generator"):
                 continue
-            n, _ = seen[table][col]
-            assert n == 0, (
-                f"{table}.{col!r} is a synthetic_column but carries {n} values -- "
-                "if synth is now wired, rewrite this test to assert provenance == 'syn'")
+            for d, p in zip(data, prov):
+                if (d[col] or "").strip():
+                    checked += 1
+                    assert p[col] == "syn", f"{col!r}: value marked {p[col]!r}, not syn"
+        assert checked > 0, "no synthetic column carries any value -- synth is not wired"
 
 
 class TestTheGeneratorPromisesAreKeepable:
@@ -272,9 +283,17 @@ class TestTheGapFillSplit:
             n, total = seen[table][col]
             share = n / total
             if entry.get("gap_policy") == "leave_blank":
-                assert share < 0.5, (
-                    f"{table}.{col!r} is {100 * share:.1f}% real but still "
-                    "leave_blank -- it crossed the line; decide deliberately")
+                # Two reasons, one policy. The 50% rule is only about the
+                # `would_dominate` case; `no_generator` applies at any share --
+                # `Date of Incident` is 97.0% real and still unfillable, because
+                # inventing a date asserts when a real incident happened.
+                assert entry.get("blank_reason") in ("would_dominate", "no_generator"), \
+                    f"{table}.{col!r}: leave_blank with no blank_reason"
+                if entry["blank_reason"] == "would_dominate":
+                    assert share < 0.5, (
+                        f"{table}.{col!r} is {100 * share:.1f}% real but still "
+                        "leave_blank/would_dominate -- it crossed the line; "
+                        "decide deliberately")
             elif entry.get("gap_policy") == "fabricate":
                 assert share >= 0.5 or total == n, (
                     f"{table}.{col!r} is only {100 * share:.1f}% real but marked "

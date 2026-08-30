@@ -35,7 +35,7 @@ from psm.project import DEFAULT_OUT
 from psm.synth import load_rules, synthesize_row
 
 VALID_PREFIXES = ("src_", "xw_", "llm_", "gold_", "syn_")
-PROVENANCE_TOKENS = {"", "src", "xw", "llm", "gold", "syn"}
+PROVENANCE_TOKENS = {"", "src", "xw", "llm", "gold", "syn"}   # `syn` live since 2026-08-29
 
 E19_TABLES = ["incidents", "causes", "recommendations", "closeout"]
 
@@ -110,6 +110,35 @@ class TestE19TablesCarryParallelProvenance:
         orphan = sum(1 for d, p in zip(data, prov) for c in d
                      if p[c] and not (d[c] or "").strip())
         assert orphan == 0, f"{orphan} provenance marks with no value"
+
+    def test_syn_never_overwrote_a_real_value(self):
+        """Precedence is src > xw > syn, and it is the whole guarantee.
+
+        A `syn` cell sitting where a `src` or `xw` value belonged would be a
+        fabricated value wearing a real one's place -- the single worst outcome
+        available to this project, and invisible without this check.
+        """
+        base = self._read(DEFAULT_OUT / "incidents.csv")
+        data = self._read(DEFAULT_OUT / "enriched" / "incidents.csv")
+        prov = self._read(DEFAULT_OUT / "enriched" / "provenance.csv")
+        for b, d, p in zip(base, data, prov):
+            for c in d:
+                if p[c] == "syn":
+                    assert not (b.get(c) or "").strip(), (
+                        f"{c!r}: syn wrote over a verbatim value")
+
+    def test_synthetic_identities_are_never_mistakable_for_people(self):
+        """Hash tokens, not plausible names. A realistic fake name in a public
+        dataset is worse than an obvious placeholder, because someone will
+        eventually quote it as a real investigator."""
+        data = self._read(DEFAULT_OUT / "enriched" / "incidents.csv")
+        prov = self._read(DEFAULT_OUT / "enriched" / "provenance.csv")
+        cols = [c for c in data[0] if "Name" in c or "Position" in c]
+        for d, p in zip(data, prov):
+            for c in cols:
+                if p[c] == "syn" and (d[c] or "").strip():
+                    assert d[c].startswith(("SYN-", "Synthetic Role")), \
+                        f"{c!r}: synthetic identity {d[c]!r} does not announce itself"
 
     def test_xw_never_overwrote_a_verbatim_value(self):
         """The stated invariant of the enrichment step: verbatim always wins."""

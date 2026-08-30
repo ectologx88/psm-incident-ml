@@ -2613,3 +2613,80 @@ secondary, and emitting a secondary where no primary exists. All four caught.
 
 Suite 343 → 348. **Phase 1's two decisions are closed; Phase 2 (synth wiring)
 is unblocked.**
+
+---
+
+## 2026-08-29 — P2: synth wired. 17,583 synthetic cells, all marked `syn`
+
+`synth.py` was written and tested on 2026-08-09 and imported by nothing in
+production for three weeks. The incidents table now reads:
+
+| provenance | cells | |
+|---|---|---|
+| `syn` | 17,583 | 33.7% |
+| blank | 13,397 | 25.7% |
+| `src` | 13,340 | 25.6% |
+| `xw` | 7,882 | 15.1% |
+
+Precedence is **src > xw > syn**, enforced by
+`test_syn_never_overwrote_a_real_value`.
+
+### `fabricate` was over-claimed, and the audit was the point
+
+Before wiring, **zero** of the 20 `fabricate` columns declared a generator, and
+synth has one for only seven. Synth produces workflow, identity and risk-encoding
+fields. It has nothing for `Site`, `Area`, `Unit`, `Date of Incident`,
+`Description`, `What happened?` or `Incident Type A/B/C` — and it should not,
+because inventing a platform designator or an incident date asserts something
+specific and false about a real facility on a real day.
+
+So 13 columns moved to `leave_blank`, and `gap_policy` now carries a
+`blank_reason`:
+
+* **`would_dominate`** (8 columns) — under 50% real, the D1 rule.
+* **`no_generator`** (13 columns) — no honest way to produce the value,
+  whatever the real share.
+
+That split was forced by a **test contradiction**, not foresight: after moving
+`Date of Incident` to `leave_blank`, the D1 test failed with *"Date of Incident
+is 97.0% real but still leave_blank"*. Both facts were true. One policy was
+carrying two arguments, and the test found it.
+
+A **hash token is not a false claim.** `SYN-Approver-da5b09` says "we do not
+know who", which is true; a plausible fake name would be worse than a blank,
+because someone eventually quotes it. `test_synthetic_identities_are_never_
+mistakable_for_people` pins that.
+
+### Two bugs, one of which I reintroduced
+
+**1. A bare `except Exception` produced zero synthetic cells, silently.**
+`synth_date_fields` wants a `date` and was handed a string; the blanket handler
+swallowed the `TypeError` and the run reported success with nothing written.
+This is precisely the silent-plausible-wrong failure the repo keeps meeting,
+reintroduced by the code meant to be careful about it. Replaced with a counted,
+reported skip reason — which then immediately surfaced a second type error
+(`incident_types` wants a set, not a list) that would otherwise have been
+swallowed the same way.
+
+**2. Synth wrote 143 illegal values into a controlled column.**
+`syn_incident_classification` emits `"Unknown"`, which is not in E19's
+three-value picklist. `test_projection.py::test_no_illegal_values_in_any_
+committed_table` caught it. Synthetic values now clear the same vocabulary guard
+`psm.project` applies to verbatim ones — *blank beats a wrong value in a
+controlled column* — and the 143 rejections are reported rather than written.
+
+### Result
+
+| | before | after |
+|---|---|---|
+| real | 40.3% | **42.3%** |
+| fabricated (projected) | 45.0% | **39.7%** |
+| deliberately blank | 14.7% | **18.0%** |
+
+Real rose because Phase 0's extraction fixes landed in the same regeneration.
+Fabricated fell because 13 columns stopped claiming a fill they had no generator
+for. Suite 348 → 350.
+
+**The dataset is not dense, and that is now a stated property rather than an
+unmet goal.** 25.7% of the incidents table is blank, every blank has a recorded
+reason, and no column claims a fill it cannot honestly produce.

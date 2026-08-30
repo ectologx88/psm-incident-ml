@@ -40,6 +40,7 @@ XW_ELEMENT = REPO / "schema" / "crosswalk.yaml"
 XW_QUAL = REPO / "schema" / "xw_cause_qualifiers.yaml"
 XW_TIERS = REPO / "schema" / "xw_consequence_tiers.yaml"
 XW_OUTCOME = REPO / "schema" / "xw_outcome.yaml"
+DISPOSITION = REPO / "schema" / "e19_disposition.yaml"
 INTERIM = REPO / "data" / "interim"
 DEFAULT_OUT = E19 / "enriched"
 
@@ -285,6 +286,41 @@ def enrich_causes(causes: list[dict], spec: dict, qual: dict) -> tuple[list[dict
     return out, prov, stats
 
 
+def synth_for_row(row: dict, side: dict, atoms: list[str],
+                  rules: dict) -> tuple[dict, str | None]:
+    """Every `syn_*` field for one incident, plus why it was skipped if it was.
+
+    synth.py has existed and been tested since 2026-08-09 and was imported by
+    nothing in production -- `grep -rn "from psm.synth" src/` returned tests
+    only. This is the wiring.
+
+    Returns the reason rather than swallowing it. The first version here had a
+    bare `except Exception: return {}` and silently produced ZERO synthetic
+    cells across the whole corpus, because `synth_date_fields` wants a `date`
+    and was handed a string. Silent, plausible, wrong -- the failure this repo
+    keeps meeting, reintroduced by the very code meant to be careful.
+    """
+    from psm.synth import synthesize_row
+    raw_date = (row.get("Date of Incident") or "").strip()
+    if not raw_date:
+        return {}, "no_incident_date"
+    try:
+        incident_date = dt.date.fromisoformat(raw_date)
+    except ValueError:
+        return {}, "unparseable_date"
+    dm = RE_MONEY.search(side.get("bsee_property_damaged", "") or "")
+    try:
+        return synthesize_row({
+            "report_id": row["Incident Number"],
+            "incident_date": incident_date,
+            "incident_types": set(atoms),
+            "property_damage_usd": float(dm.group(1).replace(",", "")) if dm else None,
+            "area_block": f"{row.get('Site', '')} {row.get('Area', '')}".strip(),
+        }, rules), None
+    except Exception as exc:
+        return {}, f"{type(exc).__name__}: {exc}"[:80]
+
+
 def outcome_text(atoms: list[str], damage: str | None, spec: dict) -> str:
     """Render BSEE outcome atoms as an English sentence -- E19's "What was the
     outcome?", fallback tier.
@@ -336,6 +372,14 @@ def main(argv=None) -> int:
 
     tiers = yaml.safe_load(XW_TIERS.read_text(encoding="utf-8"))
     ospec = yaml.safe_load(XW_OUTCOME.read_text(encoding="utf-8"))
+    disp = yaml.safe_load(DISPOSITION.read_text(encoding="utf-8"))
+    from psm.synth import load_rules
+    srules = load_rules()
+    # column -> syn_* generator, for the incidents table only. `synthetic_column`
+    # entries fill wholesale; `fabricate` entries fill only where src/xw left a
+    # hole. Both are marked `syn`, never `src` or `xw`.
+    gen_for = {c: e["generator"] for c, e in disp["fields"]["incidents"].items()
+               if e.get("generator")}
     marks_by_sha = {}
     for pth in INTERIM.glob("*.json"):
         d = json.loads(pth.read_text(encoding="utf-8"))
@@ -343,6 +387,15 @@ def main(argv=None) -> int:
     side_by_id = {r["Incident Number"]: r for r in load(E19 / "bsee_unmapped.csv")}
 
     filled: dict[str, int] = {}
+    synfilled: dict[str, int] = {}
+    synskip: dict[str, int] = {}
+    synillegal: dict[str, int] = {}
+    # Picklists, by E19 column. Same source psm.project reads.
+    from psm.project import load_yaml, picklists
+    legal = picklists(yaml.safe_load((REPO / "schema" / "e19_labels.yaml")
+                                     .read_text(encoding="utf-8")),
+                      yaml.safe_load((REPO / "schema" / "e19_projection.yaml")
+                                     .read_text(encoding="utf-8")))
     unjoined = 0
     enriched, prov = [], []
     for row in inc:
@@ -367,6 +420,31 @@ def main(argv=None) -> int:
                 e[col] = val
                 p[col] = "xw"
                 filled[col] = filled.get(col, 0) + 1
+
+        # Synthetic fill, LAST. src beats xw beats syn, always -- the precedence
+        # that keeps `syn` from ever displacing something real.
+        if gen_for:
+            syn, why = synth_for_row(row, sr, atoms, srules)
+            if why:
+                synskip[why] = synskip.get(why, 0) + 1
+            for col, key in gen_for.items():
+                if col not in cols or (e.get(col) or "").strip():
+                    continue
+                v = syn.get(key)
+                if v is None or str(v).strip() == "":
+                    continue
+                # A synthetic value must clear the same picklist guard that
+                # psm.project applies to verbatim ones: "blank beats a wrong
+                # value in a controlled column". synth's
+                # `syn_incident_classification` emits "Unknown", which is not in
+                # E19's three-value vocabulary; 143 illegal cells shipped before
+                # test_projection caught it.
+                if col in legal and str(v) not in legal[col]:
+                    synillegal[col] = synillegal.get(col, 0) + 1
+                    continue
+                e[col] = str(v)
+                p[col] = "syn"
+                synfilled[col] = synfilled.get(col, 0) + 1
         enriched.append(e)
         prov.append(p)
 
@@ -410,6 +488,14 @@ def main(argv=None) -> int:
 
     n = len(inc)
     print(f"enriched {n} incidents -> {args.out}")
+    print(f"  synthetic fill: {sum(synfilled.values()):,} cells across "
+          f"{len(synfilled)} columns")
+    for c, k in sorted(synfilled.items(), key=lambda x: -x[1]):
+        print(f"    {k:5d}  {c}")
+    if synskip:
+        print(f"  synth skipped {sum(synskip.values())} rows: {synskip}")
+    if synillegal:
+        print(f"  synth values rejected by picklist: {synillegal}")
     print(f"  unjoined to spine (no atoms available): {unjoined} ({100*unjoined/n:.1f}%)")
     for col in ("Incident Type A", "Incident Type B", "Incident Type C", "Incident Type D",
                 "Health & Safety  - Consequence", "Health & Safety - Likelihood",

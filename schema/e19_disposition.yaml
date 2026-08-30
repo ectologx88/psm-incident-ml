@@ -66,7 +66,19 @@ gap_policies:
     provenance forms roughly the right impression.
   leave_blank: >
     Empty cells stay empty, and the blank is part of the deliverable. Applied
-    where fabrication would DOMINATE the column.
+    for one of TWO reasons, recorded per column in `blank_reason`, because they
+    are different arguments and conflating them hid a contradiction:
+
+      would_dominate  the column is under 50% real, so fabrication would be the
+                      majority of it (the rule below)
+      no_generator    synth.py has no honest way to produce this value, whatever
+                      the column's real share. `Date of Incident` is 97.0% real
+                      and still cannot be filled: inventing a date asserts when a
+                      real incident happened.
+
+    A test enforces the 50% rule ONLY for `would_dominate`. Before the split it
+    enforced it for both and failed on `Date of Incident`, which is how the
+    conflation was found.
 
     The line is drawn at 50% real, and it is not arbitrary: it is the point
     where a glance at the column gives the right general impression. Above it,
@@ -139,29 +151,51 @@ fields:
       note: "constructed key; BSEE publishes no incident identifier"
     "Date of Incident":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
+      blank_reason: no_generator
       validity: {pattern: '\d{4}-\d{2}-\d{2}'}
-    "Time of Incident": {disposition: real, gap_policy: fabricate}
-    "Site":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE area code replaces the template's placeholder facility names"}
-    "Area":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE block number"}
-    "Unit":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE platform designator"}
+    "Time of Incident":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+    "Site":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      note: "vocabulary_exempt; BSEE area code replaces the template's placeholder facility names"
+    "Area":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      note: "vocabulary_exempt; BSEE block number"
+    "Unit":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      note: "vocabulary_exempt; BSEE platform designator"
     # 37.8% real. Not a modelling target, but the 50% rule is applied
     # UNIVERSALLY rather than scoped to targets: a fabricated location detail
     # still asserts something about a real named incident that BSEE never said.
-    "Detail": {disposition: real, gap_policy: leave_blank}
+    "Detail":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: would_dominate
     "Description":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
+      blank_reason: no_generator
       validity: {no_form_label: true}
     "What happened?  ":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
+      blank_reason: no_generator
       validity: {no_form_label: true, min_words: 5}
     # The three narrative columns and the two description columns are where
     # form-furniture contamination lands, so they carry the checks.
     "What was the outcome?":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
+      blank_reason: no_generator
       validity: {no_form_label: true, min_words: 4, terminal_punctuation: true}
       note: "Two tiers already: verbatim field 17 sentence (src), then xw_outcome.yaml composition."
     "How did the incident occur":
@@ -172,42 +206,81 @@ fields:
       # Not a modelling target, and still the most misleading thing that could
       # go in this dataset.
       gap_policy: leave_blank
+      blank_reason: would_dominate
       validity: {no_form_label: true, min_words: 5}
       note: >
         19.5%, capped by the source: it requires a SEQUENCE OF EVENTS heading,
         and falling back to the whole narrative would duplicate "What happened?"
         into both columns and imply a separation the document does not make.
-    "Investigation leader - Name":                       {disposition: real, gap_policy: fabricate}
-    "Investigation Acceptor/Approver (Owner) - Name":     {disposition: real, gap_policy: fabricate}
-    "Investigation Acceptor/Approver (Owner)- Position":  {disposition: real, gap_policy: fabricate}
+    # A hash token is not a false claim -- it says "we do not know who", which
+    # is true. Contrast a fabricated platform designator, which would assert
+    # something specific and wrong about a real facility.
+    "Investigation leader - Name":
+      {disposition: real, gap_policy: fabricate, generator: syn_investigation_lead_name}
+    "Investigation Acceptor/Approver (Owner) - Name":
+      {disposition: real, gap_policy: fabricate, generator: syn_investigation_acceptor_name}
+    "Investigation Acceptor/Approver (Owner)- Position":
+      {disposition: real, gap_policy: fabricate, generator: syn_investigation_acceptor_position}
 
     # --- real AND a plausible modelling target ---------------------------
     # Fabricating gaps here is the risky move. Kept dense per the dataset's
     # design, and excluded wholesale by `psm.ledger --real-only`.
-    "Incident Type A": {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Incident Type B": {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Incident Type C": {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Incident Type A":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      modelling_target: true
+    "Incident Type B":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      modelling_target: true
+    "Incident Type C":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      modelling_target: true
     "Incident Type D":
       disposition: real
       gap_policy: leave_blank
+      blank_reason: would_dominate
       modelling_target: true
       note: "18.4% real. Most atoms map to a deliberate null rather than a guess, so 81.6% of this column will be syn."
     "Incident Classificatioin":
       disposition: real
       gap_policy: fabricate
       modelling_target: true
+      generator: syn_incident_classification
       note: "xw from the risk score. NOT BSEE field 28, whose MAJOR/MINOR vocabulary is a different scale."
-    "Incident Classification":                    {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Health & Safety  - Consequence":             {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Health & Safety - Likelihood":               {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Health & Safety - Risk Score":               {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Health & Safety Incident - Classification":  {disposition: real, gap_policy: fabricate, modelling_target: true}
+    "Incident Classification":
+      {disposition: real, gap_policy: fabricate, modelling_target: true,
+       generator: syn_incident_classification}
+    "Health & Safety  - Consequence":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      modelling_target: true
+    "Health & Safety - Likelihood":
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: no_generator
+      modelling_target: true
+    "Health & Safety - Risk Score":
+      {disposition: real, gap_policy: fabricate, modelling_target: true,
+       generator: syn_hs_risk_score}
+    "Health & Safety Incident - Classification":
+      {disposition: real, gap_policy: fabricate, modelling_target: true,
+       generator: syn_incident_classification}
     # Below the 50% line: 15.3% real. See gap_policies.leave_blank.
     "Environment & Reputation  - Consequence":
-      {disposition: real, gap_policy: leave_blank, modelling_target: true}
+      disposition: real
+      gap_policy: leave_blank
+      blank_reason: would_dominate
+      modelling_target: true
     "Financial Cost & Business Interruption  - Consequence":
       disposition: real
       gap_policy: leave_blank
+      blank_reason: would_dominate
       modelling_target: true
       note: "From field 21's real dollar figure. Basis is ACTUAL, unlike the H&S column, which is potential."
 
@@ -295,6 +368,7 @@ fields:
     " Failed PSM Framework Element":
       disposition: real
       gap_policy: leave_blank
+      blank_reason: would_dominate
       modelling_target: true
       note: >
         14.4% real, and the most contested column in the project. The mapping is
@@ -303,11 +377,13 @@ fields:
     "Risk Management Cause":
       disposition: real
       gap_policy: leave_blank
+      blank_reason: would_dominate
       modelling_target: true
       note: "7.6% real. Low because only about a third of statements name a subcategory; the rest are prose."
     "Human Factors  Cause":
       disposition: real
       gap_policy: leave_blank
+      blank_reason: would_dominate
       modelling_target: true
       note: "4.2% real. Graded, with per-cell confidence in causes_confidence.csv."
     "Cause type":
