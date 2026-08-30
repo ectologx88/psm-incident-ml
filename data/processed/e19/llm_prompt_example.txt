@@ -1,4 +1,4 @@
-MODEL: claude-sonnet-4-5
+MODEL: us.anthropic.claude-haiku-4-5-20251001-v1:0
 PASSES: 3
 TEMPERATURE: 0.0
 
@@ -26,7 +26,7 @@ or
 === USER ===
 Cause statement:
 ---
-Equipment failure – The structural limits of the sprag clutches were exceeded causing them to shear. This led to the uncontrolled descent of the water bag.
+Management Systems – No or inadequate hazard analysis/written job procedure: Job Safety Analysis (JSA) for the transfer of diesel was not found.
 ---
 
 Categories: Equipment Failure | Human Performance Error | Management Systems | Communication | Supervision | Work Environment | none of these

@@ -22,14 +22,26 @@ Outputs, all under `data/processed/e19/`:
     Sorted so the confident disagreements come first: an LLM that is uncertain
     and differs is less informative than one that is certain and differs.
 
-Requires ``ANTHROPIC_API_KEY``. ``--dry-run`` writes the prompts it would send
-and exits, so the prompt is reviewable without a key and without spend.
+Two backends. ``--backend bedrock`` uses boto3 and your AWS credential chain;
+``--backend anthropic`` uses ``ANTHROPIC_API_KEY``. ``--dry-run`` writes the
+prompt it would send and exits, so it is reviewable without a key and without
+spend.
+
+``--pilot`` runs only the statements the crosswalk can also label, which is how
+the model choice should be settled: it produces a number instead of an opinion.
+There are 524 of them; ``--pilot --limit 60`` is enough to separate two models
+and costs under a dollar per model.
+
+Cost, measured from the real prompt (avg 724 input tokens, 3 passes over 3,572
+statements = 10,716 calls, 7.75M in / 0.86M out): Haiku 3.5 ~$9.63,
+Haiku 4.5 ~$12.04, Sonnet 4.5 ~$36.12. Cost is not the deciding factor at this
+scale; label quality is, because these labels drive a schema decision.
 
 Run::
 
     uv run python -m psm.llm_label --dry-run
-    uv run python -m psm.llm_label --limit 100
-    uv run python -m psm.llm_label
+    uv run python -m psm.llm_label --backend bedrock --pilot --model <haiku-id>
+    uv run python -m psm.llm_label --backend bedrock --model <chosen-id>
 """
 
 from __future__ import annotations
@@ -128,7 +140,31 @@ def consolidate(results: list[dict | None], spec: dict) -> dict:
             "confidence": conf, "reason": pick["reason"], "agreed": n}
 
 
-def call(system: str, user: str, model: str, temperature: float) -> str:
+BEDROCK_DEFAULTS = {
+    # Inference-profile IDs. Bedrock model IDs are region-prefixed and change;
+    # pass --model explicitly if `aws bedrock list-inference-profiles` disagrees.
+    "haiku": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "sonnet": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+}
+
+
+def call_bedrock(system: str, user: str, model: str, temperature: float,
+                 region: str) -> str:
+    """Bedrock Converse. Uses the standard AWS credential chain, so it picks up
+    a profile, env vars, SSO or an instance role without this module knowing
+    which."""
+    import boto3
+    client = boto3.client("bedrock-runtime", region_name=region)
+    resp = client.converse(
+        modelId=model,
+        system=[{"text": system}],
+        messages=[{"role": "user", "content": [{"text": user}]}],
+        inferenceConfig={"maxTokens": 400, "temperature": temperature},
+    )
+    return "".join(b.get("text", "") for b in resp["output"]["message"]["content"])
+
+
+def call_anthropic(system: str, user: str, model: str, temperature: float) -> str:
     from anthropic import Anthropic
     client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     msg = client.messages.create(
@@ -140,15 +176,33 @@ def call(system: str, user: str, model: str, temperature: float) -> str:
 def main(argv=None) -> int:
     spec = yaml.safe_load(SPEC.read_text(encoding="utf-8"))
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--model", default=spec["model_default"])
+    ap.add_argument("--backend", choices=("bedrock", "anthropic"), default="bedrock")
+    ap.add_argument("--region", default=os.environ.get("AWS_REGION", "us-east-1"))
+    ap.add_argument("--model", default=None,
+                    help="model or inference-profile id; defaults per backend")
+    ap.add_argument("--pilot", action="store_true",
+                    help="only the statements the crosswalk can also label")
     ap.add_argument("--passes", type=int, default=spec["passes"])
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--out", type=Path, default=E19)
     args = ap.parse_args(argv)
 
+    if args.model is None:
+        args.model = (BEDROCK_DEFAULTS["haiku"] if args.backend == "bedrock"
+                      else spec["model_default"])
+
     elems = elements()
     rows = statements()
+    if args.pilot:
+        # Deterministic subsample, not the first N: the causes table is ordered
+        # by incident, so a head slice would be one era and a handful of
+        # operators.
+        import hashlib
+        rows = sorted((r for r in rows if r["xw_element"]),
+                      key=lambda r: hashlib.sha256(
+                          f'{r["incident"]}#{r["cause"]}'.encode()).hexdigest())
+        print(f"pilot: {len(rows)} statements the crosswalk also labels")
     if args.limit:
         rows = rows[: args.limit]
 
@@ -164,16 +218,21 @@ def main(argv=None) -> int:
         print(f"prompt written to {path}")
         return 0
 
-    if "ANTHROPIC_API_KEY" not in os.environ:
+    if args.backend == "anthropic" and "ANTHROPIC_API_KEY" not in os.environ:
         print("ANTHROPIC_API_KEY is not set. Use --dry-run to inspect the prompt.",
               file=sys.stderr)
         return 1
 
+    def invoke(s, u):
+        if args.backend == "bedrock":
+            return call_bedrock(s, u, args.model, spec["temperature"], args.region)
+        return call_anthropic(s, u, args.model, spec["temperature"])
+
     out = []
     for i, r in enumerate(rows, 1):
         sysmsg, user = build_prompt(spec, r["text"], elems)
-        passes = [parse_response(call(sysmsg, user, args.model, spec["temperature"]),
-                                 spec, elems) for _ in range(args.passes)]
+        passes = [parse_response(invoke(sysmsg, user), spec, elems)
+                  for _ in range(args.passes)]
         c = consolidate(passes, spec)
         out.append({**r, "llm_cause_category": c["category"],
                     "llm_psm_element": c["element"],
@@ -182,9 +241,10 @@ def main(argv=None) -> int:
         if i % 50 == 0:
             print(f"  {i}/{len(rows)}", file=sys.stderr)
 
+    suffix = f"_{args.backend}_pilot" if args.pilot else ""
     cols = ["incident", "cause", "text", "xw_element", "llm_cause_category",
             "llm_psm_element", "llm_confidence", "llm_passes_agreed", "llm_reason"]
-    with (args.out / "llm_causes.csv").open("w", encoding="utf-8", newline="") as fh:
+    with (args.out / f"llm_causes{suffix}.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         w.writerows(out)
@@ -195,20 +255,21 @@ def main(argv=None) -> int:
     dis = [r for r in out if r["xw_element"] and r["llm_psm_element"]
            and r["xw_element"] != r["llm_psm_element"]]
     dis.sort(key=lambda r: order.get(r["llm_confidence"], 3))
-    with (args.out / "llm_disagreements.csv").open("w", encoding="utf-8", newline="") as fh:
+    with (args.out / f"llm_disagreements{suffix}.csv").open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         w.writerows(dis)
 
     both = [r for r in out if r["xw_element"] and r["llm_psm_element"]]
     agree = len(both) - len(dis)
-    print(f"labelled {len(out)} statements -> {args.out / 'llm_causes.csv'}")
+    print(f"model: {args.model} via {args.backend}")
+    print(f"labelled {len(out)} statements -> {args.out / f'llm_causes{suffix}.csv'}")
     print(f"  abstained/unparseable : {sum(1 for r in out if not r['llm_psm_element'])}")
     print(f"  confidence            : {dict(Counter(r['llm_confidence'] for r in out))}")
     print(f"  comparable to crosswalk: {len(both)}")
     print(f"  AGREEMENT (not accuracy): {agree}/{len(both)} = "
           f"{100 * agree / len(both):.1f}%" if both else "  no comparable rows")
-    print(f"  disagreement queue    -> {args.out / 'llm_disagreements.csv'} ({len(dis)} rows)")
+    print(f"  disagreement queue    -> {args.out / f'llm_disagreements{suffix}.csv'} ({len(dis)} rows)")
     return 0
 
 
