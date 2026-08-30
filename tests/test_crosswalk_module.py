@@ -14,6 +14,7 @@ import pytest
 import yaml
 
 from psm.crosswalk import (
+    outcome_text,
     SEV,
     XW_TIERS,
     XW_TYPE,
@@ -176,3 +177,84 @@ class TestSpineJoin:
                  "src_area_block": "MC 778", "src_accident_type": "Pollution"}]
         by_time, _ = spine_index(rows)
         assert by_time[("2022-06-06", 630)]["src_accident_type"] == "Fire"
+
+
+@pytest.fixture(scope="module")
+def ospec() -> dict:
+    from psm.crosswalk import XW_OUTCOME
+    return yaml.safe_load(XW_OUTCOME.read_text(encoding="utf-8"))
+
+
+class TestOutcomeText:
+    """The fallback tier for E19's "What was the outcome?".
+
+    The column was 0% filled and coded `blank: extractable` -- a to-do nobody
+    could act on. It now fills in two tiers: a verbatim field 17 sentence
+    (`src`, 434 records) and this composition (`xw`, 649). These tests guard the
+    boundary that keeps the second honest.
+    """
+
+    def test_no_atoms_yields_nothing(self, ospec):
+        """An outcome sentence built from no outcome data would be fabrication
+        carrying an `xw` label. It must return "" so the key is omitted and no
+        orphan provenance mark is written."""
+        assert outcome_text([], None, ospec) == ""
+
+    def test_absence_of_injury_is_not_rendered_as_no_injuries(self, ospec):
+        """BSEE coding omissions are common; the spine's silence is not a claim.
+        Reports that genuinely say "no injuries" are caught by the verbatim
+        tier, whose cue list leads with exactly that phrasing."""
+        got = outcome_text(["Fire"], None, ospec)
+        assert "no injur" not in got.lower()
+
+    def test_it_names_rather_than_characterises(self, ospec):
+        """The `xw`/`syn_` boundary in one assertion. Translation stays `xw`;
+        the moment a phrase judges severity it has become an opinion and the
+        column's provenance mark would be a lie."""
+        for atoms in (["Fatality"], ["LTA (>3 days)"], ["Explosion"], ["Blowout"],
+                      ["Injury"], ["Damaged/Disabled Safety Sys."]):
+            got = outcome_text(atoms, None, ospec).lower()
+            for word in ("serious", "significant", "severe", "minor", "catastrophic"):
+                assert word not in got, f"{atoms} rendered judgement word {word!r}"
+
+    def test_response_is_a_separate_clause_from_harm(self, ospec):
+        """"Required Evacuation" must not read as though the evacuation were
+        the harm."""
+        got = outcome_text(["Required Evacuation", "LTA (>3 days)"], None, ospec)
+        assert "resulted in a lost-time accident" in got
+        assert "The facility was evacuated" in got
+        assert got.index("lost-time") < got.index("evacuated")
+
+    def test_phrase_order_follows_the_rule_file_not_the_atom_string(self, ospec):
+        """The atom order comes from a BSEE string and varies between otherwise
+        identical rows; rendering in atom order made byte-identical inputs
+        produce different sentences.
+
+        The atoms must sit in the SAME group for this to test anything -- an
+        earlier version of this test used one atom per group, where the fixed
+        group order hid the defect and a mutation check caught the test rather
+        than the code.
+        """
+        a = outcome_text(["Fire", "Explosion", "Pollution"], None, ospec)
+        b = outcome_text(["Pollution", "Explosion", "Fire"], None, ospec)
+        assert a == b
+        assert a == "Reported as a fire, an explosion and a pollution release."
+
+    def test_multiple_injuries_render_in_rule_file_order(self, ospec):
+        a = outcome_text(["RW/JT (>3 days)", "Fatality"], None, ospec)
+        b = outcome_text(["Fatality", "RW/JT (>3 days)"], None, ospec)
+        assert a == b
+        assert a.index("fatality") < a.index("restricted work")
+
+    def test_damage_figure_is_appended_verbatim(self, ospec):
+        got = outcome_text(["Crane"], "$15,000", ospec)
+        assert got.endswith("Estimated property damage $15,000.")
+
+    def test_a_threshold_atom_does_not_become_a_figure(self, ospec):
+        """`Incident >$25K` is a threshold, not an amount. Rendering it as a
+        damage figure would invent precision BSEE did not record."""
+        got = outcome_text(["Incident >$25K"], None, ospec)
+        assert "Estimated property damage" not in got
+
+    def test_unknown_atoms_are_ignored_not_guessed(self, ospec):
+        assert outcome_text(["Some Future BSEE Code"], None, ospec) == ""

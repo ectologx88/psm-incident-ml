@@ -165,6 +165,48 @@ def _sequence(text: str) -> str:
     return text[i:].strip() if i >= 0 else ""
 
 
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
+_OUTCOME_CUE: re.Pattern | None = None
+_OUTCOME_BOUNDS: tuple[int, int] = (25, 400)
+
+
+def _outcome_cue() -> re.Pattern:
+    """Consequence-sentence cues, from schema/bsee_form2010.yaml. Cached."""
+    global _OUTCOME_CUE, _OUTCOME_BOUNDS
+    if _OUTCOME_CUE is None:
+        spec = load_yaml(REPO / "schema" / "bsee_form2010.yaml")
+        cues = spec["outcome_sentence_cues"]
+        _OUTCOME_BOUNDS = (int(spec["outcome_sentence_min_chars"]),
+                           int(spec["outcome_sentence_max_chars"]))
+        _OUTCOME_CUE = re.compile(r"\b(?:" + "|".join(cues) + r")\b", re.IGNORECASE)
+    return _OUTCOME_CUE
+
+
+def _outcome(text: str) -> str:
+    """A verbatim consequence sentence from field 17 -- E19's "What was the
+    outcome?".
+
+    Takes the LAST matching sentence, not the first. A narrative states the
+    injury twice: once in the opening summary, once at the end of the sequence
+    of events. The later statement is the settled one -- the opening often says
+    "a rigger was injured" where the closing says which bone was broken and how
+    many days were lost.
+
+    Returns "" rather than a guess. Everything this writes is marked `src`, so
+    a wrong sentence would be a false claim that BSEE said it.
+    """
+    body = " ".join((text or "").split())
+    if not body:
+        return ""
+    cue = _outcome_cue()    # also populates _OUTCOME_BOUNDS on first call
+    lo, hi = _OUTCOME_BOUNDS
+    hits = [s.strip() for s in _SENT_SPLIT.split(body) if cue.search(s)]
+    if not hits:
+        return ""
+    best = hits[-1]
+    return best if lo <= len(best) <= hi else ""
+
+
 FIELD_KEY_RE = re.compile(r"^src_f\d{2}_")
 
 
@@ -217,6 +259,8 @@ def resolve(rec: dict, spec: dict, manifest_row: dict) -> str:
         return _subhead(text, spec["subhead"])
     if kind == "sequence":
         return _sequence(text)
+    if kind == "outcome":
+        return _outcome(text)
     return " ".join(text.split())
 
 

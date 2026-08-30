@@ -111,9 +111,14 @@ mapping:
 
   # --- Incident Description -------------------------------------------------
   "What happened?  ":     {source: f17, extract: subhead, subhead: "INCIDENT SUMMARY"}
-  "What was the outcome?":
-    blank: extractable
-    note: "Stated within the field 17 narrative but not separable as a field."
+  # Was `blank: extractable`, noted as "stated within the field 17 narrative but
+  # not separable as a field". Half true: it IS separable at sentence level for
+  # a minority of reports, and the honest design is a two-tier fill rather than
+  # a blank. This tier takes the last CONSEQUENCE sentence verbatim and is
+  # marked `src`. Records with no confident sentence are left for the xw
+  # composition in schema/xw_outcome.yaml. See bsee_form2010.yaml for the cue
+  # list, and for the two cues rejected as causal rather than consequential.
+  "What was the outcome?": {source: f17, extract: outcome}
 
   # --- Incident Classificatioin (Section 3) ---------------------------------
   # Every field below asks what could reasonably have happened. BSEE records only

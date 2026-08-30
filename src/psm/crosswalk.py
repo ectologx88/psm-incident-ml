@@ -39,6 +39,7 @@ XW_TYPE = REPO / "schema" / "xw_incident_type.yaml"
 XW_ELEMENT = REPO / "schema" / "crosswalk.yaml"
 XW_QUAL = REPO / "schema" / "xw_cause_qualifiers.yaml"
 XW_TIERS = REPO / "schema" / "xw_consequence_tiers.yaml"
+XW_OUTCOME = REPO / "schema" / "xw_outcome.yaml"
 INTERIM = REPO / "data" / "interim"
 DEFAULT_OUT = E19 / "enriched"
 
@@ -269,6 +270,45 @@ def enrich_causes(causes: list[dict], spec: dict, qual: dict) -> tuple[list[dict
     return out, prov, stats
 
 
+def outcome_text(atoms: list[str], damage: str | None, spec: dict) -> str:
+    """Render BSEE outcome atoms as an English sentence -- E19's "What was the
+    outcome?", fallback tier.
+
+    Translation, not inference: every phrase names a code BSEE published, at the
+    same granularity. See schema/xw_outcome.yaml for why that keeps this `xw`
+    rather than `syn_`, and for the severity language that must never enter it.
+
+    Returns "" when there are no atoms. An outcome sentence assembled from no
+    outcome data would be fabrication carrying an `xw` label.
+    """
+    clauses = []
+    for group in ("injury", "event", "response"):
+        table = spec[group]
+        # Preserve the rule file's order, not the atom order: the atom order
+        # comes from a BSEE string and varies between otherwise identical rows.
+        found = [phrase for atom, phrase in table.items() if atom in atoms]
+        if not found:
+            continue
+        if group == "injury":
+            clauses.append("The incident resulted in " + _join(found))
+        elif group == "event":
+            clauses.append("Reported as " + _join(found))
+        else:
+            clauses.append(_join(found).capitalize())
+    if not clauses:
+        return ""
+    out = ". ".join(clauses) + "."
+    if damage:
+        out += " " + spec["damage_clause"].replace("{amount}", damage)
+    return out
+
+
+def _join(items: list[str]) -> str:
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
@@ -280,6 +320,7 @@ def main(argv=None) -> int:
     cols = list(inc[0])
 
     tiers = yaml.safe_load(XW_TIERS.read_text(encoding="utf-8"))
+    ospec = yaml.safe_load(XW_OUTCOME.read_text(encoding="utf-8"))
     marks_by_sha = {}
     for pth in INTERIM.glob("*.json"):
         d = json.loads(pth.read_text(encoding="utf-8"))
@@ -298,6 +339,12 @@ def main(argv=None) -> int:
         dm = RE_MONEY.search(sr.get("bsee_property_damaged", "") or "")
         xw.update(section3(atoms, marks_by_sha.get(sr.get("bsee_sha256", ""), []),
                            float(dm.group(1).replace(",", "")) if dm else None, tiers))
+        # Omit the key entirely when there is nothing to say. Setting it to ""
+        # would mark the cell `xw` in provenance.csv with no value behind it --
+        # the exact orphan that test_no_provenance_without_a_value forbids.
+        got = outcome_text(atoms, dm.group(0).replace(" ", "") if dm else None, ospec)
+        if got:
+            xw["What was the outcome?"] = got
         e = dict(row)
         p = {c: ("src" if (row.get(c) or "").strip() else "") for c in cols}
         for col, val in xw.items():

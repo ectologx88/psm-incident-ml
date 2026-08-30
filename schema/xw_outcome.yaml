@@ -1,0 +1,93 @@
+# BSEE outcome atoms -> E19 "What was the outcome?" (fallback tier).
+#
+# THIS FILE IS AN OPINION, NOT A FACT — but a narrow one. Output is marked `xw`
+# in enriched/provenance.csv and is never scored against.
+#
+# ===========================================================================
+# WHY THIS TIER EXISTS, AND WHAT IT IS NOT
+#
+# E19 asks for prose. `psm.project` fills this column verbatim from a field 17
+# consequence sentence where one can be identified confidently — 434 of 1,215
+# records (35.7%), marked `src`. That leaves 781 records where BSEE plainly
+# recorded an outcome in its structured accident-type codes but never wrote a
+# quotable sentence about it.
+#
+# This file renders those codes into English. It is TRANSLATION, not inference:
+# `LTA (>3 days)` -> "lost-time accident, more than 3 days" restates a value
+# BSEE published, in the same granularity, adding nothing. No tier is assigned,
+# no severity judged, no probability estimated. That is the whole reason it is
+# `xw` rather than `syn_` — contrast schema/xw_consequence_tiers.yaml, which
+# decides which band a record falls into and is a genuine opinion.
+#
+# The boundary is worth stating because it is close: if a future edit adds a
+# phrase that characterises rather than names — "a serious injury", "significant
+# damage" — that edit has crossed into judgement and the column's provenance
+# would become a lie. Name what BSEE named. Nothing else.
+# ===========================================================================
+
+version: 1
+source: "spine ACCIDENT_TYPE atoms + field 21 ESTIMATED AMOUNT"
+applies_when: "psm.project found no verbatim consequence sentence in field 17"
+
+# Rendered in this order, one clause each, so the sentence reads
+# "<injury>. <event>. <response>. Estimated property damage $N."
+# Atoms absent from every group below are ignored rather than guessed at.
+
+# --- Harm to people -------------------------------------------------------
+# BSEE's own abbreviations, expanded. LTA = lost-time accident;
+# RW/JT = restricted work / job transfer. Day counts are BSEE's, not ours.
+injury:
+  "Fatality":            "a fatality"
+  "LTA (>3 days)":       "a lost-time accident with more than 3 days lost"
+  "LTA (1-3) days":      "a lost-time accident with 1-3 days lost"
+  "RW/JT (>3 days)":     "restricted work or job transfer for more than 3 days"
+  "RW/JT (1-3 days)":    "restricted work or job transfer for 1-3 days"
+  "Other Injury":        "an injury recorded as Other Injury"
+  # The bare `Injury` code carries no severity and is extinct after 2012. It is
+  # named, not characterised, for exactly that reason.
+  "Injury":              "an injury recorded without a severity code"
+
+# --- What happened to plant or environment --------------------------------
+event:
+  "Fire":                        "a fire"
+  "Explosion":                   "an explosion"
+  "Blowout":                     "a blowout"
+  "Pollution":                   "a pollution release"
+  "Structural Damage":           "structural damage"
+  "Collision":                   "a collision"
+  "Collision >$25K":             "a collision with damage over $25,000"
+  "Incident >$25K":              "damage over $25,000"
+  "Crane":                       "a crane incident"
+  "Other Lifting Device":        "a lifting-device incident"
+  "Shutdown from Gas Release":   "a shutdown following a gas release"
+  "Damaged/Disabled Safety Sys.": "a damaged or disabled safety system"
+  "H2S / 15MIN. /20PPM":         "an H2S exposure at or above BSEE's reporting threshold"
+
+# --- What the facility did about it ---------------------------------------
+# Kept separate because a response is not an outcome; it is reported alongside
+# one. Rendering it in its own clause stops "Required Evacuation" reading as
+# though the evacuation were the harm.
+response:
+  "Required Evacuation":  "the facility was evacuated"
+  "Required Muster":      "personnel were mustered"
+
+# --- Damage figure --------------------------------------------------------
+# Field 21's ESTIMATED AMOUNT, verbatim, parsed on 37% of records. Appended
+# only when present; never estimated, never rounded, never inferred from a
+# `>$25K` atom (which is a threshold, not a figure).
+damage_clause: "Estimated property damage {amount}."
+
+# --- What this tier deliberately does NOT do ------------------------------
+declined:
+  no_atoms: >
+    88% of incidents join the spine and have atoms; the remaining 12% get
+    nothing here. An outcome sentence assembled from no outcome data would be
+    fabrication with an xw label on it.
+  no_negative_statement: >
+    Absence of an injury atom is NOT rendered as "no injuries". BSEE coding
+    omissions are common and the spine's silence is not a claim. Reports that
+    genuinely say so are caught by the verbatim tier, whose cue list leads with
+    exactly that phrasing.
+  no_severity_language: >
+    See the header. "Serious", "significant", "severe" and "minor" appear
+    nowhere in this file and must not be added.

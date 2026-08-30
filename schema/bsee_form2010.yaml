@@ -123,6 +123,37 @@ inline_strip_patterns:
 #
 # This is an observed blocklist, not a derivation, and it is here rather than in
 # psm/causes.py so it stays arguable and versioned.
+# Sentence-level cues that mark a CONSEQUENCE statement inside the field 17
+# narrative, for E19's "What was the outcome?".
+#
+# The obvious cues `resulting in` and `as a result` were tried first and
+# REJECTED on inspection: they are causal connectors, not outcome markers, and
+# fire constantly mid-narrative on cause statements ("A failed FSV allowed gas
+# to migrate to the hot exhaust resulting in the fire"). They lifted recall from
+# 36% to 56% and took precision with them. `resulting in` is kept ONLY when
+# followed by an injury noun, where it is unambiguous.
+#
+# Coverage is deliberately the lesser goal here. This column is filled from
+# verbatim source text, so a wrong sentence is a false `src` provenance mark --
+# the one error this schema exists to prevent. Records with no confident
+# sentence fall through to the xw composition in schema/xw_outcome.yaml, which
+# is honestly labelled as derived.
+outcome_sentence_cues:
+  - 'no\s+(?:injuries|injury|one was (?:injured|hurt))'
+  - '(?:was|were)\s+(?:transported|medevac\w*|air\s?lifted|flown)\s+to'
+  - '(?:sustain(?:ed)|suffer(?:ed))\s+(?:a|an|two|three|multiple|minor|serious|fatal|no)\b'
+  - '(?:was|were)\s+(?:fatally|seriously|severely)\s+injured'
+  - '(?:was|were)\s+pronounced\s+dead'
+  - '(?:was|were)\s+diagnosed\s+with'
+  - '(?:resulted|resulting)\s+in\s+(?:a\s+)?(?:fatalit|injur|contusion|fracture|laceration|burn|amputat|restricted work|lost time)'
+  - 'damage[sd]?\s+(?:was|were)\s+estimated'
+
+# A candidate outside these bounds is discarded rather than truncated: a
+# 20-character hit is a fragment, a 400-character one has swallowed the
+# paragraph.
+outcome_sentence_min_chars: 25
+outcome_sentence_max_chars: 400
+
 cause_field_furniture:
   - 'ACCIDENT'                          # tail of "...PROBABLE CAUSE(S) OF ACCIDENT"
   - 'OF ACCIDENT'                       # same label, wrapping one word earlier

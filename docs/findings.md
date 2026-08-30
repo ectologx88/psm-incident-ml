@@ -1893,3 +1893,78 @@ production module reads or branches on it, and no processed table carries it. Th
 conflation is a documentation defect (CLAUDE.md defines `typed` as
 "controlled-vocabulary category present", while the code implements a *shape*
 test that consults no vocabulary), not a data defect.
+
+---
+
+## 2026-08-29 — S2: "What was the outcome?" 0% → 89.1%, in two provenance tiers
+
+The column was coded `blank: extractable`, noted as *"stated within the field 17
+narrative but not separable as a field"*. Half true, and the half that was wrong
+had left the column empty for the life of the project.
+
+### Tier 1 — verbatim sentence (`src`), 434/1,215 = 35.7%
+
+`psm.project` takes the **last** sentence in field 17 matching a consequence
+cue. Last, not first: a narrative states the injury twice, once in the opening
+summary and once at the close, and the later statement is the settled one — the
+opening says "a rigger was injured", the closing says which bone and how many
+days.
+
+**Two obvious cues were tried and rejected.** `resulting in` and `as a result`
+are *causal connectors*, not outcome markers, and fire constantly mid-narrative
+on cause statements ("A failed FSV allowed gas to migrate to the hot exhaust
+resulting in the fire"). They lifted recall 36% → 56% and took precision with
+them; on a 12-sample eyeball, 4 of 12 hits were causes, headings or opening
+summaries. `resulting in` is retained only when followed by an injury noun.
+
+Recall is deliberately the lesser goal. This tier writes `src`, so a wrong
+sentence is a false claim that BSEE said it — the one error the provenance
+design exists to prevent.
+
+### Tier 2 — composition from spine atoms (`xw`), 649 more = 53.4%
+
+`schema/xw_outcome.yaml` renders BSEE's own accident-type codes into English:
+`LTA (>3 days)` → "a lost-time accident with more than 3 days lost". This is
+**translation, not inference** — same granularity, nothing added — which is why
+it is `xw` and not `syn_`. Contrast `xw_consequence_tiers.yaml`, which decides
+which band a record falls into and is a real opinion.
+
+Three refusals are written into the rule file and tested:
+
+* **No negative claims.** Absence of an injury atom is *not* rendered "no
+  injuries". BSEE coding omissions are common and the spine's silence is not a
+  claim. Reports that genuinely say so are caught by tier 1, whose cue list
+  leads with that phrasing.
+* **No severity language.** "Serious", "significant", "severe", "minor" appear
+  nowhere and must not be added; that is the line between naming and judging.
+* **No sentence without atoms.** 12% of incidents do not join the spine and get
+  nothing. A sentence assembled from no outcome data would be fabrication with
+  an `xw` label on it.
+
+Response atoms (`Required Evacuation`, `Required Muster`) render as their own
+clause so an evacuation does not read as though it were the harm.
+
+### Result
+
+| | before | after |
+|---|---|---|
+| `What was the outcome?` | 0 (0.0%) | **1,083 (89.1%)** — 434 `src`, 649 `xw` |
+| `extractable` blanks remaining | 2 | **1** (`Work Group`) |
+
+### Verification, including a test that was itself wrong
+
+10 new tests. Rather than a source-copy revert (which broke schema path
+resolution and produced errors rather than failures — an invalid check), each
+guard was mutation-tested by replacing `outcome_text` in the loaded module:
+atom-order rendering, a "No injuries reported." default, a severity adjective,
+a non-empty return for no atoms, and a threshold atom rendered as a figure.
+
+**Four of five mutations were caught; one was missed.**
+`test_phrase_order_follows_the_rule_file_not_the_atom_string` used one atom per
+group, where the fixed group order hid the defect — the test asserted a property
+it could not observe. Rewritten to use atoms within a single group, plus a
+second test for the injury group. Both now catch the mutation.
+
+Recorded because it is the failure mode the project's own standard warns about:
+a test that cannot fail is worse than no test, and only the mutation check found
+it. Suite 291 → 300 passing, 2 skipped.
