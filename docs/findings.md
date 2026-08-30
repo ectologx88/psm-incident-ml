@@ -2690,3 +2690,50 @@ for. Suite 348 → 350.
 **The dataset is not dense, and that is now a stated property rather than an
 unmet goal.** 25.7% of the incidents table is blank, every blank has a recorded
 reason, and no column claims a fill it cannot honestly produce.
+
+---
+
+## 2026-08-29 — P2b: `--real-only` export and the era-stratified split
+
+`psm.ledger --real-only` writes `data/processed/e19/real_only/` with all
+**17,583 `syn` cells blanked**, plus `splits.json`.
+
+**Blanked, not dropped.** The row survives, so joins hold and the absence is
+visible. A consumer who wants only real values gets them; a consumer who ignored
+provenance entirely gets a blank instead of a fabrication, which is the safer
+failure of the two.
+
+### The split is by regime, not by round numbers
+
+A random train/test split on this corpus leaks the reporting era, and so would a
+split on decades. The boundaries are where BSEE's vocabulary actually changed:
+
+| regime | years | incidents | what changed |
+|---|---|---|---|
+| `free_prose` | ≤2006 | 161 | no controlled vocabulary at all |
+| `human_error` | 2007–2009 | 258 | one head, `Human Error`, carries almost every mapped statement |
+| `ad_hoc` | 2010–2018 | 438 | `Human Error` dies out before the modern six arrive; 68 investigator-invented heads |
+| `modern_six` | 2019+ | 321 | the modern vocabulary; adoption jumps 5 → 17 between 2018 and 2019 |
+
+36 undated incidents are excluded rather than assigned.
+
+**2019, not 2020.** A tidier boundary at the decade would put the year the
+vocabulary actually changed on the wrong side of the split. A test pins it, and
+the mutation check confirms a decade boundary misplaces 2019.
+
+`splits.json` carries the reasoning inline, and a test asserts every regime has
+a non-empty description — a stratification nobody can justify gets ignored and
+replaced with a random one.
+
+### Verification
+
+11 new tests. Mutation-checked against three failures: leaving `syn` values in
+place, blanking everything (safe and useless), and a decade-boundary split. All
+three caught; the baseline is clean.
+
+The two that matter most are complementary. `test_no_syn_cell_survives` catches
+under-blanking; `test_every_real_cell_survives` catches over-blanking. Either
+alone passes trivially — one by exporting nothing, the other by exporting
+everything.
+
+Suite 350 → 356.

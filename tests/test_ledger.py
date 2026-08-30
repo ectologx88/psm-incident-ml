@@ -314,3 +314,85 @@ class TestTheGapFillSplit:
         assert s["real_cells"] + s["fabricated_cells"] + s["unfilled_cells"] \
             == s["total_cells"]
         assert s["honest_blanks"] <= s["unfilled_cells"]
+
+
+@pytest.fixture(scope="module")
+def exported():
+    from psm.ledger import E19, real_only
+    return E19 / "real_only", real_only(E19 / "real_only")
+
+
+class TestRealOnlyExport:
+    """The escape hatch for anyone who wants to train rather than demo.
+
+    Without it, the only artifact is one where 33.7% of the incidents table is
+    fabricated and "filter on provenance first" is a footnote nobody reads.
+    """
+
+
+    @staticmethod
+    def _rows(path):
+        import csv as _csv
+        _csv.field_size_limit(10 ** 9)
+        with path.open(encoding="utf-8", newline="") as fh:
+            return list(_csv.DictReader(fh))
+
+    def test_no_syn_cell_survives(self, exported):
+        from psm.ledger import E19
+        out, _ = exported
+        data = self._rows(out / "incidents.csv")
+        prov = self._rows(E19 / "enriched" / "provenance.csv")
+        for d, p in zip(data, prov):
+            for c in d:
+                if p.get(c) == "syn":
+                    assert not (d[c] or "").strip(), f"{c!r}: syn value survived the export"
+
+    def test_every_real_cell_survives(self, exported):
+        """Blanking must be surgical. An export that also dropped `src` values
+        would be safe and useless."""
+        from psm.ledger import E19
+        out, _ = exported
+        data = self._rows(out / "incidents.csv")
+        base = self._rows(E19 / "enriched" / "incidents.csv")
+        prov = self._rows(E19 / "enriched" / "provenance.csv")
+        for d, b, p in zip(data, base, prov):
+            for c in d:
+                if p.get(c) in ("src", "xw"):
+                    assert d[c] == b[c], f"{c!r}: real value lost in the export"
+
+    def test_rows_are_blanked_not_dropped(self, exported):
+        """Dropping rows would break the joins and hide the absence. A blank is
+        visible; a missing row is not."""
+        from psm.ledger import E19
+        out, _ = exported
+        assert len(self._rows(out / "incidents.csv")) == \
+               len(self._rows(E19 / "enriched" / "incidents.csv"))
+
+    def test_the_split_is_by_regime_not_by_round_numbers(self):
+        """A random split leaks the reporting era; so does a split on decades.
+        The boundaries are where BSEE's vocabulary actually changed."""
+        from psm.ledger import ERA_REGIMES, regime_for
+        assert regime_for(2006) == "free_prose"
+        assert regime_for(2007) == "human_error"
+        assert regime_for(2009) == "human_error"
+        assert regime_for(2010) == "ad_hoc"
+        assert regime_for(2018) == "ad_hoc"
+        assert regime_for(2019) == "modern_six"   # the jump, not 2020
+        assert regime_for(None) is None
+        assert len(ERA_REGIMES) == 4
+
+    def test_every_regime_has_incidents(self, exported):
+        """A split with an empty stratum is not a split."""
+        _, res = exported
+        for name, n in res["split"].items():
+            assert n > 0, f"regime {name} is empty"
+
+    def test_the_split_records_why_it_exists(self, exported):
+        """A stratification nobody can justify gets ignored and replaced with a
+        random one."""
+        import json
+        out, _ = exported
+        spec = json.loads((out / "splits.json").read_text(encoding="utf-8"))
+        assert "why" in spec and spec["why"].strip()
+        for name, meta in spec["regimes"].items():
+            assert meta["what"].strip(), f"{name} has no description"

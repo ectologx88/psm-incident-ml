@@ -4,14 +4,17 @@ Joins `schema/e19_disposition.yaml` (a claim about each column) to measured
 coverage in `data/processed/e19/` (what is actually there) and emits
 `docs/e19_field_ledger.md`.
 
-This dataset is dense by construction -- every cell the source cannot supply is
-fabricated under a `syn` mark -- so "percent complete" is not a number worth
-reporting. The number that matters is **what fraction of the dataset is real**,
-because that is what tells a stranger what they can model on.
+The dataset is NOT dense, and that is a decision rather than an unmet goal: a
+cell is filled only where the source supplies it, a versioned rule derives it,
+or synth can fabricate it without asserting something false about a real
+incident. Everything else stays blank with a recorded reason. So "percent
+complete" is not the number worth reporting. **What fraction of the dataset is
+real** is, because that is what tells a stranger what they can model on.
 
-`--real-only` writes a parallel export with every `syn` cell blanked and every
-`modelling_target` column reduced to its `src`/`xw` values, for anyone who wants
-to train rather than demo.
+`--real-only` writes a parallel export with every `syn` cell blanked, for anyone
+who wants to train rather than demo. It also writes an era-stratified split,
+because a random split on this corpus leaks the reporting regime -- see
+`splits.json`.
 
 Run::
 
@@ -294,9 +297,96 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
     return "\n".join(L)
 
 
+# BSEE's cause vocabulary is non-stationary and changed in four sharp steps, not
+# a ramp (docs/findings.md, 2026-08-29). A random train/test split leaks the
+# regime, and a model can score well by recognising the decade. Boundaries are
+# where the vocabulary changed, not round numbers.
+ERA_REGIMES = [
+    ("free_prose", 1900, 2006,
+     "no controlled vocabulary at all; 0% of statements map"),
+    ("human_error", 2007, 2009,
+     "a brief 'Human Error' era -- almost every mapped statement is that one head"),
+    ("ad_hoc", 2010, 2018,
+     "'Human Error' dies out before the modern six arrive; investigators write "
+     "68 distinct heads of their own"),
+    ("modern_six", 2019, 2100,
+     "the modern vocabulary; adoption jumps 5 -> 17 occurrences between 2018 "
+     "and 2019 and never falls back"),
+]
+
+
+def regime_for(year: int | None) -> str | None:
+    if year is None:
+        return None
+    for name, lo, hi, _ in ERA_REGIMES:
+        if lo <= year <= hi:
+            return name
+    return None
+
+
+def real_only(out_dir: Path) -> dict:
+    """Write every table with `syn` cells blanked, plus an era-stratified split.
+
+    Blanking rather than dropping: the row still exists, so joins hold and the
+    absence is visible. A consumer who wants only real values gets them; a
+    consumer who silently ignored provenance gets a blank instead of a
+    fabrication, which is the safer failure.
+    """
+    csv.field_size_limit(10 ** 9)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    removed: dict[str, int] = {}
+    for table in ORDER:
+        rows = _read(table)
+        if not rows:
+            continue
+        prov_name = {"incidents": "provenance.csv",
+                     "causes": "causes_provenance.csv"}.get(table)
+        prov = []
+        if prov_name and (E19 / "enriched" / prov_name).exists():
+            with (E19 / "enriched" / prov_name).open(encoding="utf-8", newline="") as fh:
+                prov = list(csv.DictReader(fh))
+        cleaned = []
+        for i, r in enumerate(rows):
+            d = dict(r)
+            if prov and i < len(prov):
+                for c in d:
+                    if prov[i].get(c) == "syn" and (d[c] or "").strip():
+                        d[c] = ""
+                        removed[f"{table}.{c}"] = removed.get(f"{table}.{c}", 0) + 1
+            cleaned.append(d)
+        with (out_dir / f"{table}.csv").open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(cleaned)
+
+    # Era split, keyed by incident, so causes/recommendations inherit it.
+    inc = _read("incidents")
+    split: dict[str, list[str]] = {name: [] for name, *_ in ERA_REGIMES}
+    undated = []
+    for r in inc:
+        d = (r.get("Date of Incident") or "").strip()
+        year = int(d[:4]) if len(d) >= 4 and d[:4].isdigit() else None
+        g = regime_for(year)
+        (split[g] if g else undated).append(r["Incident Number"])
+    import json
+    (out_dir / "splits.json").write_text(json.dumps({
+        "why": ("BSEE's cause vocabulary changed in four sharp steps. A random "
+                "split leaks the regime and rewards recognising the decade."),
+        "regimes": {name: {"years": f"{lo}-{hi}", "what": what,
+                           "n_incidents": len(split[name])}
+                    for name, lo, hi, what in ERA_REGIMES},
+        "undated_excluded": len(undated),
+        "incident_ids": split,
+    }, indent=2), encoding="utf-8")
+    return {"removed": removed, "split": {k: len(v) for k, v in split.items()},
+            "undated": len(undated)}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    ap.add_argument("--real-only", action="store_true",
+                    help="also write data/processed/e19/real_only/ with syn cells blanked")
     args = ap.parse_args(argv)
 
     spec = load_disposition()
@@ -322,6 +412,12 @@ def main(argv=None) -> int:
     print(f"  modelling targets : {len(stats['targets'])}, real fraction "
           f"{min(n / tt for _, _, n, tt in stats['targets']):.1%}"
           f"-{max(n / tt for _, _, n, tt in stats['targets']):.1%}")
+    if args.real_only:
+        res = real_only(E19 / "real_only")
+        print(f"\n  real-only export -> {E19 / 'real_only'}")
+        print(f"    syn cells blanked: {sum(res['removed'].values()):,}")
+        print(f"    era split        : {res['split']}  (undated excluded: {res['undated']})")
+
     missing, orphan = reconcile(spec, seen)
     for m in missing:
         print(f"  UNDECLARED: {m}")
