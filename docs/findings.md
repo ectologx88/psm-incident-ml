@@ -2474,3 +2474,69 @@ coverage and make the two headline numbers move together), and folding
 truncation into a generic boolean. All three caught.
 
 Suite 332 → 340. **Phase 0 is complete.**
+
+---
+
+## 2026-08-29 — D1: the gap-fill split, at 50% real
+
+**14,276 cells (14.7%) will be deliberately left blank.** Projected composition
+is now 40.3% real / 45.0% fabricated / 14.7% honest blank, against 40.3% / 59.7%
+under fill-everything.
+
+### The rule
+
+A `real` column's empty cells are fabricated when the column is already
+**majority real**, and left blank when fabrication would dominate. The 50% line
+is where a glance at a column gives the right general impression without
+checking provenance: above it, "mostly real with some fill"; below it, "mostly
+invented" — which is precisely what a dense column would hide.
+
+This reverses the earlier fill-everything decision for eight columns. That
+decision was taken before three things were measured: that all labelled cause
+data is post-2019, that the cause-label columns sit at 4–15% real, and that the
+missingness is strongly non-random by era. Fabricating `Human Factors Cause`
+means inventing 3,418 labels around 152 real ones, all of which sit in a single
+reporting era.
+
+| left blank | real | gap |
+|---|---|---|
+| `Human Factors  Cause` | 4.3% | 3,418 |
+| `Risk Management Cause` | 7.8% | 3,294 |
+| ` Failed PSM Framework Element` | 14.7% | 3,048 |
+| `Environment & Reputation  - Consequence` | 15.3% | 1,028 |
+| `Incident Type D` | 18.4% | 991 |
+| `Financial Cost & Business Interruption  - Consequence` | 37.0% | 765 |
+| `How did the incident occur` | 19.5% | 977 |
+| `Detail` | 37.8% | 755 |
+
+The blank is not an absence of work. It says BSEE recorded nothing, and that
+silence is one of the more interesting properties of this corpus — 0.6% of
+cause statements mapped in 2010–14 against 64.2% in 2025+. Fabricating over it
+would erase the phenomenon the dataset is partly about.
+
+### The test found two columns I had not considered
+
+The rule was drafted for the 16 modelling targets. `test_leave_blank_columns_are_
+the_minority_real_ones` applies it universally, and failed immediately on two
+non-target columns:
+
+* **`How did the incident occur`, 19.5% real.** The lowest of any narrative
+  column and, on reflection, the strongest case on the entire list: filling it
+  means inventing a prose account of how a real, named, dated incident unfolded.
+  Not a modelling target and still the most misleading thing that could go in
+  this dataset.
+* **`Detail`, 37.8% real.** A fabricated location detail still asserts something
+  about a real incident that BSEE never said.
+
+Both moved to `leave_blank`, and the rule is now universal rather than scoped to
+targets — which needs no exception clause and is easier to defend.
+
+Recorded because the test was written to encode a rule and instead corrected it.
+It also fails in the other direction: if a `leave_blank` column's real share ever
+rises past 50%, the policy must be revisited deliberately rather than drifting.
+
+`honest_blanks` is tracked separately from `fabricated_cells` in the ledger.
+Counting deliberate blanks as fabrication would misreport the dataset as more
+invented than it is, and would make choosing honesty look worse in the headline.
+
+Suite 340 → 343.

@@ -34,7 +34,7 @@ DISPOSITION = REPO / "schema" / "e19_disposition.yaml"
 DEFAULT_OUT = REPO / "docs" / "e19_field_ledger.md"
 
 ALL_DISPOSITIONS = ("real", "synthetic_column")
-GAP_POLICIES = ("none", "fabricate")
+GAP_POLICIES = ("none", "fabricate", "leave_blank")
 VALIDITY_CHECKS = ("no_form_label", "min_words", "pattern", "terminal_punctuation")
 _END_PUNCT = ".!?)\u201d\"'"
 
@@ -152,7 +152,7 @@ def tally(spec: dict, seen: dict) -> dict:
     zero would flatter the current state.
     """
     counts = {d: 0 for d in ALL_DISPOSITIONS}
-    real_cells = fabricated_cells = total_cells = 0
+    real_cells = fabricated_cells = total_cells = honest_blanks = 0
     targets = []
     for table, cols in seen.items():
         for col, (n, total) in cols.items():
@@ -164,8 +164,14 @@ def tally(spec: dict, seen: dict) -> dict:
             total_cells += total
             if d == "real":
                 real_cells += n
+                # `leave_blank` gaps fall through to unfilled_cells. That is the
+                # whole point of the policy: the blank is the deliverable, and
+                # counting it as fabrication would misreport the dataset as
+                # more invented than it is.
                 if entry.get("gap_policy") == "fabricate":
                     fabricated_cells += total - n
+                elif entry.get("gap_policy") == "leave_blank":
+                    honest_blanks += total - n
             else:
                 fabricated_cells += total
             if entry.get("modelling_target"):
@@ -178,6 +184,7 @@ def tally(spec: dict, seen: dict) -> dict:
         "unfilled_cells": total_cells - real_cells - fabricated_cells,
         "total_cells": total_cells,
         "targets": sorted(targets, key=lambda x: -x[2] / x[3]),
+        "honest_blanks": honest_blanks,
     }
 
 
@@ -198,6 +205,14 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
       "is the fact a stranger most needs. It is not a completeness score: the "
       "sheet is dense by construction, so 'percent complete' would read 100% and "
       "say nothing.\n")
+    hb = stats.get("honest_blanks", 0)
+    if hb:
+        A(f"A further **{hb:,} cells ({100 * hb / t:.0f}%) are deliberately left "
+          "blank**, in the six columns where fabrication would dominate rather "
+          "than supplement. Those are the cause labels and two consequence "
+          "columns -- the modelling task itself. The blank is information: it "
+          "says BSEE recorded nothing, and that silence is strongly non-random "
+          "by era.\n")
     A(f"Fabrication is projected, not yet measured -- the synth layer is written "
       f"but not wired into the projection, so those {f:,} cells are currently "
       "empty. The projection is reported because it is what the dataset will be.\n")
@@ -298,6 +313,8 @@ def main(argv=None) -> int:
     print(f"wrote {args.out}")
     print(f"  real cells        : {r:,}/{t:,} = {100 * r / t:.1f}%")
     print(f"  fabricated (proj.): {f:,} = {100 * f / t:.1f}%")
+    hb = stats["honest_blanks"]
+    print(f"  deliberately blank: {hb:,} = {100 * hb / t:.1f}%")
     checked = sum(c["checked"] for tb in val.values() for c in tb.values())
     passed = sum(c["passed"] for tb in val.values() for c in tb.values())
     print(f"  valid (shape)     : {passed:,}/{checked:,} = {100 * passed / checked:.1f}%")

@@ -59,15 +59,32 @@ gap_policies:
     The column is structurally complete -- a key, an ordinal, or a field BSEE
     always records. Nothing to fill.
   fabricate: >
-    Empty cells are filled synthetically. This is the DANGEROUS case and is
-    named rather than implied: a `syn` value ends up in the SAME COLUMN as `src`
-    and `xw` values, describing the SAME REAL INCIDENT, and only
-    enriched/provenance.csv tells them apart. `Incident Type D` is 18.4% real,
-    so four cells in five will be invented -- each one asserting a mechanism for
-    a named incident at a named block on a named date that BSEE never asserted.
-    That is defensible for a synthetic dataset and indefensible if the marking
-    is ever lost. Anything downstream that treats these columns as ground truth
-    must filter on provenance first: `psm.ledger --real-only`.
+    Empty cells are filled synthetically. A `syn` value ends up in the SAME
+    COLUMN as `src` and `xw` values, describing the SAME REAL INCIDENT, and only
+    enriched/provenance.csv tells them apart. Applied where the column is
+    already MAJORITY REAL, so a reader glancing at it without checking
+    provenance forms roughly the right impression.
+  leave_blank: >
+    Empty cells stay empty, and the blank is part of the deliverable. Applied
+    where fabrication would DOMINATE the column.
+
+    The line is drawn at 50% real, and it is not arbitrary: it is the point
+    where a glance at the column gives the right general impression. Above it,
+    "mostly real with some fill". Below it, "mostly invented" -- which is
+    precisely what a densely-filled column would hide.
+
+    Measured 2026-08-29, post-Phase-0. Six columns fall below and hold 12,544
+    cells; nine fall above and hold 4,550. The six are the four cause labels
+    plus two consequence columns -- i.e. the columns that ARE the modelling
+    task. Filling `Human Factors Cause` would invent 3,418 labels around 152
+    real ones, all of which sit in a single reporting era; a model trained on
+    the result learns schema/synth_rules.yaml, and a model evaluated on it gets
+    a number that means nothing.
+
+    A blank here also carries information this dataset is partly ABOUT: it says
+    BSEE did not record a cause category for this statement, and that
+    missingness is strongly non-random by era (0.6% mapped in 2010-14 against
+    64.2% in 2025+). Fabricating over it would erase the phenomenon.
 
 # --- Fields, keyed table.label ---------------------------------------------
 # `label` is byte-exact from the workbook, irregular whitespace included.
@@ -128,7 +145,10 @@ fields:
     "Site":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE area code replaces the template's placeholder facility names"}
     "Area":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE block number"}
     "Unit":   {disposition: real, gap_policy: fabricate, note: "vocabulary_exempt; BSEE platform designator"}
-    "Detail": {disposition: real, gap_policy: fabricate}
+    # 37.8% real. Not a modelling target, but the 50% rule is applied
+    # UNIVERSALLY rather than scoped to targets: a fabricated location detail
+    # still asserts something about a real named incident that BSEE never said.
+    "Detail": {disposition: real, gap_policy: leave_blank}
     "Description":
       disposition: real
       gap_policy: fabricate
@@ -146,7 +166,12 @@ fields:
       note: "Two tiers already: verbatim field 17 sentence (src), then xw_outcome.yaml composition."
     "How did the incident occur":
       disposition: real
-      gap_policy: fabricate
+      # 19.5% real -- the lowest of any narrative column, and the strongest case
+      # on the whole list for leaving blanks alone. Fabricating here means
+      # inventing a prose account of how a real, named, dated incident unfolded.
+      # Not a modelling target, and still the most misleading thing that could
+      # go in this dataset.
+      gap_policy: leave_blank
       validity: {no_form_label: true, min_words: 5}
       note: >
         19.5%, capped by the source: it requires a SEQUENCE OF EVENTS heading,
@@ -164,7 +189,7 @@ fields:
     "Incident Type C": {disposition: real, gap_policy: fabricate, modelling_target: true}
     "Incident Type D":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
       modelling_target: true
       note: "18.4% real. Most atoms map to a deliberate null rather than a guess, so 81.6% of this column will be syn."
     "Incident Classificatioin":
@@ -177,10 +202,12 @@ fields:
     "Health & Safety - Likelihood":               {disposition: real, gap_policy: fabricate, modelling_target: true}
     "Health & Safety - Risk Score":               {disposition: real, gap_policy: fabricate, modelling_target: true}
     "Health & Safety Incident - Classification":  {disposition: real, gap_policy: fabricate, modelling_target: true}
-    "Environment & Reputation  - Consequence":    {disposition: real, gap_policy: fabricate, modelling_target: true}
+    # Below the 50% line: 15.3% real. See gap_policies.leave_blank.
+    "Environment & Reputation  - Consequence":
+      {disposition: real, gap_policy: leave_blank, modelling_target: true}
     "Financial Cost & Business Interruption  - Consequence":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
       modelling_target: true
       note: "From field 21's real dollar figure. Basis is ACTUAL, unlike the H&S column, which is potential."
 
@@ -267,7 +294,7 @@ fields:
     # provenance is learning schema/synth_rules.yaml.
     " Failed PSM Framework Element":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
       modelling_target: true
       note: >
         14.4% real, and the most contested column in the project. The mapping is
@@ -275,12 +302,12 @@ fields:
         an independent human judgement -- see gold/ and R5.
     "Risk Management Cause":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
       modelling_target: true
       note: "7.6% real. Low because only about a third of statements name a subcategory; the rest are prose."
     "Human Factors  Cause":
       disposition: real
-      gap_policy: fabricate
+      gap_policy: leave_blank
       modelling_target: true
       note: "4.2% real. Graded, with per-cell confidence in causes_confidence.csv."
     "Cause type":

@@ -252,3 +252,46 @@ class TestValidityIsSeparateFromCoverage:
         form = yaml.safe_load((REPO / "schema" / "bsee_form2010.yaml")
                               .read_text(encoding="utf-8"))
         assert set(spec["form_label_tokens"]) != set(form["label_bleed_patterns"])
+
+
+class TestTheGapFillSplit:
+    """Six columns keep their blanks; the rest get filled.
+
+    The line is 50% real -- the point where a glance at a column gives the right
+    general impression without checking provenance. Above it, "mostly real with
+    some fill"; below it, "mostly invented", which a dense column would hide.
+    """
+
+    def test_leave_blank_columns_are_the_minority_real_ones(self, spec, seen):
+        """The policy must follow the data, not a preference. If a column's real
+        share crosses 50%, its policy should be revisited deliberately rather
+        than left to drift."""
+        for table, col, entry in _entries(spec):
+            if entry["disposition"] != "real":
+                continue
+            n, total = seen[table][col]
+            share = n / total
+            if entry.get("gap_policy") == "leave_blank":
+                assert share < 0.5, (
+                    f"{table}.{col!r} is {100 * share:.1f}% real but still "
+                    "leave_blank -- it crossed the line; decide deliberately")
+            elif entry.get("gap_policy") == "fabricate":
+                assert share >= 0.5 or total == n, (
+                    f"{table}.{col!r} is only {100 * share:.1f}% real but marked "
+                    "fabricate -- fabrication would dominate the column")
+
+    def test_the_cause_labels_are_all_left_blank(self, spec):
+        """These four ARE the modelling task. Filling `Human Factors Cause`
+        would invent 3,418 labels around 152 real ones, all from one era."""
+        for col in (" Failed PSM Framework Element", "Risk Management Cause",
+                    "Human Factors  Cause"):
+            assert spec["fields"]["causes"][col]["gap_policy"] == "leave_blank", col
+
+    def test_honest_blanks_are_not_counted_as_fabrication(self, spec, seen):
+        """Counting them as fabricated would misreport the dataset as more
+        invented than it is, and would make choosing honesty look worse."""
+        s = tally(spec, seen)
+        assert s["honest_blanks"] > 0
+        assert s["real_cells"] + s["fabricated_cells"] + s["unfilled_cells"] \
+            == s["total_cells"]
+        assert s["honest_blanks"] <= s["unfilled_cells"]
