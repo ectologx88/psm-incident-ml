@@ -2019,3 +2019,69 @@ the memo.
 No code changed. `blank-by-reason` moved from
 `{structural: 16, extractable: 1, judgement: 27}` to
 `{structural: 17, judgement: 27}`; suite unchanged at 300 passing, 2 skipped.
+
+---
+
+## 2026-08-29 — S4: the field disposition ledger
+
+**37 of 57 obtainable fields carry data (65%).** All 20 unfilled obtainable
+fields are `synthetic` — the generator exists in `synth.py` and is not yet wired
+into the projection, so the honest reading is *65% now, 100% of obtainable once
+step 5 lands*, with 8 columns that will stay blank for stated reasons.
+
+Raw fill was 38%/46%/25%/50% across the four tables and meant nothing. Most
+empty cells are empty because a federal investigation report structurally cannot
+record an operator's internal close-out approver. Those are not gaps; they are
+the shape of the source. Mixed among them were a handful of genuinely fillable
+columns nobody had reached, and the two kinds of blank were indistinguishable.
+
+| disposition | n | in the denominator? |
+|---|---|---|
+| `filled` | 37 | yes |
+| `synthetic` | 20 | yes |
+| `deliberate_blank` | 7 | no — a decision, with the reason in a schema file |
+| `needs_human` | 1 | no — the labelling backlog, tracked in `gold/` |
+| `not_obtainable` | 1 | no — `Work Group` |
+
+`needs_human` and `deliberate_blank` are outside the denominator deliberately.
+Inside it, the headline would *rise* whenever we declined to do labelling work,
+which is the wrong incentive to build into a metric.
+
+Both numbers are reported because they answer different questions: the field
+count says whether a column was attempted, the cell count (39,063 / 84,083 =
+46.5%) says how far a typical BSEE report gets.
+
+### The ledger is self-policing, and that is the point
+
+`schema/e19_disposition.yaml` is not documentation — every entry is a claim
+about the world, and a claim nobody checks decays into decoration. A stale audit
+is worse than none, because it reads as authority while describing a table that
+no longer exists.
+
+`tests/test_ledger.py` (13 tests) checks each claim against the data:
+`not_obtainable` and `deliberate_blank` columns must be empty; `filled` columns
+must not be; `synthetic` columns must be empty *until the synth layer is wired*,
+with the failure message instructing that the test be rewritten to assert a
+`syn` provenance mark rather than deleted; every column in the data must be
+declared and every declaration must match a real column; every
+`deliberate_blank` must name a file that exists; every named generator must
+appear in `synth.SYN_COLUMN_MANIFEST`.
+
+**Mutation-checked, not assumed.** Six false claims were injected — calling a
+filled column `not_obtainable`, calling an empty one `filled`, calling a filled
+one `deliberate_blank` and `synthetic`, dropping a column, inventing one. All
+six were caught.
+
+One test exists only to stop the metric being gamed:
+`test_the_headline_is_not_vacuously_perfect` fails if every obtainable field is
+filled, on the grounds that a denominator whittled down to the columns that
+happen to be full would report 100% and mean nothing. It must be deleted
+deliberately, not allowed to pass by accident.
+
+### What this buys
+
+The memo to the template's author can now say *"we filled 65% of what a BSEE
+report can supply, rising to 100% once the synthetic scaffold is wired, and here
+are the 8 fields only your organisation's records can fill"* — a request he can
+act on, rather than a raw percentage that invites him to think the project
+failed. Suite 300 → 313.
