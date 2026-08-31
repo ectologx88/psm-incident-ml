@@ -4,7 +4,13 @@ from __future__ import annotations
 import csv  # noqa: F401
 from pathlib import Path  # noqa: F401
 
-from psm.fill import load_rules, weighted_pick
+from psm.fill import (
+    element_confidence_by_number,
+    element_distribution,
+    fill_causes,
+    load_rules,
+    weighted_pick,
+)
 
 
 def test_weighted_pick_is_deterministic_and_in_vocab():
@@ -41,3 +47,103 @@ def test_synth_rules_v2_keys_present():
     ):
         assert key in rules, key
     assert rules["version"] == 2
+
+
+RULES_FIXTURE = {
+    "cause_type_first_cause": "Immediate",
+    "cause_type_weights": {"Underlying": 3, "Root": 2},
+    "cause_type_salt": "cause_type",
+    "element_fallback_salt": "element_fallback",
+}
+
+
+def _cause(incident, cause, element=""):
+    return {
+        "Incident Number": incident, "Cause number": cause,
+        "Cause Description": "text", "Cause type": "",
+        "Risk Management Cause": "", "Human Factors  Cause": "",
+        " Failed PSM Framework Element": element,
+    }
+
+
+def _prov(incident_token="src", element_token=""):
+    return {
+        "Incident Number": incident_token, "Cause number": "src",
+        "Cause Description": "src", "Cause type": "",
+        "Risk Management Cause": "", "Human Factors  Cause": "",
+        " Failed PSM Framework Element": element_token,
+    }
+
+
+def _llm(incident, cause, element, confidence="high"):
+    return {
+        "incident": incident, "cause": cause,
+        "llm_psm_element": element, "llm_confidence": confidence,
+    }
+
+
+def test_fill_causes_keeps_xw_prefers_llm_falls_back_syn():
+    causes = [_cause("A", "1", element="15"), _cause("A", "2"), _cause("A", "3")]
+    prov = [_prov(element_token="xw"), _prov(), _prov()]
+    llm = [
+        _llm("A", "1", "8"),      # must NOT overwrite the xw 15
+        _llm("A", "2", "17"),
+        _llm("A", "3", ""),       # abstained -> syn fallback
+    ]
+    rows, prov_out, _ = fill_causes(causes, prov, llm, {"15": "high"}, RULES_FIXTURE)
+
+    assert rows[0][" Failed PSM Framework Element"] == "15"
+    assert prov_out[0][" Failed PSM Framework Element"] == "xw"
+    assert rows[1][" Failed PSM Framework Element"] == "17"
+    assert prov_out[1][" Failed PSM Framework Element"] == "llm"
+    # fallback drew from the observed llm distribution: {"8": 1, "17": 1}
+    assert rows[2][" Failed PSM Framework Element"] in {"8", "17"}
+    assert prov_out[2][" Failed PSM Framework Element"] == "syn"
+    # every element cell is now non-empty
+    assert all(r[" Failed PSM Framework Element"] for r in rows)
+
+
+def test_fill_causes_confidence_rows():
+    causes = [_cause("A", "1", element="15"), _cause("A", "2"), _cause("A", "3")]
+    prov = [_prov(element_token="xw"), _prov(), _prov()]
+    llm = [_llm("A", "1", "8"), _llm("A", "2", "17", "low"), _llm("A", "3", "")]
+    _, _, conf = fill_causes(causes, prov, llm, {"15": "high"}, RULES_FIXTURE)
+    by_key = {(c["Incident Number"], c["Cause number"]): c["element_confidence"] for c in conf}
+    assert by_key[("A", "1")] == "high"   # crosswalk grade for the xw cell
+    assert by_key[("A", "2")] == "low"    # llm_confidence for the llm cell
+    assert by_key[("A", "3")] == ""       # syn has no confidence
+
+
+def test_fill_causes_cause_type_first_is_immediate_rest_weighted():
+    causes = [_cause("A", "1"), _cause("A", "2"), _cause("B", "1")]
+    prov = [_prov(), _prov(), _prov()]
+    llm = [_llm("A", "1", "8"), _llm("A", "2", "8"), _llm("B", "1", "8")]
+    rows, prov_out, _ = fill_causes(causes, prov, llm, {}, RULES_FIXTURE)
+    assert rows[0]["Cause type"] == "Immediate"
+    assert rows[2]["Cause type"] == "Immediate"
+    assert rows[1]["Cause type"] in {"Underlying", "Root"}
+    assert all(p["Cause type"] == "syn" for p in prov_out)
+
+
+def test_fill_causes_never_mutates_inputs():
+    causes = [_cause("A", "2")]
+    prov = [_prov()]
+    fill_causes(causes, prov, [_llm("A", "2", "17")], {}, RULES_FIXTURE)
+    assert causes[0][" Failed PSM Framework Element"] == ""
+    assert prov[0][" Failed PSM Framework Element"] == ""
+
+
+def test_element_distribution_counts_only_non_empty():
+    llm = [_llm("A", "1", "8"), _llm("A", "2", "8"), _llm("A", "3", "")]
+    assert element_distribution(llm) == {"8": 2}
+
+
+def test_element_confidence_by_number_reads_crosswalk(tmp_path):
+    cw = tmp_path / "cw.yaml"
+    cw.write_text(
+        "categories:\n"
+        "  Equipment Failure: {primary_element: 15, confidence: high}\n"
+        "  Supervision: {primary_element: 17, confidence: low}\n",
+        encoding="utf-8",
+    )
+    assert element_confidence_by_number(cw) == {"15": "high", "17": "low"}

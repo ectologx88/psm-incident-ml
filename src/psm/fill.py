@@ -29,10 +29,10 @@ from __future__ import annotations
 
 import csv
 import hashlib
-from collections import Counter  # noqa: F401
+from collections import Counter
 from pathlib import Path
 
-import yaml  # noqa: F401
+import yaml
 
 from psm.synth import load_rules  # noqa: F401  (re-exported for callers/tests)
 
@@ -78,3 +78,72 @@ def weighted_pick(key: str, salt: str, weights: dict[str, int]) -> str:
         if roll < 0:
             return value
     raise AssertionError("unreachable: weights walk exhausted")
+
+
+def element_confidence_by_number(path: Path = CROSSWALK) -> dict[str, str]:
+    """primary_element (as str) -> the crosswalk category's confidence grade."""
+    spec = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return {
+        str(v["primary_element"]): v["confidence"]
+        for v in spec["categories"].values()
+    }
+
+
+def element_distribution(llm_rows: list[dict]) -> dict[str, int]:
+    """Observed llm_psm_element distribution (non-abstaining rows only).
+    Used as the syn-fallback weight table — deterministic because
+    llm_causes.csv is committed, without duplicating it into yaml."""
+    return dict(Counter(
+        r["llm_psm_element"].strip()
+        for r in llm_rows if r["llm_psm_element"].strip()
+    ))
+
+
+def fill_causes(
+    causes: list[dict], prov: list[dict], llm_rows: list[dict],
+    xw_conf: dict[str, str], rules: dict,
+) -> tuple[list[dict], list[dict], list[dict]]:
+    """Returns (rows, provenance rows, confidence rows). Inputs untouched."""
+    assert len(causes) == len(prov), "value/provenance row count mismatch"
+    llm_by_key = {(r["incident"], r["cause"]): r for r in llm_rows}
+    fallback_weights = element_distribution(llm_rows)
+
+    out_rows, out_prov, out_conf = [], [], []
+    for row, prow in zip(causes, prov):
+        row, prow = dict(row), dict(prow)
+        incident, cause = row["Incident Number"], row["Cause number"]
+        key = f"{incident}|{cause}"
+        confidence = ""
+
+        existing = row[ELEMENT_COL].strip()
+        if existing:
+            confidence = xw_conf.get(existing, "")
+        else:
+            llm = llm_by_key.get((incident, cause), {})
+            llm_element = (llm.get("llm_psm_element") or "").strip()
+            if llm_element:
+                row[ELEMENT_COL] = llm_element
+                prow[ELEMENT_COL] = "llm"
+                confidence = llm.get("llm_confidence", "")
+            else:
+                row[ELEMENT_COL] = weighted_pick(
+                    key, rules["element_fallback_salt"], fallback_weights
+                )
+                prow[ELEMENT_COL] = "syn"
+
+        if not row[CAUSE_TYPE_COL].strip():
+            if cause.strip() == "1":
+                row[CAUSE_TYPE_COL] = rules["cause_type_first_cause"]
+            else:
+                row[CAUSE_TYPE_COL] = weighted_pick(
+                    key, rules["cause_type_salt"], rules["cause_type_weights"]
+                )
+            prow[CAUSE_TYPE_COL] = "syn"
+
+        out_rows.append(row)
+        out_prov.append(prow)
+        out_conf.append({
+            "Incident Number": incident, "Cause number": cause,
+            "element_confidence": confidence,
+        })
+    return out_rows, out_prov, out_conf
