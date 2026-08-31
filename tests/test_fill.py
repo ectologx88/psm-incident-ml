@@ -8,6 +8,7 @@ from psm.fill import (
     element_confidence_by_number,
     element_distribution,
     fill_causes,
+    fill_incidents,
     load_rules,
     weighted_pick,
 )
@@ -55,6 +56,31 @@ RULES_FIXTURE = {
     "cause_type_salt": "cause_type",
     "element_fallback_salt": "element_fallback",
 }
+
+
+INCIDENT_RULES = {
+    "work_group_weights": {"Maintenance": 1, "Drilling": 1},
+    "work_group_salt": "work_group",
+    "likelihood_weights": {"5": 4, "2": 3, "3": 3},
+    "er_likelihood_salt": "er_likelihood",
+    "fin_likelihood_salt": "fin_likelihood",
+}
+
+
+def _incident(number, work_group="", er_score="", fin_score=""):
+    return {
+        "Incident Number": number,
+        "Work Group": work_group,
+        "Environment & Reputation - Risk Score": er_score,
+        "Environment & Reputation - Likelihood": "",
+        "Financial Cost & Business Interruption - Risk Score": fin_score,
+        "Financial Cost & Business Interruption - Likelihood": "",
+    }
+
+
+def _iprov(number_token="src"):
+    return {k: ("" if k != "Incident Number" else number_token)
+            for k in _incident("x")}
 
 
 def _cause(incident, cause, element=""):
@@ -147,3 +173,33 @@ def test_element_confidence_by_number_reads_crosswalk(tmp_path):
         encoding="utf-8",
     )
     assert element_confidence_by_number(cw) == {"15": "high", "17": "low"}
+
+
+def test_fill_incidents_work_group_everywhere_likelihood_gated_on_score():
+    incidents = [
+        _incident("A", er_score="5", fin_score="2"),
+        _incident("B", er_score="0"),            # zero score -> no ER likelihood
+        _incident("C"),                          # empty scores -> no likelihoods
+    ]
+    prov = [_iprov(), _iprov(), _iprov()]
+    rows, prov_out = fill_incidents(incidents, prov, INCIDENT_RULES)
+
+    assert all(r["Work Group"] in {"Maintenance", "Drilling"} for r in rows)
+    assert all(p["Work Group"] == "syn" for p in prov_out)
+
+    assert rows[0]["Environment & Reputation - Likelihood"] in {"5", "2", "3"}
+    assert prov_out[0]["Environment & Reputation - Likelihood"] == "syn"
+    assert rows[0]["Financial Cost & Business Interruption - Likelihood"] in {"5", "2", "3"}
+
+    assert rows[1]["Environment & Reputation - Likelihood"] == ""
+    assert rows[2]["Environment & Reputation - Likelihood"] == ""
+    assert rows[2]["Financial Cost & Business Interruption - Likelihood"] == ""
+    assert prov_out[2]["Environment & Reputation - Likelihood"] == ""
+
+
+def test_fill_incidents_never_overwrites_existing_work_group():
+    incidents = [_incident("A", work_group="Night Crew 7")]
+    prov = [_iprov()]
+    rows, prov_out = fill_incidents(incidents, prov, INCIDENT_RULES)
+    assert rows[0]["Work Group"] == "Night Crew 7"
+    assert prov_out[0]["Work Group"] == ""   # untouched -> token unchanged

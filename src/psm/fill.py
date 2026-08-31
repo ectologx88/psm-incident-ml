@@ -147,3 +147,41 @@ def fill_causes(
             "element_confidence": confidence,
         })
     return out_rows, out_prov, out_conf
+
+
+def _score_is_positive(value: str) -> bool:
+    value = value.strip()
+    return bool(value) and value != "0"
+
+
+def fill_incidents(
+    incidents: list[dict], prov: list[dict], rules: dict,
+) -> tuple[list[dict], list[dict]]:
+    """Work Group everywhere it's blank; Likelihood only beside a real,
+    non-zero Risk Score (a likelihood next to a blank score would read as
+    internally inconsistent). Inputs untouched."""
+    assert len(incidents) == len(prov), "value/provenance row count mismatch"
+    out_rows, out_prov = [], []
+    for row, prow in zip(incidents, prov):
+        row, prow = dict(row), dict(prow)
+        number = row["Incident Number"]
+
+        if not row[WORK_GROUP_COL].strip():
+            row[WORK_GROUP_COL] = weighted_pick(
+                number, rules["work_group_salt"], rules["work_group_weights"]
+            )
+            prow[WORK_GROUP_COL] = "syn"
+
+        for score_col, lik_col, salt_key in (
+            (ER_SCORE_COL, ER_LIKELIHOOD_COL, "er_likelihood_salt"),
+            (FIN_SCORE_COL, FIN_LIKELIHOOD_COL, "fin_likelihood_salt"),
+        ):
+            if not row[lik_col].strip() and _score_is_positive(row[score_col]):
+                row[lik_col] = weighted_pick(
+                    number, rules[salt_key], rules["likelihood_weights"]
+                )
+                prow[lik_col] = "syn"
+
+        out_rows.append(row)
+        out_prov.append(prow)
+    return out_rows, out_prov
