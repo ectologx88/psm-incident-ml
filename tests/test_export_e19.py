@@ -5,7 +5,7 @@ import csv
 
 from openpyxl import load_workbook
 
-from psm.export_e19 import PROVENANCE_FILLS, export
+from psm.export_e19 import PROVENANCE_FILLS, _xlsx_safe, export
 
 
 def _write(path, fieldnames, rows):
@@ -43,3 +43,29 @@ def test_export_builds_three_sheets_with_provenance_shading(tmp_path):
     assert causes["C2"].value == "17"
     assert causes["C2"].fill.start_color.rgb == "00" + PROVENANCE_FILLS["llm"]
     assert "not a real" in str(wb["About"]["A4"].value).lower()
+
+
+def test_xlsx_safe_substitutes_control_character_runs_with_a_single_space():
+    # A control byte sitting at a word boundary must not be deleted outright
+    # -- that would silently fuse "burn" and "injury" into "burninjury",
+    # fabricating a word that isn't in the source text.
+    assert _xlsx_safe("burn\x01injury") == "burn injury"
+
+    # A run of several consecutive illegal bytes must become exactly one
+    # space, not one space per byte -- otherwise a 12-byte run would pad the
+    # cell with 12 spaces.
+    assert _xlsx_safe("a\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01b") == "a b"
+
+    # Identity (not just equality) proves the sanitiser leaves clean text
+    # completely alone -- it cannot quietly rewrite whitespace or characters
+    # that were never illegal in the first place.
+    clean = "clean cause text with normal   spacing, nothing illegal here."
+    assert _xlsx_safe(clean) is clean
+
+    # Correct behaviour: a cell whose entire content is one run of illegal
+    # bytes becomes a single space, not an empty string. This follows
+    # directly from "each run becomes one space" with no extra stripping --
+    # an empty-string special case would be an inconsistent exception to that
+    # rule, and would make a genuinely-blank source cell indistinguishable
+    # from one BSEE's PDF extraction corrupted into unreadability.
+    assert _xlsx_safe("\x01\x01\x01") == " "

@@ -12,6 +12,7 @@ Run:  uv run python -m psm.export_e19
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 from openpyxl import Workbook
@@ -49,6 +50,9 @@ ABOUT_LINES = [
     "to one category. Treat every amber/grey cell as a proposal to evaluate,",
     "not a finding. Full provenance: data/processed/e19/filled/ in the",
     "psm-incident-ml repository.",
+    "A few cause descriptions contain control characters left by PDF extraction that",
+    "xlsx cannot store; each is rendered here as a single space. The committed CSVs in",
+    "data/processed/e19/filled/ keep the original bytes.",
 ]
 
 
@@ -58,21 +62,46 @@ def _rows(path: Path) -> tuple[list[str], list[dict]]:
         return list(reader.fieldnames or []), list(reader)
 
 
+# One or more consecutive illegal characters, collapsed to a single space by
+# _xlsx_safe rather than one space per byte (openpyxl's own
+# ILLEGAL_CHARACTERS_RE has no quantifier, so it would otherwise match -- and
+# get substituted -- one character at a time).
+_ILLEGAL_RUN_RE = re.compile(f"(?:{ILLEGAL_CHARACTERS_RE.pattern})+")
+
+
 def _xlsx_safe(value: str) -> str:
-    """Strip characters OOXML text cells cannot hold at all (e.g. stray \\x01
-    bytes from PDF extraction — see docs/findings.md, "source data is dirty
-    and stays dirty"). This is an xlsx-format compatibility step, not a data
-    edit: the CSVs under data/processed/e19/filled/ remain the untouched
-    record; only this deliverable's rendering of them is sanitised."""
-    return ILLEGAL_CHARACTERS_RE.sub("", value)
+    """Substitute each run of characters OOXML text cells cannot hold at all
+    (e.g. stray \\x01 bytes from PDF extraction — see docs/findings.md,
+    "source data is dirty and stays dirty") with a single space, rather than
+    deleting them. In this corpus a control byte sits at a word boundary
+    (e.g. "burn\\x01injury\\x01to"), so deleting it would silently fabricate a
+    word ("burninjuryto") that never appeared in the source; a space keeps the
+    text truthful. A run of several consecutive control bytes collapses to
+    one space, not one space per byte. No other whitespace is touched: no
+    stripping, no collapsing of spaces that were already in the source text.
+
+    This is an xlsx-format compatibility step, not a data edit: the CSVs
+    under data/processed/e19/filled/ remain the untouched record with the
+    original bytes; only this deliverable's rendering of them is sanitised.
+    """
+    return _ILLEGAL_RUN_RE.sub(" ", value)
 
 
-def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> None:
+def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int:
+    """Returns the number of cells whose value was sanitised by _xlsx_safe."""
     ws.append(cols)
     for cell in ws[1]:
         cell.font = Font(bold=True)
+    sanitised = 0
     for row, prow in zip(rows, prov):
-        ws.append([_xlsx_safe(row[c]) for c in cols])
+        values = []
+        for c in cols:
+            raw = row[c]
+            safe = _xlsx_safe(raw)
+            if safe != raw:
+                sanitised += 1
+            values.append(safe)
+        ws.append(values)
         for j, c in enumerate(cols, start=1):
             token = prow.get(c, "")
             if token in PROVENANCE_FILLS:
@@ -84,9 +113,13 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> Non
     for j, c in enumerate(cols, start=1):
         width = min(max(len(c) + 2, 12), 60)
         ws.column_dimensions[ws.cell(row=1, column=j).column_letter].width = width
+    return sanitised
 
 
-def export(filled_dir: Path, out_path: Path) -> None:
+def export(filled_dir: Path, out_path: Path) -> int:
+    """Builds the workbook and returns the number of cells sanitised by
+    _xlsx_safe, so callers can observe (and log/print) how many cells were
+    altered instead of that fact being visible only via a print statement."""
     wb = Workbook()
     about = wb.active
     about.title = "About"
@@ -96,19 +129,21 @@ def export(filled_dir: Path, out_path: Path) -> None:
 
     icols, irows = _rows(filled_dir / "incidents.csv")
     _, iprov = _rows(filled_dir / "provenance.csv")
-    _write_sheet(wb.create_sheet("Incidents"), icols, irows, iprov)
+    sanitised = _write_sheet(wb.create_sheet("Incidents"), icols, irows, iprov)
 
     ccols, crows = _rows(filled_dir / "causes.csv")
     _, cprov = _rows(filled_dir / "causes_provenance.csv")
-    _write_sheet(wb.create_sheet("Causes"), ccols, crows, cprov)
+    sanitised += _write_sheet(wb.create_sheet("Causes"), ccols, crows, cprov)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
+    return sanitised
 
 
 def main() -> int:
-    export(FILLED, DEFAULT_OUT)
+    sanitised = export(FILLED, DEFAULT_OUT)
     print(f"wrote {DEFAULT_OUT}")
+    print(f"sanitised {sanitised} cells containing control characters unrepresentable in xlsx")
     print("deliverable only - never commit; the record is data/processed/e19/filled/")
     return 0
 
