@@ -19,12 +19,15 @@ import pytest
 
 from psm.ledger import (
     ALL_DISPOSITIONS,
+    DEFAULT_OUT,
     GAP_POLICIES,
     REPO,
     load_disposition,
     measure,
     reconcile,
+    render,
     tally,
+    validity,
 )
 
 pytestmark = pytest.mark.skipif(
@@ -72,6 +75,27 @@ class TestTheFileDescribesTheData:
                 continue
             assert entry.get("gap_policy") in GAP_POLICIES, \
                 f"{table}.{col!r}: real column with gap_policy {entry.get('gap_policy')!r}"
+
+
+class TestTheRenderedFileMatchesItsSource:
+    """README.md says this file 'fails the build if any claim in it stops
+    being true' -- but every other test in this module checks a *claim*
+    (a number, a policy) against the data, not the *rendered markdown*
+    against its own generator. A `generator:` name can change in
+    schema/e19_disposition.yaml, `psm.ledger` regenerate correctly when run
+    by hand, and the committed docs/e19_field_ledger.md still say the old
+    thing, because nothing here ever re-ran the render and diffed it. This
+    closes that gap: it is the render step itself, so it cannot drift from
+    what `uv run python -m psm.ledger` would produce."""
+
+    def test_committed_ledger_is_freshly_regenerated(self, spec, seen):
+        stats = tally(spec, seen)
+        val = validity(spec)
+        rendered = render(spec, seen, stats, val)
+        committed = DEFAULT_OUT.read_text(encoding="utf-8")
+        assert rendered == committed, (
+            "docs/e19_field_ledger.md does not match schema/e19_disposition.yaml "
+            "-- run `uv run python -m psm.ledger` and commit the result")
 
 
 class TestTheClaimsAreTrue:
