@@ -3203,3 +3203,38 @@ hand a human next, not a verdict on its own.
 actual accuracy number (`llm_` vs `gold_`, category and per-element) once that
 exists. This run's numbers are agreement-with-crosswalk only and will not be
 re-cited as accuracy anywhere in this repo.
+
+---
+
+## 2026-08-31 — filled/ E19 layer + xlsx deliverable for SME review
+
+`psm.fill` (new) fills the enriched tables' remaining gaps into
+`data/processed/e19/filled/` — same byte-exact labels, same parallel
+provenance files, every fill deterministic (sha256 picks, rules in
+schema/synth_rules.yaml v2). `psm.export_e19` (new) renders it to
+`deliverables/e19_filled.xlsx` (gitignored) with per-cell provenance shading.
+
+Element column: 3,572/3,572 filled — 524 xw (kept), 2,008 llm, 1,040 syn
+fallback weighted by the run's own element distribution. Cause type:
+3,572 syn (first cause Immediate, rest hash-weighted). Work Group: 1,214 syn
+from an invented picklist. Likelihoods: syn only beside a present, non-zero
+risk score (186 E&R, 443 Financial) — internal consistency beats column
+completeness for realism. The xlsx export substitutes a single space for each
+run of control characters that OOXML can't store (8 cells, PDF-extraction
+artifacts); the committed CSVs keep the original bytes unchanged.
+
+Verified: fill is idempotent (second run byte-identical, git diff clean);
+never overwrites a non-empty enriched value (tests/test_fill_outputs.py, run
+against the real outputs); llm cells match llm_causes.csv exactly; provenance
+tokens closed-set. Four of the 1,214 incidents carry zero cause rows —
+`UNKEYED-6e8704573b22`, `MC-778-20070913-1545`, `SP-57B-20201017`,
+`SP-83-20210107` — and the fill left them at zero rather than synthesizing
+causes to force a count; `SP-57B-20201017` is the `absent_legitimate` case
+documented above (third-party vessel allision outside BSEE jurisdiction,
+fields 18/19 genuinely blank in the source PDF and in `src_f18_probable_cause`
+/ `src_f19_contributing_cause`), confirmed again here directly from
+`data/interim/sp-57b-cox-operating-17-oct-2020.json`. The workbook's About
+sheet states, in plain language, that this is a demonstration of an
+auto-populated register — model labels unvalidated (25.4% crosswalk
+agreement, n=524), synthetic cells correspond to nothing real. It is a
+proposal for SMEs to evaluate, not a finding.
