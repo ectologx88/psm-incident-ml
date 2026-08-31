@@ -120,9 +120,12 @@ cause_type_weights:
   "Root": 2
 cause_type_salt: "cause_type"
 
-# Mirrors the REAL Health & Safety - Likelihood distribution measured
-# 2026-08-30 (5:265, 2:193, 3:177, 1:10, 4 never used) so synthetic
-# likelihoods look like the register's own habits.
+# Mirrors the xw Health & Safety - Likelihood distribution this repo
+# derives (n=645; token xw on every non-blank cell, via
+# schema/xw_consequence_tiers.yaml -- not an observed real-world register,
+# see CLAUDE.md's xw_/syn_ boundary rule) measured 2026-08-30
+# (5:265, 2:193, 3:177, 1:10, 4 never used) so synthetic likelihoods look
+# like this repo's own rule output.
 likelihood_weights:
   "5": 41
   "2": 30
