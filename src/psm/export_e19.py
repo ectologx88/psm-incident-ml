@@ -45,11 +45,18 @@ ABOUT_LINES = [
     "               offsets, picklist values are invented). Corresponds to",
     "               nothing real.",
     "",
-    "Model-assigned labels are unvalidated: agreement with the crosswalk is",
-    "25.4% on the 524 statements where both exist, and the corpus skews heavily",
-    "to one category. Treat every amber/grey cell as a proposal to evaluate,",
-    "not a finding. Full provenance: data/processed/e19/filled/ in the",
-    "psm-incident-ml repository.",
+    "Exception: Incident Number is unshaded but is not verbatim. BSEE",
+    "publishes no incident identifier, so this repo constructs the key; a few",
+    "(UNKEYED-6e8704573b22 among them) are content-hash suffixes rather than",
+    "values copied from a source field.",
+    "",
+    "Model-assigned labels are unvalidated. On the 524 statements where the",
+    "crosswalk also holds an opinion, the model agreed on 25.4% (133) and",
+    "abstained entirely on 109; counting only the 415 where both produced a",
+    "label, agreement is 32.0%. The corpus also skews heavily to one category.",
+    "Treat every amber/grey cell as a proposal to evaluate, not a finding.",
+    "Full provenance: data/processed/e19/filled/ in the psm-incident-ml",
+    "repository.",
     "A few cause descriptions contain control characters left by PDF extraction that",
     "xlsx cannot store; each is rendered here as a single space. The committed CSVs in",
     "data/processed/e19/filled/ keep the original bytes.",
@@ -89,6 +96,7 @@ def _xlsx_safe(value: str) -> str:
 
 def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int:
     """Returns the number of cells whose value was sanitised by _xlsx_safe."""
+    assert len(rows) == len(prov), "value/provenance row count mismatch"
     ws.append(cols)
     for cell in ws[1]:
         cell.font = Font(bold=True)
@@ -104,6 +112,11 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int
         ws.append(values)
         for j, c in enumerate(cols, start=1):
             token = prow.get(c, "")
+            if token not in PROVENANCE_FILLS and token not in ("", "src"):
+                raise ValueError(
+                    f"{c!r}: unknown provenance token {token!r} -- "
+                    "not in PROVENANCE_FILLS and not '' or 'src'"
+                )
             if token in PROVENANCE_FILLS:
                 ws.cell(row=ws.max_row, column=j).fill = PatternFill(
                     "solid", start_color=PROVENANCE_FILLS[token]
