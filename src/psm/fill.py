@@ -118,12 +118,27 @@ def weighted_pick(key: str, salt: str, weights: dict[str, int]) -> str:
 
 
 def element_confidence_by_number(path: Path = CROSSWALK) -> dict[str, str]:
-    """primary_element (as str) -> the crosswalk category's confidence grade."""
+    """primary_element (as str) -> the crosswalk category's confidence grade.
+
+    primary_element is not a key: nothing in schema/crosswalk.yaml enforces
+    uniqueness, and this function inverts on it. A future category sharing an
+    element at a different confidence would otherwise silently overwrite the
+    earlier one -- whichever category YAML ordering put last would win, with
+    no test failing -- so a duplicate raises here instead.
+    """
     spec = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return {
-        str(v["primary_element"]): v["confidence"]
-        for v in spec["categories"].values()
-    }
+    out: dict[str, str] = {}
+    for name, v in spec["categories"].items():
+        key = str(v["primary_element"])
+        if key in out:
+            raise ValueError(
+                f"primary_element {key!r} is claimed by more than one crosswalk "
+                f"category (duplicate at {name!r}); element_confidence_by_number "
+                "inverts on this key and cannot represent two confidences for "
+                "one element"
+            )
+        out[key] = v["confidence"]
+    return out
 
 
 def element_distribution(llm_rows: list[dict]) -> dict[str, int]:
