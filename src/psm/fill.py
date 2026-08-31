@@ -34,7 +34,7 @@ from pathlib import Path
 
 import yaml
 
-from psm.synth import load_rules  # noqa: F401  (re-exported for callers/tests)
+from psm.synth import load_rules  # re-exported for callers/tests
 
 REPO = Path(__file__).resolve().parents[2]
 E19 = REPO / "data" / "processed" / "e19"
@@ -50,6 +50,30 @@ ER_LIKELIHOOD_COL = "Environment & Reputation - Likelihood"
 ER_SCORE_COL = "Environment & Reputation - Risk Score"
 FIN_LIKELIHOOD_COL = "Financial Cost & Business Interruption - Likelihood"
 FIN_SCORE_COL = "Financial Cost & Business Interruption - Risk Score"
+
+# Fill-stage counterpart to synth.SYN_COLUMN_MANIFEST. Kept separate rather
+# than merged into that manifest because SYN_COLUMN_MANIFEST is pinned
+# cell-for-cell to synthesize_row's actual output by
+# tests/test_synth.py:254 (test_synthesize_row_output_keys_match_manifest) --
+# these four generators run in fill_causes/fill_incidents above, never in
+# synth.synthesize_row, so they cannot live in that manifest without breaking
+# it. tests/test_ledger.py checks generator names against the union of both.
+FILL_COLUMN_MANIFEST: dict[str, dict[str, object]] = {
+    "syn_work_group": {
+        "description": "Hash-pick from an invented generic offshore picklist; "
+                        "the real workbook's picklist is one company's named shift crews.",
+        "fabricated": True,
+    },
+    "syn_likelihood_gated_on_score": {
+        "description": "Hash-weighted 1-5 mirroring the real H&S likelihood distribution, "
+                        "written only beside a present, non-zero risk score.",
+        "fabricated": True,
+    },
+    "syn_cause_type": {
+        "description": "Cause 1 is Immediate; later causes hash-weighted Underlying/Root.",
+        "fabricated": True,
+    },
+}
 
 csv.field_size_limit(10**9)
 
@@ -185,3 +209,41 @@ def fill_incidents(
         out_rows.append(row)
         out_prov.append(prow)
     return out_rows, out_prov
+
+
+def _write_csv(path: Path, fieldnames: list[str], rows: list[dict]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=fieldnames)
+        w.writeheader()
+        w.writerows(rows)
+
+
+def main() -> int:
+    rules = load_rules()
+    xw_conf = element_confidence_by_number()
+    llm_rows = _read_csv(LLM_CAUSES)
+
+    causes = _read_csv(ENRICHED / "causes.csv")
+    causes_prov = _read_csv(ENRICHED / "causes_provenance.csv")
+    c_rows, c_prov, c_conf = fill_causes(causes, causes_prov, llm_rows, xw_conf, rules)
+
+    incidents = _read_csv(ENRICHED / "incidents.csv")
+    incidents_prov = _read_csv(ENRICHED / "provenance.csv")
+    i_rows, i_prov = fill_incidents(incidents, incidents_prov, rules)
+
+    FILLED.mkdir(parents=True, exist_ok=True)
+    _write_csv(FILLED / "causes.csv", _fieldnames(ENRICHED / "causes.csv"), c_rows)
+    _write_csv(FILLED / "causes_provenance.csv", _fieldnames(ENRICHED / "causes.csv"), c_prov)
+    _write_csv(FILLED / "causes_confidence.csv",
+               ["Incident Number", "Cause number", "element_confidence"], c_conf)
+    _write_csv(FILLED / "incidents.csv", _fieldnames(ENRICHED / "incidents.csv"), i_rows)
+    _write_csv(FILLED / "provenance.csv", _fieldnames(ENRICHED / "incidents.csv"), i_prov)
+
+    element_tokens = Counter(p[ELEMENT_COL] for p in c_prov)
+    print(f"causes: {len(c_rows)} rows, element tokens {dict(element_tokens)}")
+    print(f"incidents: {len(i_rows)} rows -> {FILLED}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

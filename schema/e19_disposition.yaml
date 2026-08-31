@@ -309,7 +309,7 @@ fields:
 
     "Work Group":
       disposition: synthetic_column
-      generator: null
+      generator: syn_work_group
       note: >
         Was `not_obtainable`. Six of the picklist's twelve values are one
         company's named shift crews, so nothing real can go here -- but with no
@@ -318,6 +318,7 @@ fields:
         at ~30% precision: most matches are the injured person's trade or a
         post-incident actor. A 30%-precision guess carrying an `xw` mark would
         be a false claim about a real incident; a `syn` value is not.
+        Generator implemented 2026-08-30 in src/psm/fill.py (filled/ layer only; enriched/ untouched).
 
     # --- synthetic columns: risk judgements our method declined -----------
     # These were `deliberate_blank`. The reason each was left empty is still
@@ -331,9 +332,9 @@ fields:
       note: "The consequence letter is derivable; the sentence describing it is not."
     "Environment & Reputation - Likelihood":
       disposition: synthetic_column
-      generator: null
+      generator: syn_likelihood_gated_on_score
       reason_recorded_in: schema/xw_consequence_tiers.yaml
-      note: "Mechanism rates measure injury, not release volume. No empirical pass was done."
+      note: "Mechanism rates measure injury, not release volume. No empirical pass was done. Generator implemented 2026-08-30 in src/psm/fill.py (filled/ layer only; enriched/ untouched)."
     "Environment & Reputation - Risk Score":
       disposition: synthetic_column
       generator: syn_environment_reputation_score
@@ -346,9 +347,9 @@ fields:
       note: "Depends on the risk score above."
     "Financial Cost & Business Interruption - Likelihood":
       disposition: synthetic_column
-      generator: null
+      generator: syn_likelihood_gated_on_score
       reason_recorded_in: schema/xw_consequence_tiers.yaml
-      note: "Damage cost is recorded as an actual; no conditional probability of cost given mechanism has been measured."
+      note: "Damage cost is recorded as an actual; no conditional probability of cost given mechanism has been measured. Generator implemented 2026-08-30 in src/psm/fill.py (filled/ layer only; enriched/ untouched)."
     "Financial Cost & Business Interruption - Risk Score":
       disposition: synthetic_column
       generator: syn_financial_score
@@ -398,7 +399,7 @@ fields:
       note: "4.2% real. Graded, with per-cell confidence in causes_confidence.csv."
     "Cause type":
       disposition: synthetic_column
-      generator: null
+      generator: syn_cause_type
       modelling_target: true
       note: >
         Was `needs_human`. Immediate / Underlying / Root. BSEE's field 18 vs 19
@@ -406,6 +407,7 @@ fields:
         DEPTH this column asks for; the sidecar preserves which field each
         statement came from, so the feature is available, but the two axes are
         not the same and must not be equated. 100% syn.
+        Generator implemented 2026-08-30 in src/psm/fill.py (filled/ layer only; enriched/ untouched).
 
   # ===== recommendations ====================================================
   recommendations:

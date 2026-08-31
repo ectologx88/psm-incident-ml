@@ -120,16 +120,28 @@ class TestTheClaimsAreTrue:
 
 
 class TestTheGeneratorPromisesAreKeepable:
-    def test_named_generators_exist_in_synth(self, spec):
+    def test_named_generators_exist(self, spec):
         """A generator name is a promise. `null` is an honest admission and is
-        allowed; a name that does not exist is a to-do disguised as a plan."""
+        allowed; a name that does not exist is a to-do disguised as a plan.
+
+        Rewritten 2026-08-30 when fill.py was wired. The check previously
+        assumed synth.py was the only generator module and looked up names
+        in SYN_COLUMN_MANIFEST alone; this branch introduces fill.py as a
+        second producer (the filled/ layer's Work Group, gated Likelihoods,
+        and Cause type), so the lookup now checks the union of
+        synth.SYN_COLUMN_MANIFEST and fill.FILL_COLUMN_MANIFEST. The
+        promise-checking intent -- every named generator must actually
+        exist somewhere -- is unchanged."""
+        from psm.fill import FILL_COLUMN_MANIFEST
         from psm.synth import SYN_COLUMN_MANIFEST
+        known = set(SYN_COLUMN_MANIFEST) | set(FILL_COLUMN_MANIFEST)
         for table, col, entry in _entries(spec):
             gen = entry.get("generator")
             if entry["disposition"] != "synthetic_column" or gen is None:
                 continue
-            assert gen in SYN_COLUMN_MANIFEST, (
-                f"{table}.{col!r} names generator {gen!r}, which synth.py does not produce")
+            assert gen in known, (
+                f"{table}.{col!r} names generator {gen!r}, which neither "
+                f"synth.py nor fill.py produces")
 
     def test_every_synthetic_column_declares_its_generator_key(self, spec):
         """Including as `null`. Omitting the key hides the columns with no
