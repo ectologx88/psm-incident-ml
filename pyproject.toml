@@ -17,6 +17,9 @@ dependencies = [
     # to regenerate schema/e19_labels.yaml. The rest of the pipeline runs
     # without it, since that YAML is committed.
     "openpyxl>=3.1",
+    # psm.llm_label --backend bedrock (the default). Imported lazily so
+    # --dry-run and --backend anthropic don't require it.
+    "boto3>=1.34",
 ]
 
 [project.optional-dependencies]

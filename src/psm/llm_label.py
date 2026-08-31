@@ -152,16 +152,41 @@ def call_bedrock(system: str, user: str, model: str, temperature: float,
                  region: str) -> str:
     """Bedrock Converse. Uses the standard AWS credential chain, so it picks up
     a profile, env vars, SSO or an instance role without this module knowing
-    which."""
+    which.
+
+    Retries on throttling with exponential backoff + jitter. A 3,572-statement,
+    3-pass run is 10,716 calls with no per-row checkpoint below this function;
+    an unhandled throttle near the end of a multi-hour run would discard
+    everything before it.
+    """
+    import random
+    import time
+
     import boto3
+    from botocore.exceptions import ClientError
+
     client = boto3.client("bedrock-runtime", region_name=region)
-    resp = client.converse(
-        modelId=model,
-        system=[{"text": system}],
-        messages=[{"role": "user", "content": [{"text": user}]}],
-        inferenceConfig={"maxTokens": 400, "temperature": temperature},
-    )
-    return "".join(b.get("text", "") for b in resp["output"]["message"]["content"])
+    max_attempts = 8
+    for attempt in range(max_attempts):
+        try:
+            resp = client.converse(
+                modelId=model,
+                system=[{"text": system}],
+                messages=[{"role": "user", "content": [{"text": user}]}],
+                inferenceConfig={"maxTokens": 400, "temperature": temperature},
+            )
+            return "".join(b.get("text", "") for b in resp["output"]["message"]["content"])
+        except ClientError as e:
+            code = e.response.get("Error", {}).get("Code", "")
+            retryable = code in ("ThrottlingException", "TooManyRequestsException",
+                                 "ServiceUnavailableException", "ModelTimeoutException")
+            if not retryable or attempt == max_attempts - 1:
+                raise
+            delay = min(60, 2 ** attempt) + random.uniform(0, 1)
+            print(f"  [{code}, attempt {attempt + 1}/{max_attempts}, retrying in {delay:.1f}s]",
+                 file=sys.stderr)
+            time.sleep(delay)
+    raise RuntimeError("unreachable")
 
 
 def call_anthropic(system: str, user: str, model: str, temperature: float) -> str:
@@ -171,6 +196,31 @@ def call_anthropic(system: str, user: str, model: str, temperature: float) -> st
         model=model, max_tokens=400, temperature=temperature,
         system=system, messages=[{"role": "user", "content": user}])
     return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+
+
+def write_outputs(out: list[dict], out_dir: Path, suffix: str) -> tuple[Path, list[dict]]:
+    """Write both output CSVs. Called at checkpoints during a long run, not
+    just once at the end, so a crash loses at most one checkpoint interval
+    instead of the whole run."""
+    cols = ["incident", "cause", "text", "xw_element", "llm_cause_category",
+            "llm_psm_element", "llm_confidence", "llm_passes_agreed", "llm_reason"]
+    causes_path = out_dir / f"llm_causes{suffix}.csv"
+    with causes_path.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(out)
+
+    # Disagreement queue. Confident disagreements first: an uncertain LLM that
+    # differs from the crosswalk says less than a certain one that does.
+    order = {"high": 0, "medium": 1, "low": 2}
+    dis = [r for r in out if r["xw_element"] and r["llm_psm_element"]
+           and r["xw_element"] != r["llm_psm_element"]]
+    dis.sort(key=lambda r: order.get(r["llm_confidence"], 3))
+    with (out_dir / f"llm_disagreements{suffix}.csv").open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(dis)
+    return causes_path, dis
 
 
 def main(argv=None) -> int:
@@ -228,6 +278,8 @@ def main(argv=None) -> int:
             return call_bedrock(s, u, args.model, spec["temperature"], args.region)
         return call_anthropic(s, u, args.model, spec["temperature"])
 
+    suffix = f"_{args.backend}_pilot" if args.pilot else ""
+    checkpoint_every = 200
     out = []
     for i, r in enumerate(rows, 1):
         sysmsg, user = build_prompt(spec, r["text"], elems)
@@ -240,30 +292,16 @@ def main(argv=None) -> int:
                     "llm_passes_agreed": c["agreed"], "llm_reason": c["reason"]})
         if i % 50 == 0:
             print(f"  {i}/{len(rows)}", file=sys.stderr)
+        if i % checkpoint_every == 0:
+            write_outputs(out, args.out, suffix)
+            print(f"  checkpoint written at {i}/{len(rows)}", file=sys.stderr)
 
-    suffix = f"_{args.backend}_pilot" if args.pilot else ""
-    cols = ["incident", "cause", "text", "xw_element", "llm_cause_category",
-            "llm_psm_element", "llm_confidence", "llm_passes_agreed", "llm_reason"]
-    with (args.out / f"llm_causes{suffix}.csv").open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
-        w.writeheader()
-        w.writerows(out)
-
-    # Disagreement queue. Confident disagreements first: an uncertain LLM that
-    # differs from the crosswalk says less than a certain one that does.
-    order = {"high": 0, "medium": 1, "low": 2}
-    dis = [r for r in out if r["xw_element"] and r["llm_psm_element"]
-           and r["xw_element"] != r["llm_psm_element"]]
-    dis.sort(key=lambda r: order.get(r["llm_confidence"], 3))
-    with (args.out / f"llm_disagreements{suffix}.csv").open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
-        w.writeheader()
-        w.writerows(dis)
+    causes_path, dis = write_outputs(out, args.out, suffix)
 
     both = [r for r in out if r["xw_element"] and r["llm_psm_element"]]
     agree = len(both) - len(dis)
     print(f"model: {args.model} via {args.backend}")
-    print(f"labelled {len(out)} statements -> {args.out / f'llm_causes{suffix}.csv'}")
+    print(f"labelled {len(out)} statements -> {causes_path}")
     print(f"  abstained/unparseable : {sum(1 for r in out if not r['llm_psm_element'])}")
     print(f"  confidence            : {dict(Counter(r['llm_confidence'] for r in out))}")
     print(f"  comparable to crosswalk: {len(both)}")

@@ -2890,3 +2890,311 @@ corpus. TF-IDF rather than sentence embeddings, chosen so a stranger can rebuild
 this from a fresh clone per the reproducibility contract; a stronger encoder
 would likely raise the supervised numbers and would not change the clustering
 conclusion, which is about which axis dominates.
+
+---
+
+## 2026-08-30 — LLM labelling pilot: Haiku 4.5 vs Sonnet 4.5, model choice
+
+`psm.llm_label --pilot --limit 60`, both via AWS Bedrock inference profiles
+(`us.anthropic.claude-haiku-4-5-20251001-v1:0`,
+`us.anthropic.claude-sonnet-4-5-20250929-v1:0`), on the same hash-ordered
+60-statement sample of the 524 statements the crosswalk also labels.
+
+| | Haiku 4.5 | Sonnet 4.5 |
+|---|---|---|
+| agreement with crosswalk (not accuracy) | 18/49 = 36.7% | 16/53 = 30.2% |
+| self-consistency, high-confidence rate | 49/60 = 81.7% | 48/60 = 80.0% |
+| parse-failure rate | 0/60 = 0.0% | 4/60 = 6.7% |
+| abstention rate (`INSUFFICIENT`) | 11/60 = 18.3% | 3/60 = 5.0% |
+| cross-model agreement, both labelled | 32/45 = 71.1% | (same pair) |
+
+**Neither model fell into the element-5 word-match trap.** Of the 8 statements
+in the sample containing "communicat*", zero were assigned element 5 by either
+model — both routed them to 17 (in-task coordination) or 8, exactly the
+distinction the prompt asks for. This is the more informative check than the
+aggregate confidence number, since it tests the specific failure mode the
+prompt was written to prevent, not just whether the model was internally
+consistent.
+
+**17 vs 6 splits differently, not worse.** Haiku: 17 assigned 15x, 6 assigned
+10x. Sonnet: 17 assigned 25x, 6 assigned 7x. With no gold labels for this
+sample, this is a difference in judgement, not evidence either model is
+missing the distinction.
+
+**Decision: Haiku 4.5, for the full run.** It matches or exceeds Sonnet on all
+three deciding criteria — agreement, self-consistency, and parse-failure rate —
+at roughly a third of the cost (~$10 vs ~$36 for 3,572 statements x 3 passes).
+Sonnet's self-consistency was not materially worse, so the fallback trigger in
+the run plan does not fire.
+
+**Open caveat, not a reversal.** Haiku's abstention rate (18.3%) is well above
+Sonnet's (5.0%) on this same sample, and above the corpus-wide 7.6%
+"statement is unusable" rate — notable because this pilot is restricted to
+statements the crosswalk *already* typed, so a higher floor was expected, not
+a higher abstention rate. Worth re-checking against the full run, whose
+majority is freetext rather than crosswalk-typed statements.
+
+**A dependency gap, and a lost pilot run.** `boto3` was never declared in
+`pyproject.toml` — `call_bedrock` imports it lazily, which hid the gap from
+`uv run pytest` since nothing exercises the Bedrock backend in the suite.
+Added to `dependencies`. Before the fix was caught, the first Haiku pilot
+attempt ran all 180 real calls (~$0.30) and then crashed on `ModuleNotFoundError`
+before that — no spend lost there. The *second* attempt, after the fix, did
+spend the ~180 calls and then lost the output to a relative `--out` path that
+resolved against an unexpected working directory at write time (all pilot
+`--out` invocations now use absolute paths). Recorded because both were real
+AWS spend with no output to show for it, and the second is the reason
+`write_outputs` now checkpoints every 200 rows in the full run rather than
+writing once at the end — a late failure on a 10,716-call run should not be
+able to discard everything before it the way this pilot's did.
+
+Suite still 361 passed, 2 skipped after these changes; the retry-with-backoff
+path was mutation-checked against a mocked throttling error (recovers) and a
+mocked non-retryable error (propagates on the first call, no wasted retries).
+
+---
+
+## 2026-08-30 — Gold sample rebuilt at statement grain, on the E19 tables
+
+`gold_sample.py`/`gold_scaffold.py` sampled from `data/manifest.csv` (the
+legacy BSEE-PDF-harvest pipeline) at report grain. R5 (2026-08-29, above)
+already measured why that can never be scored: gold keys on `report_id` =
+sha256 of the source PDF, `psm.llm_label`/`psm.crosswalk`/everything else
+keys on `Incident Number` from the E19 workbook, and the direct join was 0 of
+100. Rebuilt both modules to sample from `data/processed/e19/enriched/
+causes.csv` and `incidents.csv` directly — the same tables `psm.llm_label`
+reads — so the join exists by construction instead of needing a documented
+two-hop workaround.
+
+**A second problem, found while rebuilding, not before.** `gold_scaffold.py`
+assigned one gold label per *report*. Checked against `causes.csv`: only
+19.1% of incidents (231/1,210) have any crosswalk-typed cause at all, and of
+those, 112 (48.5%) carry causes that disagree with each other on PSM element —
+unsurprising once you look, since 90.5% of incidents (1,095/1,210) have more
+than one cause statement. A report-level gold label can't represent a report
+whose own causes span different categories. Sample and worksheet are now keyed
+on `(Incident Number, Cause number)` — a statement — matching
+`psm.llm_label.statements()`'s grain exactly.
+
+### Design: two-pass stratification
+
+1. **Category floor** (default 30/category): up to `category_floor` statements
+   per BSEE cause category, so every category gets enough rows for its own
+   agreement estimate. Category signal prefers the crosswalk's `xw_element`
+   (524/3,572 statements, inverted from `schema/crosswalk.yaml`'s
+   `primary_element` rather than re-hardcoded — CLAUDE.md's "never bury a
+   mapping in a Python dict" applies here too) and falls back to
+   `llm_cause_category` where the crosswalk found nothing.
+2. **Era fill**: remaining budget spread across `psm.ledger.ERA_REGIMES`
+   from whatever's left, same allocator shape (base share, floored, capped by
+   availability, remainder to the eras with the most unused rows) the old
+   report-level sampler used for years. This exists because crosswalk-typed
+   statements are 87% `modern_six` (457/524) — a category-only sample would
+   almost entirely skip `free_prose` and `ad_hoc`.
+
+Selection within each stratum is by ascending `sha256(incident|cause)` — no
+stored seed, same pattern `synth.py` uses for its hash offsets.
+
+### Current sample (final — regenerated against the complete LLM run)
+
+Generated `uv run python -m psm.gold_sample && uv run python -m psm.gold_scaffold`
+at default `target_n=360`, `category_floor=30`, first against a 600/3,572
+partial run (see the superseded numbers below), then re-run once the full
+3,572-statement job finished:
+
+| category | n | | era | n |
+|---|---|---|---|---|
+| Management Systems | 109 | | modern_six | 116 |
+| Human Performance Error | 46 | | ad_hoc | 111 |
+| Equipment Failure | 42 | | human_error | 75 |
+| Communication | 30 | | free_prose | 57 |
+| Supervision | 30 | | undated | 1 |
+| Work Environment | 30 | | | |
+| (none — era-fill only) | 73 | | | |
+
+Category signal source: 71 from the crosswalk (`xw`), 216 from the LLM run
+(`llm`), 73 with neither. Verified after regeneration: 360/360 unique
+`(incident, cause)` keys, all `gold_*` cells blank.
+
+**Superseded caveat, kept for the record.** The first pass above (now
+overwritten) was built while the LLM job was at 600/3,572 checkpointed, so the
+category-floor pass drew almost entirely on the crosswalk's `modern_six`-heavy
+524 and that era was overrepresented (43.6% vs 27.3% of the full corpus) as a
+direct consequence — 40/33/31/30/30/30 by category, 166 rows with no category
+signal at all. The re-run against the complete corpus lets `llm_cause_category`
+reach the freetext majority: `modern_six` share drops to 32.2% (116/360, in
+line with corpus proportion), category coverage improves (`(none)` rows fall
+from 166 to 73), and Management Systems balloons to 109 because it's now the
+single largest LLM-assigned category among freetext statements pulled in by
+era-fill, not a stratification bug — the category floor pass itself still caps
+every crosswalk-typed category's *guaranteed* share at 30, exactly as designed.
+Verified directly against `llm_causes.csv`: Management Systems is 1,374/2,423
+(56.7%) of all non-abstaining `llm_cause_category` assignments corpus-wide,
+more than the other five categories combined — worth watching during
+hand-labelling as a possible LLM catch-all bias rather than assuming it
+reflects the real category mix, since nothing in this pipeline has checked
+that yet. `gold/gold_labels.csv`'s previous 100 rows had zero hand labels
+(verified before the original rewrite), so regenerating twice cost nothing
+real.
+
+The worksheet (`gold/gold_labels.csv`) shows only `src_` reference fields
+(incident, cause, year, era regime, site/area, cause description) and blank
+`gold_` columns — never `xw_element` or `llm_cause_category`, which would
+anchor a human labeller on a machine guess before they've read the text.
+
+### Verification
+
+13 new/rewritten tests (`tests/test_gold_sample.py`,
+`tests/test_gold_scaffold.py`) replace the 15 report-grain ones — category
+floor capping, era-fill coverage, no-duplicate-selection, determinism and
+reorder-stability, worksheet field mapping, missing-key handling. Full suite:
+359 passed, 2 skipped (was 361/2; net -2 matches the old suite having two more
+report-grain-specific cases than the new one needs). Ran the real pipeline
+end-to-end against the live `causes.csv`/`incidents.csv`/`llm_causes.csv` (not
+just fixtures) and spot-checked the output: 360/360 keys unique, all six
+`gold_*` columns blank across all rows, `src_site`/`src_area` byte-matching
+the E19 workbook's own field semantics (site = area-code abbreviation like
+`GC`/`MC`, area = block number — the source's own naming, kept as-is).
+
+**Not yet done:** the actual hand-labelling, and the re-run once the full LLM
+job finishes.
+
+---
+
+## 2026-08-30 — Full LLM labelling run complete: 3,572 statements x 3 passes
+
+`psm.llm_label --backend bedrock --model us.anthropic.claude-haiku-4-5-20251001-v1:0`,
+10,716 calls, ~2h50m wall clock, exit 0, no unrecovered throttling (retry path
+never had to surface an error — see the mocked-failure verification in the
+pilot entry above). `llm_causes.csv`: 3,572 rows. `llm_disagreements.csv`: 282
+rows.
+
+**Everything below is agreement with the crosswalk, not accuracy.** Both
+`xw_element` and `llm_psm_element` are opinions derived from the same text by
+different reasoning; neither is `gold_`. CLAUDE.md forbids reporting a metric
+scored against `llm_` as if it were ground truth, and nothing here does that —
+see the freshly-stratified `gold/gold_labels.csv` (previous entry) for what an
+actual accuracy number will need.
+
+### Agreement, overall and by category
+
+Agreement is only measurable on the 524 statements the crosswalk also labels
+(the other 3,048 are freetext with nothing to compare against):
+
+| | n | agree | disagree | abstain | parse-failed |
+|---|---|---|---|---|---|
+| **all typed** | 524 | 133 (25.4%) | 282 (53.8%) | 107 (20.4%) | 2 (0.4%) |
+
+| BSEE category (crosswalk primary element) | n | agree | abstain |
+|---|---|---|---|
+| Human Performance Error (3) | 207 | **9 (4.3%)** | 61 (29.5%) |
+| Equipment Failure (15) | 136 | 74 (54.4%) | 29 (21.3%) |
+| Management Systems (8) | 83 | 16 (19.3%) | 3 (3.6%) |
+| Communication (9) | 34 | 2 (5.9%) | 3 (8.8%) |
+| Supervision (17) | 34 | 25 (73.5%) | 2 (5.9%) |
+| Work Environment (6) | 30 | 7 (23.3%) | 9 (30.0%) |
+
+**The Human Performance Error → element 3 hypothesis, confirmed directly.**
+This is the exact concern the run plan flagged before spending anything: a
+22-row hand pass (`gold/llm_gold_typed.csv`, an earlier ad-hoc check) had
+found 10/12 disagreements on this category. At full scale, 39.5% of the typed
+corpus (207/524) is Human Performance Error, and the LLM agrees with `element
+3` only 4.3% of the time on it — the single lowest agreement rate of any
+category, dragging the 25.4% overall figure down substantially by itself (drop
+Human Performance Error and the remaining 317 typed statements agree at
+39.1%). Where it disagrees (135 non-abstaining cases), it isn't scattering:
+**67 go to element 17** (work control, permit to work) and **37 to element 6**
+(hazard identification) — the same two elements `schema/crosswalk.yaml`'s own
+note already flagged as the live alternative ("Reviewers who believe these
+should route to procedures (8) have a real argument" undersold it; 17 and 6
+are the model's actual preference, not 8). This reads as the crosswalk's
+category→element mapping being contestable on its own terms, not as a
+labelling defect — exactly what `crosswalk.yaml`'s `confidence: medium` on
+this entry already says, now with a number attached.
+
+Communication (5.9%) is the other outlier low, consistent with
+`crosswalk.yaml` marking it `confidence: medium` and noting the modal
+subcategory split between handover (9) and job briefing (17). Supervision
+(73.5%) and Equipment Failure (54.4%) — both `confidence: high`/`low` in the
+crosswalk for different reasons — are where the two methods actually converge.
+
+### Self-consistency
+
+Measured the same way as the pilot comparison (`llm_confidence == "high"`,
+i.e. all 3 passes landed on the same non-abstaining element):
+
+| | n | high-confidence |
+|---|---|---|
+| full run (all 3,572) | 3,572 | 2,423 (67.8%) |
+| pilot, typed-only (524-statement pool, n=60) | 60 | 49 (81.7%) |
+
+Lower on the full run than the pilot predicted, and the reason is visible in
+the data: the pilot sampled only from the 524 crosswalk-typed statements,
+which tend to open with a recognisable category phrase and are less likely to
+trigger partial abstention across passes. The freetext majority includes more
+short/ambiguous fragments where one pass abstains while the other two don't
+(or vice versa) — `consolidate()` marks that `low` confidence by design (`schema/
+llm_labelling.yaml`: "low: no majority, or any pass abstained") even when the
+non-abstaining passes agree with each other. Raw pass-convergence (all 3
+parseable passes landing on the identical answer, abstain-or-not) is far
+higher — 3,559/3,572 = 99.6% — but that number conflates "consistently
+abstained" with "consistently answered," so it is not the comparable metric
+to the pilot's; `llm_confidence == "high"` is.
+
+### Abstention and parse-failure
+
+| | n | rate |
+|---|---|---|
+| abstained (`INSUFFICIENT`) | 1,136 / 3,572 | 31.8% |
+| total parse failure (no pass parsed) | 13 / 3,572 | 0.4% |
+
+`schema/llm_labelling.yaml` records two independently-measured corpus
+properties as the expected floor/ceiling for abstention: 7.6% of `Cause
+Description` text is unusable (form-label residue or under five words) and
+28.2% ends mid-sentence. 31.8% observed abstention sits close to that combined
+range rather than far outside it — the model is not over-abstaining relative
+to how degraded the source text actually is. Parse-failure (0.4%) is well
+under the pilot's Sonnet rate (6.7%) and roughly matches Haiku's pilot rate
+(0.0%) — the retry/checkpoint hardening added before this run had nothing to
+recover from at scale.
+
+### By era regime
+
+Agreement (typed subset only — the crosswalk never reaches `free_prose`, so
+that era has zero rows to compare):
+
+| era | typed n | agree | | era | all n | abstain |
+|---|---|---|---|---|---|---|
+| modern_six | 457 | 128 (28.0%) | | modern_six | 976 | 239 (24.5%) |
+| ad_hoc | 22 | 4 (18.2%) | | ad_hoc | 1,424 | 469 (32.9%) |
+| human_error | 45 | 1 (2.2%) | | human_error | 666 | 231 (34.7%) |
+| free_prose | 0 | — | | free_prose | 398 | 159 (39.9%) |
+| | | | | undated | 108 | 38 (35.2%) |
+
+Two things worth separating. Agreement does **not** cleanly fall off pre-2019
+the way the run plan hypothesised it might — `human_error`'s 2.2% is
+suspiciously low but n=45 is too small to trust on its own (a single category
+skew away from Human Performance Error could move it several points), and
+`ad_hoc` at 18.2% (n=22) is even thinner. Only `modern_six` (n=457) has enough
+mass to say anything with confidence, and its 28.0% is close to the 25.4%
+corpus-wide figure. What *does* trend cleanly with era is abstention:
+24.5% → 32.9% → 34.7% → 39.9% from `modern_six` back to `free_prose`, a
+monotonic increase as the source text gets older and (per the extraction
+remediation entries above) harder to extract cleanly. That's a text-quality
+gradient, not a model-quality one — consistent with the abstention-vs-baseline
+comparison just above.
+
+### What this changes
+
+Nothing is written back to `crosswalk.yaml` from this — CLAUDE.md is explicit
+that the crosswalk never changes from LLM output alone, and this run doesn't
+attempt to. What it produces is exactly what the module's docstring promised:
+an agreement number instead of an opinion, and a 282-row disagreement queue
+(`data/processed/e19/llm_disagreements.csv`, sorted confident-disagreements
+first) concentrated overwhelmingly in Human Performance Error — the queue to
+hand a human next, not a verdict on its own.
+
+**Not yet done:** hand-labelling the stratified gold sample, and computing an
+actual accuracy number (`llm_` vs `gold_`, category and per-element) once that
+exists. This run's numbers are agreement-with-crosswalk only and will not be
+re-cited as accuracy anywhere in this repo.
