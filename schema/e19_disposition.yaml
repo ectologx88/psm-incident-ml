@@ -385,6 +385,9 @@ fields:
         14.4% real, and the most contested column in the project. The mapping is
         six lines of schema/crosswalk.yaml and has never been validated against
         an independent human judgement -- see gold/ and R5.
+        In data/processed/e19/filled/ this column is additionally filled from
+        the LLM labelling run (llm) and, where that abstained, a deterministic
+        syn fallback; the real/xw claim above describes enriched/ only.
     "Risk Management Cause":
       disposition: real
       gap_policy: leave_blank

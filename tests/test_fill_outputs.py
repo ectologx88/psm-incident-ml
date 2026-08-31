@@ -72,3 +72,56 @@ def test_llm_cells_match_the_labelling_run_exactly():
             assert v[col] == llm[key], key
             checked += 1
     assert checked > 1500  # the llm fill is the bulk of the layer
+
+
+def test_fill_column_manifest_matches_columns_actually_marked_syn():
+    """Drift guard for FILL_COLUMN_MANIFEST / SYN_FALLBACK_COLUMNS, checked
+    against the real committed filled/ provenance files (this module's
+    skipif is false when they exist, so this genuinely executes on real
+    data, not a fixture).
+
+    Scope: a column counts here only if FILL.PY itself stamped a `syn` token
+    that was not already `syn` in enriched/ -- i.e. a cell where fill wrote
+    a new value into a blank. enriched/ already carries plenty of `syn`
+    cells of its own (synth.py's incident-workflow columns, wired long
+    before fill.py existed and audited separately by
+    test_ledger.py::test_synthetic_columns_carry_syn_provenance); fill.py
+    never touches those, so they must not count as fill-introduced drift.
+
+    Two directions:
+    - every column some manifest entry's `columns` list names must actually
+      carry a fill-introduced `syn` token in the real data -- a declared
+      column that turns out never to be filled is as stale a claim as an
+      undeclared one;
+    - every column that carries any fill-introduced `syn` token must be
+      named by some manifest entry or listed in SYN_FALLBACK_COLUMNS. This
+      is the direction with teeth: it turns a future syn-filled column
+      nobody documented into a failing test instead of a silent gap.
+    """
+    from psm.fill import FILL_COLUMN_MANIFEST, SYN_FALLBACK_COLUMNS
+
+    declared = {
+        col for entry in FILL_COLUMN_MANIFEST.values() for col in entry["columns"]
+    }
+
+    syn_columns = set()
+    for prov_name in ("causes_provenance.csv", "provenance.csv"):
+        enriched_prov = _rows(ENRICHED / prov_name)
+        filled_prov = _rows(FILLED / prov_name)
+        for col in filled_prov[0]:
+            for e_row, f_row in zip(enriched_prov, filled_prov):
+                if f_row[col] == "syn" and e_row[col] != "syn":
+                    syn_columns.add(col)
+                    break
+
+    missing_syn = declared - syn_columns
+    assert not missing_syn, (
+        f"FILL_COLUMN_MANIFEST declares these columns but fill.py never "
+        f"stamps a new syn token into them in filled/: {missing_syn}")
+
+    known = declared | SYN_FALLBACK_COLUMNS
+    undeclared = syn_columns - known
+    assert not undeclared, (
+        f"fill.py stamps a new syn token into these columns but they are "
+        f"declared in neither FILL_COLUMN_MANIFEST nor SYN_FALLBACK_COLUMNS: "
+        f"{undeclared}")

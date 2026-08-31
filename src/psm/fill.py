@@ -63,17 +63,30 @@ FILL_COLUMN_MANIFEST: dict[str, dict[str, object]] = {
         "description": "Hash-pick from an invented generic offshore picklist; "
                         "the real workbook's picklist is one company's named shift crews.",
         "fabricated": True,
+        "columns": [WORK_GROUP_COL],
     },
     "syn_likelihood_gated_on_score": {
         "description": "Hash-weighted 1-5 mirroring the real H&S likelihood distribution, "
                         "written only beside a present, non-zero risk score.",
         "fabricated": True,
+        "columns": [ER_LIKELIHOOD_COL, FIN_LIKELIHOOD_COL],
     },
     "syn_cause_type": {
         "description": "Cause 1 is Immediate; later causes hash-weighted Underlying/Root.",
         "fabricated": True,
+        "columns": [CAUSE_TYPE_COL],
     },
 }
+
+# ELEMENT_COL is disposition `real` (a genuine crosswalk mapping exists for
+# most rows) but nonetheless receives a deterministic `syn` value where the
+# crosswalk has no mapping and the LLM run also abstained -- a real column
+# with a synthetic fallback, not a synthetic column. Deliberately NOT in
+# FILL_COLUMN_MANIFEST: that manifest is for columns whose disposition is
+# synthetic_column start to finish, and ELEMENT_COL's ledger entry keeps
+# `disposition: real, generator: null` because both remain true of
+# enriched/ -- only filled/ adds the llm/syn layer on top.
+SYN_FALLBACK_COLUMNS: set[str] = {ELEMENT_COL}
 
 csv.field_size_limit(10**9)
 
