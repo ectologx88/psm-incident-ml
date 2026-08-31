@@ -2948,9 +2948,12 @@ AWS spend with no output to show for it, and the second is the reason
 writing once at the end — a late failure on a 10,716-call run should not be
 able to discard everything before it the way this pilot's did.
 
-Suite still 361 passed, 2 skipped after these changes; the retry-with-backoff
-path was mutation-checked against a mocked throttling error (recovers) and a
-mocked non-retryable error (propagates on the first call, no wasted retries).
+Suite still 361 passed, 2 skipped after these changes. The retry-with-backoff
+path was mutation-checked interactively at the time against a mocked throttling
+error (recovers) and a mocked non-retryable error (propagates on the first call,
+no wasted retries), but this check was not persisted as a committed test. The
+retry and checkpoint paths in `src/psm/llm_label.py` currently have no automated
+coverage.
 
 ---
 
@@ -3128,18 +3131,20 @@ i.e. all 3 passes landed on the same non-abstaining element):
 | full run (all 3,572) | 3,572 | 2,423 (67.8%) |
 | pilot, typed-only (524-statement pool, n=60) | 60 | 49 (81.7%) |
 
-Lower on the full run than the pilot predicted, and the reason is visible in
-the data: the pilot sampled only from the 524 crosswalk-typed statements,
-which tend to open with a recognisable category phrase and are less likely to
-trigger partial abstention across passes. The freetext majority includes more
-short/ambiguous fragments where one pass abstains while the other two don't
-(or vice versa) — `consolidate()` marks that `low` confidence by design (`schema/
-llm_labelling.yaml`: "low: no majority, or any pass abstained") even when the
-non-abstaining passes agree with each other. Raw pass-convergence (all 3
-parseable passes landing on the identical answer, abstain-or-not) is far
-higher — 3,559/3,572 = 99.6% — but that number conflates "consistently
-abstained" with "consistently answered," so it is not the comparable metric
-to the pilot's; `llm_confidence == "high"` is.
+On this run, 3-pass self-consistency at temperature 0 has no discriminating
+power: the three passes agreed on every one of the 3,559 parseable statements
+(no partial abstention ever occurred), making `llm_passes_agreed` bimodal 0-or-3
+and `llm_confidence` never taking the `medium` value the design reserves for
+majority-not-unanimous. Consequently, `llm_confidence == "high"` (2,423 = 67.8%)
+is arithmetically identical to the answer rate (n − abstentions − parse failures =
+3,572 − 1,136 − 13 = 2,423); it measures coverage, not agreement between passes.
+
+The pilot's 81.7% is the same quantity measured on differently-composed samples
+(only the 524 crosswalk-typed statements, which abstain less); the comparison is
+a comparison of answer rates, not evidence of model consistency scaling. **This is
+a negative result:** 3-pass self-consistency bought no signal at temperature 0.
+A future run wanting a real confidence measure would need temperature > 0 or
+genuinely different prompts per pass to produce divergence worth measuring.
 
 ### Abstention and parse-failure
 
