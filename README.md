@@ -70,11 +70,25 @@ no time. All 1,214 are unique.
 |---|---|
 | `src` | read verbatim from a BSEE PDF or CSV |
 | `xw` | derived by a versioned rule in `schema/xw_*.yaml` |
-| `syn` | fabricated by `src/psm/synth.py` under `schema/synth_rules.yaml` |
+| `llm` | assigned by a language model; never treated as ground truth (`filled/` layer only, written by `src/psm/fill.py`) |
+| `syn` | fabricated -- in `enriched/`, by `src/psm/synth.py` under `schema/synth_rules.yaml`; in `filled/`, also by `src/psm/fill.py` under the same rules file |
 | empty | not filled; see `gap_policy` in `schema/e19_disposition.yaml` |
 
 Precedence is `src` > `xw` > `syn`. A `syn` value never displaces a real one.
-Enforced by `tests/test_conventions.py`.
+Enforced by `tests/test_conventions.py` for `enriched/` and `tests/test_fill_outputs.py`
+for `filled/`.
+
+### The `filled/` layer
+
+`data/processed/e19/filled/` is a second projection on top of `enriched/`,
+built by `uv run python -m psm.fill` and turned into an SME-reviewable
+workbook by `uv run python -m psm.export_e19` (writes
+`deliverables/e19_filled.xlsx` -- gitignored, never commit it). It fills the
+remaining gaps in `Work Group`, the two Likelihood columns, and `Cause type`
+(all `syn`), plus ` Failed PSM Framework Element` (kept where `enriched/`
+already has a crosswalk value, else `llm` from a labelling run, else a
+deterministic `syn` fallback). `filled/` carries its own parallel provenance
+files, same shape and token convention as `enriched/`'s.
 
 Composition across all four tables: **40.7% real** (`src`+`xw`), 39.0%
 fabricated, 20.4% blank by policy.
@@ -107,6 +121,13 @@ uv run python -m psm.ledger --real-only
 | `would_dominate` | 8 | under 50% real; fabrication would be the majority of the column |
 | `no_generator` | 13 | no honest way to produce the value. `Date of Incident` is 97.0% real and still unfillable: inventing a date asserts when a real incident happened |
 | `degenerate_fill` | 4 | a generator exists and its output carries no information. `syn_hs_risk_score` emits {2,5,9} against a real 1-25 consequence×likelihood product; the value sets are almost disjoint |
+
+This policy governs `enriched/`. The `filled/` layer above deliberately
+reverses it for one `would_dominate` column: ` Failed PSM Framework Element`
+is filled anyway, to 85.3% non-real (2,008 `llm` + 1,040 `syn` of 3,572) --
+precisely the outcome the policy exists to prevent in `enriched/`. The
+reversal is scoped to `filled/`, per-cell provenanced, and disclosed in
+`schema/e19_disposition.yaml`'s note on that column.
 
 `docs/e19_field_ledger.md` is generated from this file joined to measured
 coverage. `tests/test_ledger.py` fails the build if any claim in it stops being
