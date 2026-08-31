@@ -1,6 +1,7 @@
 """Tests for src/psm/fill.py — deterministic fill of the E19 filled/ layer."""
 from __future__ import annotations
 
+import copy
 import csv  # noqa: F401
 from pathlib import Path  # noqa: F401
 
@@ -203,3 +204,23 @@ def test_fill_incidents_never_overwrites_existing_work_group():
     rows, prov_out = fill_incidents(incidents, prov, INCIDENT_RULES)
     assert rows[0]["Work Group"] == "Night Crew 7"
     assert prov_out[0]["Work Group"] == ""   # untouched -> token unchanged
+
+
+def test_fill_incidents_never_overwrites_existing_likelihood():
+    incident = _incident("A", er_score="5")
+    incident["Environment & Reputation - Likelihood"] = "4"
+    incidents = [incident]
+    prov = [_iprov()]
+    rows, prov_out = fill_incidents(incidents, prov, INCIDENT_RULES)
+    assert rows[0]["Environment & Reputation - Likelihood"] == "4"
+    assert prov_out[0]["Environment & Reputation - Likelihood"] == ""   # untouched -> token unchanged
+
+
+def test_fill_incidents_never_mutates_inputs():
+    incidents = [_incident("A", er_score="5", fin_score="3")]
+    prov = [_iprov()]
+    incidents_copy = copy.deepcopy(incidents)
+    prov_copy = copy.deepcopy(prov)
+    fill_incidents(incidents, prov, INCIDENT_RULES)
+    assert incidents == incidents_copy
+    assert prov == prov_copy
