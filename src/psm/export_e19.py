@@ -57,9 +57,11 @@ ABOUT_LINES = [
     "Treat every amber/grey cell as a proposal to evaluate, not a finding.",
     "Full provenance: data/processed/e19/filled/ in the psm-incident-ml",
     "repository.",
-    "A few cause descriptions contain control characters left by PDF extraction that",
-    "xlsx cannot store; each is rendered here as a single space. The committed CSVs in",
-    "data/processed/e19/filled/ keep the original bytes.",
+    "",
+    "A few cause descriptions contain control characters left by PDF",
+    "extraction that xlsx cannot store; each is rendered here as a single",
+    "space. The committed CSVs in data/processed/e19/filled/ keep the",
+    "original bytes.",
 ]
 
 
