@@ -42,6 +42,33 @@ def test_provenance_matches_shape_and_closed_set(value_name, prov_name):
     ("causes.csv", "causes_provenance.csv"),
     ("incidents.csv", "provenance.csv"),
 ])
+def test_every_non_empty_cell_has_a_provenance(value_name, prov_name):
+    """The filled/ counterpart of test_conventions.py's enriched/ check of the
+    same name. A value with no provenance is exactly what the prefix rule
+    prevents everywhere else in this repo; here the parallel file has to do
+    that job, and fill.py is one more place it could quietly fail to."""
+    values, prov = _rows(FILLED / value_name), _rows(FILLED / prov_name)
+    missing = sum(1 for d, p in zip(values, prov) for c in d
+                  if (d[c] or "").strip() and not p[c])
+    assert missing == 0, f"{value_name}: {missing} non-empty cells carry no provenance"
+
+
+@pytest.mark.parametrize("value_name,prov_name", [
+    ("causes.csv", "causes_provenance.csv"),
+    ("incidents.csv", "provenance.csv"),
+])
+def test_no_provenance_without_a_value(value_name, prov_name):
+    """The other direction: a provenance token with no cell behind it."""
+    values, prov = _rows(FILLED / value_name), _rows(FILLED / prov_name)
+    orphan = sum(1 for d, p in zip(values, prov) for c in d
+                 if p[c] and not (d[c] or "").strip())
+    assert orphan == 0, f"{value_name}: {orphan} provenance marks with no value"
+
+
+@pytest.mark.parametrize("value_name,prov_name", [
+    ("causes.csv", "causes_provenance.csv"),
+    ("incidents.csv", "provenance.csv"),
+])
 def test_fill_never_overwrote_a_non_empty_enriched_value(value_name, prov_name):
     enriched, filled = _rows(ENRICHED / value_name), _rows(FILLED / value_name)
     assert len(enriched) == len(filled)
