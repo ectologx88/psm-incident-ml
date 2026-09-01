@@ -1,0 +1,150 @@
+# Recommendation-text registry for synthetic company registers.
+# Authored by adapting the operator-voice subset of the 601 substantive real
+# recommendations in data/processed/e19/real_only/recommendations.csv
+# (style only -- no sentence copied verbatim; no regulator voice: never
+# MMS/OSM/BSEE/District/Regional Office). Tag = controls-hierarchy level.
+templates:
+  - id: elim-01
+    tag: elimination
+    text: Eliminate the need to remove lockdown pins for visual confirmation by installing a permanent position indicator on the tubing hanger.
+  - id: elim-02
+    tag: elimination
+    text: Remove the pad eye from the rigging path entirely and route the load line around the structural member instead.
+  - id: elim-03
+    tag: elimination
+    text: Eliminate manual thumb placement on the load hook by replacing it with a self-latching safety hook.
+  - id: elim-04
+    tag: elimination
+    text: Remove the requirement for an operator to stand under the traveling block during pickup by relocating the spotting position.
+  - id: elim-05
+    tag: elimination
+    text: Eliminate the open annulus configuration by permanently closing the shoe track once production begins.
+  - id: elim-06
+    tag: elimination
+    text: Remove the temporary bypass jumper from the blowdown line and restore the line to its designed routing.
+  - id: elim-07
+    tag: elimination
+    text: Eliminate the manual valve-position check by removing the need to access the elevated platform for that reading.
+  - id: elim-08
+    tag: elimination
+    text: Remove the redundant wireline verification step from the completion sequence.
+  - id: elim-09
+    tag: elimination
+    text: Eliminate the pinch point at the hook throat by removing the practice of guiding slack chain by hand.
+  - id: elim-10
+    tag: elimination
+    text: Remove the need for personnel to enter the control room during normal operation by relocating the panel outside.
+  - id: elim-11
+    tag: elimination
+    text: Eliminate the scaffolding plank gap by removing loose planking before work resumes on that level.
+  - id: elim-12
+    tag: elimination
+    text: Remove the local-only alarm panel so the compressor alarm no longer requires a manual silence step at the unit.
+  - id: eng-01
+    tag: engineering
+    text: Install a secondary rupture disc on the compressor discharge cooler set below the primary disc's rated pressure.
+  - id: eng-02
+    tag: engineering
+    text: Upgrade the discharge piping downstream of the rupture disc from carbon steel to stainless steel rated for current service.
+  - id: eng-03
+    tag: engineering
+    text: Install a valve-position indicator on the shutdown valve that signals the control room when the valve closes.
+  - id: eng-04
+    tag: engineering
+    text: Fit the crane hook with a deeper-throat design engineered to maintain positive contact with the load chain.
+  - id: eng-05
+    tag: engineering
+    text: Install a secondary crown block detection system that operates independently of the primary control system.
+  - id: eng-06
+    tag: engineering
+    text: Add a mechanical stop that halts the traveling block before it can strike the crown block.
+  - id: eng-07
+    tag: engineering
+    text: Install flame-resistant insulation on the reboiler stack to remove a potential ignition source.
+  - id: eng-08
+    tag: engineering
+    text: Fit a flow safety valve in the low-pressure vent line between the blowdown line and the atmospheric skimmer.
+  - id: eng-09
+    tag: engineering
+    text: Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.
+  - id: eng-10
+    tag: engineering
+    text: Re-route the flare vent piping so it discharges away from the generator exhaust.
+  - id: eng-11
+    tag: engineering
+    text: Replace the spinning wrench with a unit fitted with a safety mechanism that prevents the jaws from clamping outside the pipe.
+  - id: eng-12
+    tag: engineering
+    text: Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.
+  - id: admin-01
+    tag: admin
+    text: Revise the job safety analysis template to require a documented review of hazard controls before work begins.
+  - id: admin-02
+    tag: admin
+    text: Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.
+  - id: admin-03
+    tag: admin
+    text: Require a documented stop work authority briefing at the start of every shift changeover.
+  - id: admin-04
+    tag: admin
+    text: Retrain riggers on proper hook inspection and load chart limitations and document completion.
+  - id: admin-05
+    tag: admin
+    text: Develop a written procedure for open hole work that platform personnel must reference before starting the task.
+  - id: admin-06
+    tag: admin
+    text: Establish a servicing schedule to inspect the still column at a defined interval.
+  - id: admin-07
+    tag: admin
+    text: Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.
+  - id: admin-08
+    tag: admin
+    text: Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.
+  - id: admin-09
+    tag: admin
+    text: Require documented verification of correct valve alignment before any dual-valve fluid transfer.
+  - id: admin-10
+    tag: admin
+    text: Update the corrosion monitoring procedure to require inspection of fire tube welds whenever the tube is pulled.
+  - id: admin-11
+    tag: admin
+    text: Require supervisors to conduct a documented job safety analysis before any lifting operation begins.
+  - id: admin-12
+    tag: admin
+    text: Establish a training program for glycol handling personnel that covers liquid to gas phase transition hazards.
+  - id: ppe-01
+    tag: ppe
+    text: Require face shields in addition to safety glasses for all sandblasting operations.
+  - id: ppe-02
+    tag: ppe
+    text: Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.
+  - id: ppe-03
+    tag: ppe
+    text: Require cut-resistant gloves for personnel handling wire rope on heavy-usage cranes.
+  - id: ppe-04
+    tag: ppe
+    text: Require fall-protection harnesses with full tie-off for all scaffold work above the deck.
+  - id: ppe-05
+    tag: ppe
+    text: Require chemical-splash goggles for personnel handling glycol during startup operations.
+  - id: ppe-06
+    tag: ppe
+    text: Require hearing protection for personnel working near running cooling fans on control panel enclosures.
+  - id: ppe-07
+    tag: ppe
+    text: Require a self-contained breathing apparatus on standby for personnel entering the control room during gas testing.
+  - id: ppe-08
+    tag: ppe
+    text: Require high-visibility outerwear for personnel working near the crane's blind-lift zone.
+  - id: ppe-09
+    tag: ppe
+    text: Require insulated gloves for personnel adjusting the compressor discharge cooler piping during operation.
+  - id: ppe-10
+    tag: ppe
+    text: Require steel-toed boots rated for wet deck conditions during all fluid transfer work.
+  - id: ppe-11
+    tag: ppe
+    text: Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.
+  - id: ppe-12
+    tag: ppe
+    text: Require arc-rated clothing for personnel working inside the switch gear room.
