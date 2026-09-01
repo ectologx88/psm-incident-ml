@@ -475,3 +475,185 @@ def build_cause_rows(plan: IncidentPlan,
         # text -- truncate to a single Immediate row instead
         rows, provs = rows[:1], provs[:1]
     return rows, provs
+
+
+from psm.templates import templates_by_tag
+
+
+def rec_fieldnames() -> list[str]:
+    return list(_real_table("recommendations.csv")[0])
+
+
+def closeout_fieldnames() -> list[str]:
+    return list(_real_table("closeout.csv")[0])
+
+
+def build_rec_rows(plan: IncidentPlan) -> tuple[list[dict], list[dict]]:
+    rows, provs = [], []
+    agreed = plan.agreed_dates()
+    by_tag = templates_by_tag()
+    for i in range(plan.n_recs):
+        row = {c: "" for c in rec_fieldnames()}
+        prov = dict(row)
+
+        def put(col, value, token):
+            row[col] = value
+            prov[col] = token if value.strip() else ""
+
+        put("Incident Number", plan.sid, "key")
+        put("Recommendation Number", str(i + 1), "syn")
+        pool = by_tag[plan.rec_tags[i]]
+        tpl = pool[_hash(f"{plan.company}|{plan.sid}|tpl|{i}|{SALT}") % len(pool)]
+        put("Recommendation Description", tpl["text"], "syn")
+        put("Agreed Completion Date", agreed[i].isoformat(), "syn")
+        if plan.owner_assigned[i]:
+            name, pos = syn_person(f"{plan.company}|{plan.sid}|recowner|{i}")
+            put("Responsible Owner - Name", name, "syn")
+            put("Responsible Owner - Position", pos, "syn")
+        rows.append(row)
+        provs.append(prov)
+    return rows, provs
+
+
+def build_closeout_rows(plan: IncidentPlan) -> tuple[list[dict], list[dict]]:
+    rows, provs = [], []
+    agreed, done = plan.agreed_dates(), plan.completed_dates()
+    for i in range(plan.n_recs):
+        row = {c: "" for c in closeout_fieldnames()}
+        prov = dict(row)
+
+        def put(col, value, token):
+            row[col] = value
+            prov[col] = token if value.strip() else ""
+
+        put("Incident Number", plan.sid, "key")
+        put("Recommendation Number", str(i + 1), "syn")
+        put("Schedule Status",
+            "Behind" if done[i] > agreed[i] else "On Schedule", "syn")
+        put("Date Completed", done[i].isoformat(), "syn")
+        rows.append(row)
+        provs.append(prov)
+    return rows, provs
+
+
+_PLANT_ELEMENTS = ("3", "15", "8")   # the three most common real codes
+
+
+def plant_recurrence(company: str, cfg: dict,
+                     plans: list[IncidentPlan]) -> list[tuple[str, str]]:
+    n = cfg["recurrence"]["planted_pairs"]
+    if not n:
+        return []
+    window = cfg["recurrence"]["window_days"]
+    wg_forced = cfg["recurrence"].get("work_group")
+    candidates = sorted((p for p in plans if not p.skipped and p.n_recs > 0),
+                        key=lambda p: p.sid)
+    pairs: list[tuple[str, str]] = []
+    used: set[str] = set()
+    i = 0
+    while len(pairs) < n and i < len(candidates):
+        a = candidates[i]
+        i += 1
+        if a.sid in used or a.completion_span >= window - 1:
+            continue
+        b = next((c for c in candidates if c.sid not in used and c.sid != a.sid
+                  and c.completion_span < window - 1), None)
+        if b is None:
+            break
+        span = a.completion_span
+        gap = span + 1 + _hash(f"{company}|pairgap|{len(pairs)}|{SALT}") % (window - span - 1)
+        # planting overrides the anchored placement, so re-check both
+        # members' narrative allowances (Task 12's window test enforces them)
+        look_a, _ = _narrative_span(a.donor_id)
+        if a.doi + timedelta(days=gap) > WINDOW_END:
+            a.doi = WINDOW_END - timedelta(days=gap)
+            if a.doi < WINDOW_START + timedelta(days=look_a):
+                continue
+        _, fwd_b = _narrative_span(b.donor_id)
+        if a.doi + timedelta(days=gap) > WINDOW_END - timedelta(days=fwd_b):
+            continue
+        b.doi = a.doi + timedelta(days=gap)
+        element = _PLANT_ELEMENTS[
+            _hash(f"{company}|pairel|{len(pairs)}|{SALT}") % len(_PLANT_ELEMENTS)]
+        wg = wg_forced or pick_weighted(f"{company}|pairwg|{len(pairs)}|{SALT}",
+                                        WORK_GROUP_WEIGHTS)
+        for p in (a, b):
+            p.work_group = wg
+            p.element_override = element
+        used |= {a.sid, b.sid}
+        pairs.append((a.sid, b.sid))
+    assert len(pairs) == n, f"{company}: planted only {len(pairs)}/{n} pairs"
+    return pairs
+
+
+def detect_recurrence_pairs(incidents: list[dict], causes: list[dict],
+                            window_days: int) -> list[tuple[str, str]]:
+    """The ONE recurrence predicate: shared non-blank element code + same
+    Work Group + anchors within window + second anchor after first's final
+    Date Completed. Used by planting verification AND the KPI (no drift)."""
+    elements: dict[str, set[str]] = {}
+    for c in causes:
+        e = (c[" Failed PSM Framework Element"] or "").strip()
+        if e:
+            elements.setdefault(c["Incident Number"], set()).add(e)
+    info = []
+    for r in incidents:
+        close = (r["Close out Date"] or "").strip()
+        info.append((date.fromisoformat(r["Date of Incident"]),
+                     r["Incident Number"], r["Work Group"],
+                     date.fromisoformat(close) if close else None))
+    info.sort()
+    out = []
+    for x in range(len(info)):
+        doi_a, sid_a, wg_a, close_a = info[x]
+        if close_a is None:
+            continue
+        for y in range(x + 1, len(info)):
+            doi_b, sid_b, wg_b, _ = info[y]
+            if (doi_b - doi_a).days > window_days:
+                break
+            if (wg_a == wg_b and doi_b > close_a
+                    and elements.get(sid_a, set()) & elements.get(sid_b, set())):
+                out.append((sid_a, sid_b))
+    return out
+
+
+def generate(company: str) -> dict:
+    cfg = load_scenario(company)
+    plans = [make_plan(company, cfg, d) for d in donor_partition(company)]
+    planted = plant_recurrence(company, cfg, plans)
+    plans.sort(key=lambda p: p.doi.isoformat() + p.sid)   # register in date order
+    tables: dict[str, tuple[list[str], list[dict], list[dict]]] = {
+        "incidents": (incident_fieldnames(), [], []),
+        "causes": (cause_fieldnames(), [], []),
+        "recommendations": (rec_fieldnames(), [], []),
+        "closeout": (closeout_fieldnames(), [], []),
+    }
+    for p in plans:
+        donor_row = donor_incidents()[p.donor_id]
+        for name, (rows, provs) in (
+            ("incidents", tuple([x] for x in build_incident_row(p, donor_row))),
+            ("causes", build_cause_rows(p, donor_row)),
+            ("recommendations", build_rec_rows(p)),
+            ("closeout", build_closeout_rows(p)),
+        ):
+            tables[name][1].extend(rows)
+            tables[name][2].extend(provs)
+    return {"tables": tables, "plans": plans, "planted_pairs": planted,
+            "cfg": cfg}
+
+
+_PROV_FILE = {"incidents": "provenance.csv",
+              "causes": "causes_provenance.csv",
+              "recommendations": "recommendations_provenance.csv",
+              "closeout": "closeout_provenance.csv"}
+
+
+def write_company(result: dict, out_dir: Path) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for name, (cols, rows, provs) in result["tables"].items():
+        for fname, data in ((f"{name}.csv", rows), (_PROV_FILE[name], provs)):
+            with (out_dir / fname).open("w", encoding="utf-8", newline="") as fh:
+                w = csv.DictWriter(fh, fieldnames=cols)
+                w.writeheader()
+                w.writerows(data)
