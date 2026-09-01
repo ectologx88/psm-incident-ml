@@ -1,10 +1,11 @@
 """Export the filled/ E19 layer to one xlsx for SME review.
 
 Three sheets: About (what this is and is not), Incidents, Causes. Every cell
-whose provenance token is xw/llm/syn carries a fill colour so a reviewer can
-see at a glance which values are real, mapped, model-assigned, or synthetic
-(legend on the About sheet). The workbook is a DELIVERABLE, not a dataset of
-record — deliverables/ is gitignored; the committed record is
+whose provenance token is xw/llm/syn/key/pseud carries a fill colour so a
+reviewer can see at a glance which values are real, mapped, model-assigned,
+synthetic, a constructed identifier, or a pseudonym (legend on the About
+sheet). The workbook is a DELIVERABLE, not a dataset of record —
+deliverables/ is gitignored; the committed record is
 data/processed/e19/filled/*.csv plus the parallel provenance files.
 
 Run:  uv run python -m psm.export_e19
@@ -43,11 +44,13 @@ ABOUT_LINES = [
     "               BSEE does not publish (names are SYN- tokens, dates are",
     "               offsets, picklist values are invented). Corresponds to",
     "               nothing real.",
-    "",
-    "Exception: Incident Number is unshaded but is not verbatim. BSEE",
-    "publishes no incident identifier, so this repo constructs the key; a few",
-    "(UNKEYED-6e8704573b22 among them) are content-hash suffixes rather than",
-    "values copied from a source field.",
+    "  green      - constructed identifier: BSEE publishes no incident id,",
+    "               so this repo builds the key (area-block-date-time, some",
+    "               with content-hash parts). Consistent, but corresponds to",
+    "               no source field.",
+    "  lilac      - salted pseudonym of a real name (INV-/SUP- tokens).",
+    "               Same person, same token, corpus-wide. De-amplification",
+    "               of public documents, not fabrication.",
     "",
     "Model-assigned labels are unvalidated. On the 524 statements where the",
     "crosswalk also holds an opinion, the model agreed on 25.4% (133) and",
@@ -56,6 +59,10 @@ ABOUT_LINES = [
     "Treat every amber/grey cell as a proposal to evaluate, not a finding.",
     "Full provenance: data/processed/e19/filled/ in the psm-incident-ml",
     "repository.",
+    "",
+    "The Cause type column reflects ordinal position in the source list",
+    "(cause #1 is always 'Immediate'), not causal analysis. Do not read",
+    "root-cause depth from it.",
     "",
     "A few cause descriptions contain control characters left by PDF",
     "extraction that xlsx cannot store; each is rendered here as a single",
@@ -116,7 +123,7 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int
             if token not in PROVENANCE_FILLS and token not in UNSHADED:
                 raise ValueError(
                     f"{c!r}: unknown provenance token {token!r} -- "
-                    "not in PROVENANCE_FILLS and not '' or 'src'"
+                    "not in PROVENANCE_FILLS and not in UNSHADED"
                 )
             if token in PROVENANCE_FILLS:
                 ws.cell(row=ws.max_row, column=j).fill = PatternFill(

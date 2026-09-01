@@ -5,7 +5,7 @@ import csv
 
 from openpyxl import load_workbook
 
-from psm.export_e19 import PROVENANCE_FILLS, _xlsx_safe, export
+from psm.export_e19 import ABOUT_LINES, PROVENANCE_FILLS, _xlsx_safe, export
 
 
 def _write(path, fieldnames, rows):
@@ -69,3 +69,13 @@ def test_xlsx_safe_substitutes_control_character_runs_with_a_single_space():
     # rule, and would make a genuinely-blank source cell indistinguishable
     # from one BSEE's PDF extraction corrupted into unreadability.
     assert _xlsx_safe("\x01\x01\x01") == " "
+
+
+def test_about_legend_covers_key_and_pseud_and_drops_the_stale_exception():
+    text = "\n".join(ABOUT_LINES)
+    assert "green" in text and "constructed" in text          # key legend line
+    assert "lilac" in text and "pseudonym" in text            # pseud legend line
+    # the superseded paragraph claimed Incident Number was the lone exception
+    assert "Incident Number is unshaded" not in text
+    # new caveat: Cause type is ordinal position, not analysis
+    assert "Cause type" in text and "position" in text
