@@ -52,7 +52,9 @@ ABOUT_TEMPLATE = [
     "- Recommendation text comes from a fixed template registry adapted from",
     "  real operator-voice recommendations; repetition across incidents is",
     "  intentional corporate boilerplate.",
-    "- People are SYN- tokens. No real names appear in this register.",
+    "- Structured name fields are SYN- tokens; narrative text is verbatim public",
+    "  BSEE report text and names the real operators, vessels, facilities and --",
+    "  occasionally -- individuals involved.",
 ]
 
 _COMPARISON_ABOUT = [
@@ -62,6 +64,11 @@ _COMPARISON_ABOUT = [
     "the planted process pathologies, the measured KPI values, and the",
     "negative-control checks. It is never distributed alongside the company",
     "workbooks.",
+    "",
+    "Blinding caveat: the public repo's committed data/companies/*/manifest.json",
+    "files also carry the plant answer key (analytic_expectations, resolved_knobs).",
+    "Withholding this workbook alone does not blind an evaluator who has repo",
+    "access -- blinding requires distribution control of the repo context itself.",
     "",
     "Attribution honesty: Coastal's pathologies co-move by construction, so",
     "results for Coastal are claimed at bundle-level detection only --",

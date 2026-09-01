@@ -189,7 +189,7 @@ def find_prose_dates(text: str) -> list[date]:
     return out
 
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

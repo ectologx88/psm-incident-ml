@@ -1,8 +1,13 @@
 # tests/test_scenario_generate.py
+import json
 from datetime import date
+from pathlib import Path
 
 from psm import scenario as sc
+from psm.kpi import load_company
 from psm.templates import classify_action
+
+ROOT = Path(__file__).resolve().parents[1] / "data" / "companies"
 
 
 def test_generate_northstar_shape_and_closed_provenance():
@@ -57,6 +62,24 @@ def test_meridian_plants_eight_maintenance_pairs_and_detector_finds_them():
         assert by_id[a]["Work Group"] == by_id[b]["Work Group"] == "Maintenance"
     detected = set(map(tuple, sc.detect_recurrence_pairs(incs, causes, 365)))
     assert set(map(tuple, pairs)) <= detected
+
+
+def test_coastal_planted_recurrence_pairs_are_a_subset_of_detected():
+    """Mirrors the meridian detector test above for Coastal (its `>= 6`
+    margin over the coincidence bound of 5 had no equivalent planted-vs-
+    detected check). Reads the committed manifest's documented plant rather
+    than a fresh sc.generate() call, so this validates what the manifest
+    actually claims against the committed register."""
+    manifest = json.loads((ROOT / "coastal" / "manifest.json")
+                          .read_text(encoding="utf-8"))
+    recurrence_plant = next(p for p in manifest["plants"]
+                            if p["kpi"] == "recurrence_rate")
+    planted = {tuple(pair) for pair in recurrence_plant["affected_ids"]}
+    tables = load_company(ROOT / "coastal")
+    detected = set(map(tuple,
+                       sc.detect_recurrence_pairs(tables["incidents"],
+                                                   tables["causes"], 365)))
+    assert planted <= detected
 
 
 def test_planted_pair_ordering_invariants():

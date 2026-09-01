@@ -1,18 +1,22 @@
-from pathlib import Path
-
 from openpyxl import load_workbook
 
 from psm.export_companies import (ABOUT_TEMPLATE, COMPANY_LABELS,
-                                  export_all, OUT_DIR)
+                                  export_all)
 
 
 def test_company_about_discloses_without_leaking_the_answer_key():
-    text = "\n".join(ABOUT_TEMPLATE)
-    for needed in ("synthetic", "template", "shifted", "deliberately"):
-        assert needed in text.lower()
-    for banned in ("pathology", "answer key", "closeout decay",
-                   "northstar is", "coastal is"):
-        assert banned not in text.lower()
+    # Render against every real label -- the raw ABOUT_TEMPLATE has an
+    # unformatted "{label}" placeholder, so checking it directly can never
+    # catch a banned token that only appears once {label} is substituted
+    # (e.g. the identity statement "Coastal is a SYNTHETIC company").
+    for label in COMPANY_LABELS.values():
+        text = "\n".join(line.format(label=label) for line in ABOUT_TEMPLATE)
+        text = text.lower()
+        for needed in ("synthetic", "template", "shifted", "deliberately"):
+            assert needed in text, (label, needed)
+        for banned in ("pathology", "answer key", "closeout decay",
+                       "no real names"):
+            assert banned not in text, (label, banned)
 
 
 def test_export_writes_three_company_workbooks_and_the_comparison(tmp_path):

@@ -6,14 +6,13 @@ extends coverage by committing data, not by editing this file's core tests."""
 import json
 import math
 import re
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 import pytest
 
 from psm import scenario as sc
 from psm.kpi import compute_kpis, load_company
-from psm.quantiles import analytic_overdue_rate
 
 ROOT = Path(__file__).resolve().parents[1] / "data" / "companies"
 COMPANIES = sorted(p.name for p in ROOT.iterdir()
@@ -57,11 +56,14 @@ def test_committed_register_is_byte_identical_to_a_fresh_generate(company, tmp_p
 
 
 def test_engine_has_no_wall_clock_or_random_dependence():
-    import psm.kpi, psm.quantiles, psm.scenario, psm.templates
-    for mod in (psm.scenario, psm.quantiles, psm.kpi, psm.templates):
+    import psm.export_companies, psm.kpi, psm.provenance, psm.quantiles
+    import psm.scenario, psm.templates
+    for mod in (psm.scenario, psm.quantiles, psm.kpi, psm.templates,
+                psm.export_companies, psm.provenance):
         src = Path(mod.__file__).read_text(encoding="utf-8")
-        for banned in ("date.today", "datetime.now(", "time.time(",
-                       "import random", "from random"):
+        for banned in ("date.today", "datetime.now(", "datetime.today",
+                       "utcnow", "time.time(", "import random",
+                       "from random", "import scipy", "from scipy"):
             assert banned not in src, (mod.__name__, banned)
 
 
@@ -237,7 +239,9 @@ def test_coastal_hs_decay_planted_and_baseline_adjusted(kpis, manifests):
     # (a) consistency with the analytic expectation, (b) a meaningful decay
     # direction floor (absent the plant, decay is exactly 0 -- donors are fixed).
     baseline = 1 - manifests["coastal"]["analytic_expectations"]["hs_blank_baseline"]
-    expected = baseline * (1 - 0.25)          # OR-semantics: survivors * (1-extra)
+    extra_hs_blank_rate = manifests["coastal"]["resolved_knobs"][
+        "data_discipline"]["extra_hs_blank_rate"]
+    expected = baseline * (1 - extra_hs_blank_rate)  # OR-semantics: survivors * (1-extra)
     measured = kpis["coastal"]["hs_completeness"]
     assert abs(measured - expected) <= tol(expected, 150, 0.05)
     assert measured < baseline - 0.05
