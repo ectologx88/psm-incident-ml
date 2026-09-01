@@ -11,10 +11,11 @@ from pathlib import Path
 
 import pytest
 
+from psm.provenance import TOKENS
+
 REPO = Path(__file__).resolve().parents[1]
 E19 = REPO / "data" / "processed" / "e19"
 FILLED, ENRICHED = E19 / "filled", E19 / "enriched"
-TOKENS = {"", "src", "xw", "llm", "gold", "syn"}
 
 pytestmark = pytest.mark.skipif(
     not (FILLED / "causes.csv").exists(), reason="filled/ not built"

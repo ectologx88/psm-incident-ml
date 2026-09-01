@@ -20,12 +20,11 @@ from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import Font, PatternFill
 
 from psm.fill import FILLED
+from psm.provenance import FILL_COLORS as PROVENANCE_FILLS
+from psm.provenance import UNSHADED
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = REPO / "deliverables" / "e19_filled.xlsx"
-
-# aRGB without the alpha byte; openpyxl reports "00"+this on round-trip.
-PROVENANCE_FILLS = {"xw": "DDEBF7", "llm": "FFF2CC", "syn": "EDEDED"}
 
 ABOUT_LINES = [
     "E19 Investigation Register - filled demonstration copy",
@@ -114,7 +113,7 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int
         ws.append(values)
         for j, c in enumerate(cols, start=1):
             token = prow.get(c, "")
-            if token not in PROVENANCE_FILLS and token not in ("", "src"):
+            if token not in PROVENANCE_FILLS and token not in UNSHADED:
                 raise ValueError(
                     f"{c!r}: unknown provenance token {token!r} -- "
                     "not in PROVENANCE_FILLS and not '' or 'src'"

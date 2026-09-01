@@ -32,10 +32,10 @@ import csv
 import pytest
 
 from psm.project import DEFAULT_OUT
+from psm.provenance import TOKENS as PROVENANCE_TOKENS
 from psm.synth import load_rules, synthesize_row
 
 VALID_PREFIXES = ("src_", "xw_", "llm_", "gold_", "syn_")
-PROVENANCE_TOKENS = {"", "src", "xw", "llm", "gold", "syn"}   # `syn` live since 2026-08-29
 
 E19_TABLES = ["incidents", "causes", "recommendations", "closeout"]
 
