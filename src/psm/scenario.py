@@ -187,3 +187,234 @@ def find_prose_dates(text: str) -> list[date]:
             except ValueError:
                 pass
     return out
+
+
+from dataclasses import dataclass, field
+
+
+@dataclass
+class IncidentPlan:
+    """Every decision for one synthetic incident, drawn deterministically
+    BEFORE any table row is built, so recurrence planting (Task 9) can move
+    the anchor date without re-drawing anything."""
+    company: str
+    sid: str
+    donor_id: str
+    skipped: bool
+    work_group: str
+    doi: date                       # anchor; recurrence planting may move it
+    report_lag: int
+    invest_days: int
+    reaches_root: bool
+    chain_len: int                  # 0 if skipped, else 1..3 (3 iff reaches_root)
+    n_recs: int                     # 0 if skipped
+    rec_tags: list[str]
+    agreed_offsets: list[int]       # per rec, days from Date of Report
+    completion_offsets: list[int]   # per rec, days from Date of Report
+    owner_assigned: list[bool]
+    hs_blanked: bool
+    element_override: str | None = None   # set only by recurrence planting
+
+    @property
+    def report_date(self) -> date:
+        return self.doi + timedelta(days=self.report_lag)
+
+    @property
+    def approval_date(self) -> date | None:
+        return None if self.skipped else self.report_date + timedelta(days=self.invest_days)
+
+    def agreed_dates(self) -> list[date]:
+        return [self.report_date + timedelta(days=o) for o in self.agreed_offsets]
+
+    def completed_dates(self) -> list[date]:
+        return [self.report_date + timedelta(days=o) for o in self.completion_offsets]
+
+    @property
+    def close_out_date(self) -> date | None:
+        done = self.completed_dates()
+        return max(done) if done else None
+
+    @property
+    def completion_span(self) -> int:
+        """Days from Date of Incident to the last Date Completed."""
+        return self.report_lag + (max(self.completion_offsets)
+                                  if self.completion_offsets else 0)
+
+
+def make_plan(company: str, cfg: dict, donor_id: str) -> IncidentPlan:
+    sid = scenario_incident_number(company, donor_id)
+    inv, clo, dd = cfg["investigation"], cfg["closeout"], cfg["data_discipline"]
+    skipped = rate_hit(f"{company}|{sid}|skip|{SALT}", inv["skip_rate"])
+    reaches_root = (not skipped) and rate_hit(
+        f"{company}|{sid}|root|{SALT}", inv["root_cause_prob"])
+    chain_len = 0 if skipped else (
+        3 if reaches_root else 1 + _hash(f"{company}|{sid}|chain|{SALT}") % 2)
+    n_recs = 0 if skipped else (
+        1 + (1 if _hash(f"{company}|{sid}|nrec|{SALT}") % 10 < 2 else 0))  # mean 1.2
+    mix = [(tag, round(cfg["controls_mix"][tag] * 100))
+           for tag in ("elimination", "engineering", "admin", "ppe")]
+    amin, amax = cfg["agreed_offset"]["min_days"], cfg["agreed_offset"]["max_days"]
+    return IncidentPlan(
+        company=company, sid=sid, donor_id=donor_id, skipped=skipped,
+        work_group=pick_weighted(f"{company}|{sid}|work_group|{SALT}",
+                                 WORK_GROUP_WEIGHTS),
+        doi=anchored_incident_date(company, sid, donor_id),
+        report_lag=draw_days(f"{company}|{sid}|report_lag|{SALT}",
+                             cfg["report_lag"]["median_days"],
+                             cfg["report_lag"]["sigma"]),
+        invest_days=draw_days(f"{company}|{sid}|invest_duration|{SALT}",
+                              inv["duration_median_days"], inv["duration_sigma"]),
+        reaches_root=reaches_root, chain_len=chain_len, n_recs=n_recs,
+        rec_tags=[pick_weighted(f"{company}|{sid}|tag|{i}|{SALT}", mix)
+                  for i in range(n_recs)],
+        agreed_offsets=[amin + _hash(f"{company}|{sid}|agreed|{i}|{SALT}")
+                        % (amax - amin + 1) for i in range(n_recs)],
+        completion_offsets=[draw_days(f"{company}|{sid}|closeout|{i}|{SALT}",
+                                      clo["median_days"], clo["sigma"])
+                            for i in range(n_recs)],
+        owner_assigned=[rate_hit(f"{company}|{sid}|owner|{i}|{SALT}",
+                                 dd["owner_assigned_rate"])
+                        for i in range(n_recs)],
+        hs_blanked=rate_hit(f"{company}|{sid}|hsblank|{SALT}",
+                            dd["extra_hs_blank_rate"]),
+    )
+
+
+@lru_cache(maxsize=None)
+def _real_table(name: str) -> tuple[tuple[str, ...], tuple[dict, ...]]:
+    with (REAL / name).open(encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        return tuple(reader.fieldnames or ()), tuple(reader)
+
+
+def incident_fieldnames() -> list[str]:
+    return list(_real_table("incidents.csv")[0])
+
+
+@lru_cache(maxsize=None)
+def donor_incidents() -> dict[str, dict]:
+    return {r["Incident Number"]: r for r in _real_table("incidents.csv")[1]}
+
+
+def donor_delta(plan: IncidentPlan) -> int:
+    """Days the donor's structured date moved; prose dates move by the same
+    delta so narrative and register never disagree."""
+    raw = donor_incidents().get(plan.donor_id, {}).get("Date of Incident", "")
+    try:
+        return (plan.doi - date.fromisoformat(raw)).days
+    except ValueError:
+        return 0
+
+
+# columns copied from the donor with prose-date shifting applied
+_FREE_TEXT = ("incident Title", "Detail", "Description", "What happened?  ",
+              "What was the outcome?",
+              "What was the worst outcome that could reasonably be expected to have happened?",
+              "How did the incident occur")
+# columns copied verbatim from the donor
+_VERBATIM = ("Incident Classificatioin", "Site", "Area", "Unit",
+             "Incident Type A", "Incident Type B", "Incident Type C",
+             "Incident Type D", "Incident Classification",
+             "Health & Safety Incident - Classification",
+             "Health & Safety - Risk Score", "Health & Safety  - Consequence",
+             "Health & Safety - Likelihood",
+             "Environment & Reputation - Incident Classification",
+             "Environment & Reputation - Risk Score",
+             "Environment & Reputation  - Consequence",
+             "Environment & Reputation - Likelihood",
+             "Financial Cost & Business - Incident Classification",
+             "Financial Cost & Business Interruption - Risk Score",
+             "Financial Cost & Business Interruption  - Consequence",
+             "Financial Cost & Business Interruption - Likelihood")
+_HS_TRIO = ("Health & Safety - Risk Score", "Health & Safety  - Consequence",
+            "Health & Safety - Likelihood")
+# (name column, position column, role key, gate) -- gate: when populated
+_PEOPLE = (
+    ("Investigation leader - Name", "Investigation leader - Position",
+     "leader", "investigated"),
+    ("Incident Classified by - Name", "Incident Classified by - Position",
+     "classifier", "always"),
+    ("Investigation Acceptor/Approver (Owner) - Name",
+     "Investigation Acceptor/Approver (Owner)- Position",   # sic: no space
+     "approver", "investigated"),
+    ("Close out Approval - Name", "Close out Approval - Position",
+     "closer", "closed"),
+)
+
+
+_NEAR_LOOKBACK = 365   # days before the incident a narrative may reference
+_NEAR_FORWARD = 90     # days after
+
+
+def _narrative_span(donor_id: str) -> tuple[int, int]:
+    """(lookback, forward) days spanned by NEAR-INCIDENT prose dates in the
+    donor's free-text fields, capped at the allowances. Dates further out
+    are historical or OCR-garbage references (the real corpus carries
+    offsets up to ~1000 years, e.g. '29-JUN-0202') and are exempt from the
+    window invariant: era-plausible or already-dirty either way -- 'source
+    data is dirty and stays dirty' is standing repo policy."""
+    row = donor_incidents().get(donor_id, {})
+    try:
+        doi = date.fromisoformat(row.get("Date of Incident", ""))
+    except ValueError:
+        return 0, 0
+    look = fwd = 0
+    for c in _FREE_TEXT:
+        for pd in find_prose_dates(row.get(c) or ""):
+            off = (doi - pd).days
+            if 0 <= off <= _NEAR_LOOKBACK:
+                look = max(look, off)
+            elif -_NEAR_FORWARD <= off < 0:
+                fwd = max(fwd, -off)
+    return look, fwd
+
+
+def anchored_incident_date(company: str, sid: str, donor_id: str) -> date:
+    """Hash placement clamped so every near-incident prose date still lands
+    inside the window after the uniform shift (Task 12 enforces this)."""
+    look, fwd = _narrative_span(donor_id)
+    span = WINDOW_DAYS - look - fwd
+    off = _hash(f"{company}|{sid}|incident_date|{SALT}") % span
+    return WINDOW_START + timedelta(days=look + off)
+
+
+def build_incident_row(plan: IncidentPlan, donor_row: dict) -> tuple[dict, dict]:
+    delta = donor_delta(plan)
+    row: dict[str, str] = {c: "" for c in incident_fieldnames()}
+    prov: dict[str, str] = dict(row)
+
+    def put(col, value, token):
+        row[col] = value
+        prov[col] = token if value.strip() else ""
+
+    put("Incident Number", plan.sid, "key")
+    put("Date of Incident", plan.doi.isoformat(), "syn")
+    put("Date of Report", plan.report_date.isoformat(), "syn")
+    put("Work Group", plan.work_group, "syn")
+    donor_time = (donor_row.get("Time of Incident") or "").strip()
+    if donor_time:
+        put("Time of Incident", donor_time, "src")
+    else:
+        h = _hash(f"{plan.company}|{plan.sid}|time|{SALT}")
+        put("Time of Incident", f"{h % 24:02d}:{(h // 24) % 12 * 5:02d}", "syn")
+    for c in _FREE_TEXT:
+        text = (donor_row.get(c) or "")
+        put(c, shift_prose_dates(text, delta) if text.strip() else "", "src")
+    for c in _VERBATIM:
+        put(c, (donor_row.get(c) or ""), "src")
+    if plan.hs_blanked:
+        for c in _HS_TRIO:
+            put(c, "", "")
+    if plan.approval_date:
+        put("Approval Date", plan.approval_date.isoformat(), "syn")
+    if plan.close_out_date:
+        put("Close out Date", plan.close_out_date.isoformat(), "syn")
+    for name_col, pos_col, role, gate in _PEOPLE:
+        populate = (gate == "always"
+                    or (gate == "investigated" and not plan.skipped)
+                    or (gate == "closed" and plan.close_out_date is not None))
+        if populate:
+            name, pos = syn_person(f"{plan.company}|{plan.sid}|{role}")
+            put(name_col, name, "syn")
+            put(pos_col, pos, "syn")
+    return row, prov
