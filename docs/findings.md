@@ -3348,3 +3348,55 @@ modules; a hardcoded `0.25` in the Coastal HS-decay test now reads
 manifest instead; five F401 unused imports removed
 (`scenario.py:field`, `test_scenarios.py:timedelta,analytic_overdue_rate`,
 `test_export_companies.py:Path,OUT_DIR`).
+
+## 2026-09-01 — adversarial review of the SME deliverable; export + ledger fixes
+
+Four-lens adversarial review of `deliverables/e19_filled.xlsx` before SME
+hand-off (sensitivity, SME fitness-for-purpose, data quality/provenance,
+About-sheet honesty). Verified clean under attack: zero fill-colour or value
+mismatches across all 77,206 data cells vs the committed CSVs (independently
+reproduced twice); every About headline number (524 / 25.4% / 133 / 109 /
+415 / 32.0%) reproduces from `docs/findings.md` tables; zero duplicate
+incident keys; all dates ISO-valid with correct ordering; H&S Risk Score =
+Consequence x Likelihood exact on all 645 real rows; no xlsx metadata
+leakage (creator=openpyxl only). Adjudicated false positives: the two "TODO"
+strings in cause text are verbatim `src` (TODO is a dry-break coupling
+manufacturer — equipment brand, not a pipeline artifact); the header typo
+`Incident Classificatioin` is the template's own, byte-exact by convention.
+
+Fixed (commits f8f19df, 15959cf):
+
+1. **Typed cells** — risk scores, likelihoods, dates, times and
+   cause/element codes were text (`data_type 's'`), so sorting was
+   lexicographic ('20' < '4') and AutoFilter drew Text Filters. Now
+   int/date/time with a post-write type assertion and a loud ValueError on
+   unparseable values; blanks in typed columns are genuinely empty cells.
+2. **Names disclosure** — real injured/implicated individuals appear
+   verbatim in narrative and cause text (~12+ people across 8+ incidents);
+   the company workbooks carried that disclosure, this workbook's About did
+   not. Now mirrored, with the pseud-beside-verbatim-position quasi-identifier
+   caveat stated too. Posture stays disclose-don't-rewrite: narrative is
+   verbatim public BSEE `src`, and an NER pass would break that guarantee.
+3. **Ledger "real" semantics** — `psm.ledger` counted presence and rendered
+   it as "real %": `Investigation leader - Name` (1,147 pseud + 67 syn)
+   read as 100.0% real; Owner-Position (1,074 src + 138 syn) as 99.8%.
+   `measure_provenance()` now counts per-cell tokens (real=src/xw, pseud
+   separate, fab=syn/llm/key); headline moved 41% -> 33.1% real, with 2.3%
+   pseudonyms stated as their own class. Recommendations/closeout have no
+   token file and are marked as declared-disposition claims.
+4. **About honesty one-liners** — no-colour covers genuinely-empty cells;
+   109 = 107 abstentions + 2 parse failures; control chars occur on both
+   sheets; `(sic)` on byte-exact headers; `UNKEYED-<hash>` named;
+   classification triplication (columns C/AC/AE) disclosed as template
+   design.
+5. **Usability** — freeze `B2` (header row + key column), wrap_text on
+   narrative columns, About legend rows carry swatch cells filled with the
+   actual `PatternFill`s (cannot drift from the data sheets' colours).
+
+Verification: `uv run pytest -q` 501 passed / 2 skipped (was 493/2; +8 new
+tests). Deliverable regenerated and swept: 77,206 cells, 0 value / 0 fill
+mismatches under typed-aware comparison; swatch RGBs equal
+`provenance.FILL_COLORS`; H&S Risk Score n=645 all-int min 4 max 25.
+Deferred by design (not defects): NER pseudonymization of narrative text,
+recommendations/closeout sheets in the filled layer (BSEE publishes
+neither), PSM element name lookup column.
