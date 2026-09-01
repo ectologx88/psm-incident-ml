@@ -18,7 +18,7 @@ templates:
     text: Eliminate the open annulus configuration by permanently closing the shoe track once production begins.
   - id: elim-05
     tag: elimination
-    text: Remove the temporary bypass jumper from the blowdown line and restore the line to its designed routing.
+    text: Remove the temporary bypass jumper from the blowdown circuit and restore normal routing to its designed configuration.
   - id: elim-06
     tag: elimination
     text: Eliminate the requirement for personnel to walk beneath the suspended load during the lift by rerouting foot traffic around the load path entirely.
@@ -42,10 +42,10 @@ templates:
     text: Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.
   - id: eng-03
     tag: engineering
-    text: Install a valve-position indicator on the shutdown valve that signals the control room when the valve closes.
+    text: Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.
   - id: eng-04
     tag: engineering
-    text: Fit the crane hook with a deeper-throat design engineered to maintain positive contact with the load chain.
+    text: Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.
   - id: eng-05
     tag: engineering
     text: Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.
@@ -54,10 +54,10 @@ templates:
     text: Add a mechanical stop that halts the traveling block before it can strike the crown block.
   - id: eng-07
     tag: engineering
-    text: Install flame-resistant insulation on the reboiler stack to remove a potential ignition source.
+    text: Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.
   - id: eng-08
     tag: engineering
-    text: Install a dedicated relief valve on the low-pressure vent header so gas cannot back up toward the atmospheric discharge point during a blowdown.
+    text: Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.
   - id: eng-09
     tag: engineering
     text: Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.
@@ -96,7 +96,7 @@ templates:
     text: Retrain riggers on proper hook inspection and load chart limitations and document completion.
   - id: admin-05
     tag: admin
-    text: Develop a written procedure for open hole work that platform personnel must reference before starting the task.
+    text: Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.
   - id: admin-06
     tag: admin
     text: Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.
@@ -111,13 +111,13 @@ templates:
     text: Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.
   - id: admin-10
     tag: admin
-    text: Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams whenever the fire tube is removed for service.
+    text: Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.
   - id: admin-11
     tag: admin
     text: Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.
   - id: admin-12
     tag: admin
-    text: Establish a training program for glycol handling personnel that covers liquid to gas phase transition hazards.
+    text: Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.
   - id: ppe-01
     tag: ppe
     text: Require face shields in addition to safety glasses for all sandblasting operations.
@@ -126,7 +126,7 @@ templates:
     text: Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.
   - id: ppe-03
     tag: ppe
-    text: Require cut-resistant gloves for personnel handling wire rope on heavy-usage cranes.
+    text: Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.
   - id: ppe-04
     tag: ppe
     text: Require fall-protection harnesses with full tie-off for all scaffold work above the deck.
