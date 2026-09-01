@@ -76,3 +76,13 @@ def test_generate_is_deterministic_in_process():
     a = sc.generate("northstar")
     b = sc.generate("northstar")
     assert a["tables"] == b["tables"]
+
+
+def test_element_override_touches_only_the_first_cause_row():
+    res = sc.generate("meridian")
+    planted = {s for pair in res["planted_pairs"] for s in pair}
+    _, causes, cprov = res["tables"]["causes"]
+    for r, pr in zip(causes, cprov):
+        if r["Incident Number"] in planted and r["Cause number"] != "1":
+            # rows past the first keep their donor-sourced element untouched
+            assert pr[" Failed PSM Framework Element"] in ("", "src")
