@@ -72,10 +72,16 @@ no time. All 1,214 are unique.
 | `xw` | derived by a versioned rule in `schema/xw_*.yaml` |
 | `llm` | assigned by a language model; never treated as ground truth (`filled/` layer only, written by `src/psm/fill.py`) |
 | `syn` | fabricated -- in `enriched/`, by `src/psm/synth.py` under `schema/synth_rules.yaml`; in `filled/`, also by `src/psm/fill.py` under the same rules file |
+| `key` | constructed join identifier (e.g. `Incident Number`); BSEE publishes no incident id, the whole column is built by this repo |
+| `pseud` | salted pseudonym of a real value (`Investigation leader`/`Approver` name columns); a stable privacy transform of a real person's name -- de-amplification, not fabrication |
 | empty | not filled; see `gap_policy` in `schema/e19_disposition.yaml` |
 
-Precedence is `src` > `xw` > `syn`. A `syn` value never displaces a real one.
-Enforced by `tests/test_conventions.py` for `enriched/` and `tests/test_fill_outputs.py`
+`key` and `pseud` are classified by column purpose (`src/psm/provenance.py`),
+not by string pattern. Precedence is `src`/`key`/`pseud` > `xw` > `syn`: a
+`key` or `pseud` cell is still a real, non-blank source cell reclassified by
+column purpose, and -- like `src` -- is never displaced by `xw`, `llm`, or
+`syn`. A `syn` value never displaces a real one. Enforced by
+`tests/test_conventions.py` for `enriched/` and `tests/test_fill_outputs.py`
 for `filled/`.
 
 ### The `filled/` layer
@@ -90,10 +96,19 @@ already has a crosswalk value, else `llm` from a labelling run, else a
 deterministic `syn` fallback). `filled/` carries its own parallel provenance
 files, same shape and token convention as `enriched/`'s.
 
-Composition across all four tables: **40.7% real** (`src`+`xw`), 39.0%
-fabricated, 20.4% blank by policy.
+Composition across the two tables `filled/` actually provenances
+(`incidents.csv` + `causes.csv`; `recommendations.csv`/`closeout.csv` are not
+part of the `filled/` layer -- see [`psm.fill`](src/psm/fill.py)'s docstring
+-- so a "four tables" figure has no reconstructable denominator): summing
+per-cell tokens over both provenance files (52,202 + 25,004 = 77,206 cells),
+**33.5% real** (`src`+`xw`), 31.7% fabricated (`llm`+`syn`), 9.1%
+`key`+`pseud` (constructed identifiers / pseudonyms, neither real nor
+fabricated), 25.7% blank by policy.
 
-Incidents table alone: 25.6% `src`, 15.1% `xw`, 30.6% `syn`, 28.7% blank.
+Incidents table alone (`filled/provenance.csv`, 1,214 rows × 43 columns =
+52,202 cells): 19.0% `src`, 15.1% `xw`, 2.3% `key`, 4.3% `pseud`, 34.2%
+`syn`, 25.2% blank. (Phase 0 added `key`/`pseud`; the pre-Phase-0 figure was
+25.6% `src` with those cells folded into `src`.)
 
 Synthetic identities are hash tokens (`SYN-Approver-da5b09`,
 `Synthetic Role — Investigation Acceptor`), never plausible names. A test asserts
@@ -221,10 +236,14 @@ derivative of it is committed.
 ```
 data/manifest.csv           committed; SHA256 per source PDF
 data/processed/e19/         the dataset
+data/companies/             three synthetic-company E19 registers (deterministic
+                             scenario engine output), planted process pathologies
+                             + KPI answer key per data/companies/<company>/manifest.json
+scenarios/                  process-rate knob YAMLs consumed by src/psm/scenario.py
 gold/                       sampling frame for hand labels (unlabelled)
 schema/                     every rule, as data
 src/psm/                    pipeline
-tests/                      359 tests
+tests/                      495 tests
 docs/findings.md            append-only log: what was verified, by what method
 docs/e19_field_ledger.md    generated
 ```

@@ -117,6 +117,9 @@ data_discipline: {owner_assigned_rate: 0.60, extra_hs_blank_rate: 0.25}  # plant
 
 ### scenarios/meridian_nt.yaml (near-threshold; TEST-ONLY, never exported)
 As NorthStar except `closeout.median_days: 60` and analytic overdue ~0.10.
+[CORRECTION 2026-09-01: measured analytic value is 0.5192
+(`analytic_overdue_rate(60, 0.6, 30, 90)`), not ~0.10 -- the ~0.10 figure in
+this plan text was never satisfied by the implemented knobs.]
 Purpose: the margin assertions must still detect direction on a small
 deviation — proves the KPI math has resolution, not just that 3x gaps are
 visible. (Adversarial-review requirement.)
@@ -228,13 +231,16 @@ analytic expectation, or a negative control — nothing unasserted.
 |---|-----|---------------------------|-----------|------------------------|
 | 1 | median_report_lag | median(Date of Report − Date of Incident) | Meridian | M > 3× N; C within ±30% of N (neg ctl) |
 | 2 | skip_rate | share of incidents with 0 cause rows & blank leader | Coastal | C > 5× N; M within ±2 pts of N |
+| | | | | [SUPERSEDED 2026-09-01: "±2 pts" implemented per plan as `tol(0.03, 150, 0.02)` = 0.0418, not a flat ±2-point band; measured negative-control gap = 0.0267, within tol.] |
 | 3 | root_cause_depth | share of investigated incidents with a Root-typed row | Coastal | C < ½ N; M within ±10 pts of N |
 | 4 | median_closeout_days | median(Date Completed − Date of Report) | Meridian | M > 2× N; near-threshold variant > 1.2× N |
 | 5 | overdue_rate | share of recs with Date Completed > Agreed (emergent) | Meridian | within ±5 pts of manifest analytic value; M > 3× N |
+| | | | | [SUPERSEDED 2026-09-01: "M > 3× N" is unsatisfiable since overdue_rate ≤ 1 (3×0.354 > 1.0). Adjudicated to M > 2× N -- analytic rates 0.354 (northstar) / 0.827 (meridian), true ratio ≈2.335. See `tests/test_scenarios.py::test_overdue_is_emergent_and_matches_the_analytic_expectation`.] |
 | 6 | recurrence_rate | pairs same Element+Work Group within window, 2nd after 1st's Date Completed | Meridian, Coastal | measured ≥ planted count; N ≤ manifest coincidence bound |
 | 7 | admin_ppe_share | template-tag share admin+ppe | Coastal | C > N + 25 pts; M within ±5 pts of N (neg ctl) |
 | 8 | owner_completeness | share recs with Responsible Owner - Name populated | Coastal | C < N − 25 pts |
 | 9 | hs_completeness | populated share of H&S Risk Score (baseline-adjusted) | Coastal | C < baseline − 15 pts; M ≈ baseline |
+| | | | | [SUPERSEDED 2026-09-01: "C < baseline − 15 pts" is unsatisfiable in expectation -- the coastal donor partition is 49.33% HS-blank and `extra_hs_blank_rate` is OR-composed on top, capping expected decay at (1−0.4933)×0.25 ≈ 12.7pt. Adjudicated to analytic-expectation ± tol with a −5pt floor. See `tests/test_scenarios.py::test_coastal_hs_decay_planted_and_baseline_adjusted`.] |
 
 ## Validation (`tests/test_scenarios.py`) — the finish line
 

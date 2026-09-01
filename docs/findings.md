@@ -3238,3 +3238,113 @@ sheet states, in plain language, that this is a demonstration of an
 auto-populated register — model labels unvalidated (25.4% crosswalk
 agreement, n=524), synthetic cells correspond to nothing real. It is a
 proposal for SMEs to evaluate, not a finding.
+
+---
+
+## 2026-09-01 — feat/e19-fill-export fix wave (post whole-branch review)
+
+The branch (14 tasks, `src/psm/scenario.py`, SALT `e19-scenario-v1`) built a
+deterministic scenario engine that samples disjoint donor partitions from the
+real BSEE corpus and plants known process pathologies into three synthetic
+companies (NorthStar, Meridian, Coastal), each with a full 4-table E19
+register, a per-cell provenance sidecar, a nine-KPI layer measuring the
+planted conditions, a statistical test suite (planted-vs-measured, negative
+controls, near-threshold resolution), and reviewer/comparison xlsx exports.
+A final whole-branch review found everything else clean and flagged ten
+specific items; this entry records the fix wave that closed them.
+
+### Three adjudicated plan-text errors (carried forward from the spec's
+### bracketed `[SUPERSEDED]`/`[CORRECTION]` notes, `docs/superpowers/specs/
+### 2026-08-31-scenario-registers-design.md`)
+
+- **overdue_rate, Meridian vs NorthStar (3x → 2x):** the plan's "M > 3× N" is
+  unsatisfiable by construction since a rate is bounded at 1
+  (3 × 0.354 > 1.0). Analytic rates: northstar (45-day median, 0.6 sigma
+  mix) ≈ 0.354, meridian (130-day median, 0.8 sigma mix) ≈ 0.827 — true
+  ratio ≈ 2.335. Adjudicated to `M > 2× N`.
+- **owner_completeness negative control (flat bound → designed-offset
+  bound):** the plan implied a near-zero gap between Meridian and NorthStar,
+  but `scenarios/meridian.yaml`/`northstar.yaml` deliberately differ
+  (`owner_assigned_rate` 0.98 NorthStar vs 0.95 Meridian — the "data
+  discipline" differential the spec calls for). Bound corrected to
+  `0.03 + tol(0.95, 180, 0.05)`, i.e. designed offset plus statistical floor,
+  not identical rates.
+- **Coastal HS-completeness decay (−15pt → analytic expectation + floor):**
+  the plan's "< baseline − 15pt" is unsatisfiable in expectation. The coastal
+  donor partition is already 49.33% HS-blank (74/150), and
+  `extra_hs_blank_rate` (0.25, `scenarios/coastal.yaml`) is OR-composed on
+  top of that, capping expected decay at (1 − 0.4933) × 0.25 ≈ 12.7pt <
+  15pt. Adjudicated to analytic-expectation ± tol with a −5pt floor
+  (`tests/test_scenarios.py::test_coastal_hs_decay_planted_and_baseline_adjusted`).
+
+### README provenance numbers — recompute method and old → new
+
+Method: read `data/processed/e19/filled/provenance.csv` (1,214 rows × 43
+cols = 52,202 cells) and `filled/causes_provenance.csv` (3,572 rows × 7 cols
+= 25,004 cells) — the only two tables the `filled/` layer provenances
+(`recommendations.csv`/`closeout.csv` live under `data/processed/e19/`
+directly and were never part of `psm.fill`'s output, so they carry no
+provenance sidecar and cannot contribute to a "four tables" denominator) —
+and tally every cell's token with a plain `csv.DictReader` + `Counter`, no
+sampling.
+
+- Incidents table alone: `src` 25.6% → 19.0%, `xw` 15.1% → 15.1%
+  (unchanged), `syn` 30.6% → 34.2%, blank 28.7% → 25.2%, plus two tokens the
+  pre-Phase-0 figure didn't have: `key` 2.3%, `pseud` 4.3%. (Phase 0's
+  `key`/`pseud` split what used to be folded into `src`, which is why `src`
+  alone dropped ~6.6 points while nothing about the underlying data changed.)
+- "Composition across all four tables" (40.7% real / 39.0% fabricated /
+  20.4% blank) was unreproducible — no record of what the fourth-table
+  inputs to that figure were, and `filled/` only ever provenanced two
+  tables. Replaced with a figure computed across the two tables `filled/`
+  actually has (77,206 cells total): 33.5% real (`src`+`xw`), 31.7%
+  fabricated (`llm`+`syn`), 9.1% `key`+`pseud`, 25.7% blank.
+- `README.md:227` "359 tests" → 495 (`uv run pytest --collect-only -q`,
+  reproduced this session).
+- Token table (README "Provenance" section) and precedence text
+  (`src`/`key`/`pseud` > `xw` > `syn`, was `src` > `xw` > `syn`) updated to
+  include `key`/`pseud`, added by Phase 0 to `src/psm/provenance.py` and not
+  previously documented in the README.
+
+### About-sheet correction (`src/psm/export_companies.py::ABOUT_TEMPLATE`)
+
+False claim: "People are SYN- tokens. No real names appear in this
+register." The second sentence is false — narrative columns carry verbatim
+BSEE report text, and a `\b(Mr|Ms|Mrs)\.\s+[A-Z][a-z]+` scan against the
+committed company CSVs (all four tables, all three companies) found 4 real
+name occurrences in NorthStar and 25 in Coastal (0 in Meridian), plus real
+operators/vessels/facilities named throughout the narrative prose — none of
+that is SYN-tokenized. Corrected to: "Structured name fields are SYN-
+tokens; narrative text is verbatim public BSEE report text and names the
+real operators, vessels, facilities and -- occasionally -- individuals
+involved." The leak-guard test
+(`tests/test_export_companies.py::test_company_about_discloses_without_leaking_the_answer_key`)
+previously asserted against the raw unformatted `ABOUT_TEMPLATE` list (with
+`{label}` never substituted, so "northstar is"/"coastal is" could never
+match); fixed to assert against the rendered per-company text instead, and
+"no real names" added to the banned-token list so this false claim can't
+regress silently. Mutation-checked: reintroducing the old line into the
+rendered text made the test fail (`AssertionError: ('NorthStar', 'no real
+names')`) before the revert.
+
+### Final suite
+
+`uv run pytest -q`: 493 passed, 2 skipped (495 collected) — up from the
+pre-fix-wave baseline of 492 passed / 2 skipped, net +1 for the new
+`test_coastal_planted_recurrence_pairs_are_a_subset_of_detected` (item 6:
+Coastal had no planted⊆detected recurrence assertion mirroring Meridian's;
+mutation-checked by corrupting one planted pair's `Work Group` field in the
+committed CSV, observing the new test fail, then restoring via
+`uv run python -m psm.scenario coastal` — confirmed byte-identical to the
+pre-mutation committed files by SHA256, `git status --porcelain -- data/
+companies/coastal` empty). Also fixed in this wave: the determinism guard
+(`test_engine_has_no_wall_clock_or_random_dependence`) now bans `import
+scipy`/`from scipy` (not a bare `"scipy"` substring — both `scenario.py` and
+`quantiles.py` legitimately mention scipy by name in their own docstrings to
+explain why they avoid it) plus `datetime.today`/`utcnow`, and scans
+`psm.export_companies`/`psm.provenance` in addition to the original four
+modules; a hardcoded `0.25` in the Coastal HS-decay test now reads
+`resolved_knobs.data_discipline.extra_hs_blank_rate` from the committed
+manifest instead; five F401 unused imports removed
+(`scenario.py:field`, `test_scenarios.py:timedelta,analytic_overdue_rate`,
+`test_export_companies.py:Path,OUT_DIR`).
