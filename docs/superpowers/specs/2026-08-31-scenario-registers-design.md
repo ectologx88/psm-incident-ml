@@ -85,7 +85,7 @@ validation, then Coastal, then exports.
 ### scenarios/northstar.yaml (healthy baseline)
 ```yaml
 report_lag:      {median_days: 2,  sigma: 0.6}
-investigation:   {skip_rate: 0.02, root_cause_prob: 0.85}
+investigation:   {skip_rate: 0.02, root_cause_prob: 0.85, duration_median_days: 21, duration_sigma: 0.6}
 closeout:        {median_days: 45, sigma: 0.6}
 agreed_offset:   {min_days: 30, max_days: 90}
 recurrence:      {planted_pairs: 0, window_days: 365}
@@ -96,7 +96,7 @@ data_discipline: {owner_assigned_rate: 0.98, extra_hs_blank_rate: 0.00}
 ### scenarios/meridian.yaml (closure decay)
 ```yaml
 report_lag:      {median_days: 10, sigma: 0.8}          # planted
-investigation:   {skip_rate: 0.03, root_cause_prob: 0.80} # near-baseline (negative-ish)
+investigation:   {skip_rate: 0.03, root_cause_prob: 0.80, duration_median_days: 30, duration_sigma: 0.7} # near-baseline (negative-ish)
 closeout:        {median_days: 130, sigma: 0.8}         # planted
 agreed_offset:   {min_days: 30, max_days: 90}
 recurrence:      {planted_pairs: 8, window_days: 365, work_group: Maintenance}
@@ -107,7 +107,7 @@ data_discipline: {owner_assigned_rate: 0.95, extra_hs_blank_rate: 0.00}
 ### scenarios/coastal.yaml (shallow investigation)
 ```yaml
 report_lag:      {median_days: 2,  sigma: 0.6}          # = NorthStar (negative control)
-investigation:   {skip_rate: 0.20, root_cause_prob: 0.25} # planted
+investigation:   {skip_rate: 0.20, root_cause_prob: 0.25, duration_median_days: 7, duration_sigma: 0.5} # planted (shallow = fast)
 closeout:        {median_days: 40, sigma: 0.5}          # fast on paper
 agreed_offset:   {min_days: 30, max_days: 90}
 recurrence:      {planted_pairs: 6, window_days: 365}   # from unaddressed causes
