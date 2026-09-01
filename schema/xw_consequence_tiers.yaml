@@ -1,0 +1,186 @@
+# BSEE incident data -> E19 Section 3 (Potential).
+#
+# THIS FILE IS AN OPINION, NOT A FACT. Output columns take the `xw_` prefix and
+# are never scored against.
+#
+# ===========================================================================
+# THE METHODOLOGICAL PROBLEM THIS FILE EXISTS TO SOLVE
+#
+# BSEE records what DID happen. E19 Section 3 asks for the worst outcome that
+# could REASONABLY BE EXPECTED to have happened. Deriving the second from the
+# first systematically under-rates near misses -- the class E19 exists to catch.
+#
+# Measured, not asserted: filling Health & Safety consequence from actual
+# outcome alone leaves 666 of 1,088 incidents (61%) blank, with ZERO at
+# consequence D and 3 at E. Every fire that hurt nobody records nothing.
+#
+# So consequence is derived from HAZARD ENERGY -- what the event could do --
+# rather than from what it did. This is not improvised: it is the basis of the
+# EEI Safety Classification and Learning model, whose categories are High-Energy
+# Serious Injury or Fatality and *Potential* SIF.
+# ===========================================================================
+
+version: 1
+scale_direction: "A = least severe .. E = most severe (E x likelihood 5 = 25, the matrix maximum)"
+source: "spine ACCIDENT_TYPE + positional checkbox marks + field 21 damage amount"
+
+# --- Consequence: hazard energy, floored by actual outcome ---------------
+# potential = max(hazard_energy, +1 if crewed operation, actual_outcome_floor)
+hazard_energy:
+  Blowout:                       E
+  Explosion:                     E
+  Fire:                          D
+  "Shutdown from Gas Release":   D
+  Collision:                     D
+  "Collision >$25K":             D
+  Crane:                         D
+  "Other Lifting Device":        D
+  "Structural Damage":           D
+  Pollution:                     C
+  "Damaged/Disabled Safety Sys.": C
+
+# An event with people present can do more harm than the same event on an
+# unmanned facility. One step up, capped at E.
+exposure_bump:
+  signal: "positional checkbox marks DRILLING / WORKOVER / COMPLETION (src_checkboxes_page0)"
+  rationale: >
+    Rig operations carry a crew round the clock. The flag describes what work was
+    underway, not what happened, so it is independent of the outcome.
+  validated_against: >
+    A rig name appears in field 5 on 45% of crewed-flagged records against 4% of
+    production-only records -- 12.8x more likely. Two different parts of the form,
+    extracted by different mechanisms, agreeing.
+  rejected_alternative:
+    signal: "Required Evacuation / Required Muster"
+    why: >
+      CIRCULAR. An evacuation is ordered BECAUSE something was serious, so it uses
+      a severity signal to infer exposure and then exposure to infer severity.
+      It also had worse coverage (162 vs 196 of 622 records).
+  known_limitation: >
+    Identifies definitely-crewed records but cannot identify definitely-unmanned
+    ones: PRODUCTION covers both manned platforms and unmanned satellites, and
+    BSEE does not distinguish them. The bias is toward UNDER-rating, which is the
+    safer direction, but it is a bias.
+
+actual_outcome_floor:
+  Fatality:            E
+  "LTA (>3 days)":     C
+  "LTA (1-3) days":    B
+  "RW/JT (>3 days)":   B
+  "RW/JT (1-3 days)":  A
+  Injury:              B
+  "Other Injury":      B
+
+# --- Likelihood: measured from the corpus, not assumed -------------------
+# P(serious injury | this mechanism occurred), across 2,014 spine rows.
+#
+# A FAILED APPROACH, RECORDED SO IT IS NOT RETRIED: likelihood was first derived
+# from the gap between actual and potential outcome -- "how close did it come".
+# That measures REALISATION, not likelihood. It gave 70% of records likelihood 1
+# and collapsed every near miss back into "Incident", reintroducing exactly the
+# burial the energy method exists to prevent. Likelihood in a risk matrix is how
+# likely the outcome is when the scenario RECURS, which is a property of the
+# scenario, not of this instance.
+likelihood:
+  measured: "2026-08-29, n=2,014 spine rows"
+  metric: "share of incidents carrying this mechanism that also carry Fatality or LTA"
+  rejected_approach:
+    method: "likelihood from the gap between actual and potential consequence"
+    why: >
+      It measures REALISATION, not likelihood -- whether the worst outcome
+      happened this time, rather than how likely it is when the scenario recurs.
+      Measured result: 70% of records fell to likelihood 1 and every near miss
+      collapsed back into "Incident", reintroducing precisely the burial the
+      hazard-energy consequence exists to prevent. Recorded so it is not retried.
+  bands:
+    - {at_least: 0.20, likelihood: 5}
+    - {at_least: 0.10, likelihood: 4}
+    - {at_least: 0.05, likelihood: 3}
+    - {at_least: 0.01, likelihood: 2}
+    - {at_least: 0.0,  likelihood: 1}
+  band_rationale: >
+    A one-in-five chance of serious injury given the event is genuinely high, so
+    0.20 anchors likelihood 5. An earlier absolute banding at 0.40 was too
+    demanding -- it left the Very Serious Incident class empty across the whole
+    corpus, which says more about the threshold than about the data.
+  window: "2007-2026 only"
+  window_reason: >
+    BSEE's vocabulary is NOT stationary, and the first version of this file
+    pooled across 1995-2026 as though it were. LTA codes begin 2006; Other
+    Lifting Device begins 2007; Blowout's last use is 2013. Pre-2006 records sat
+    in the denominator while being structurally incapable of entering the
+    numerator, because injuries were coded with the coarse atom `Injury` (extinct
+    after 2012) which this metric excludes. And Blowout and Other Lifting Device
+    never coexist in the data at all.
+
+    Effect of the correction: lifting vs fire falls from 5.2x to 2.5x, and
+    Explosion -- previously band 4 -- becomes the HIGHEST rate in the corpus at
+    25.9%, nominally above lifting. The claim "the dramatic hazards damage plant;
+    the routine ones hurt people" is contradicted by the only explosion data
+    comparable to the only lifting data. See docs/findings.md.
+
+  observed_rates:
+    "Other Lifting Device":        {rate: 0.245, n: 94,  likelihood: 5}
+    Crane:                         {rate: 0.241, n: 170, likelihood: 5}
+    Explosion:                     {rate: 0.259, n: 27,  likelihood: 5}
+    Fire:                          {rate: 0.097, n: 186, likelihood: 3}
+    "Structural Damage":           {rate: 0.083, n: 36,  likelihood: 3}
+    "Shutdown from Gas Release":   {rate: 0.028, n: 36,  likelihood: 2}
+    Pollution:                     {rate: 0.017, n: 176, likelihood: 2}
+    "Collision >$25K":             {rate: 0.0,   n: 24,  likelihood: 1}
+
+  # Codes retired before, or introduced after, the window in which the outcome
+  # codes were in use. Their in-window n is too small to estimate a rate, and a
+  # rate from the pooled series would be the artifact this file exists to remove.
+  # A record whose only mechanism is unestimable gets a CONSEQUENCE but no
+  # likelihood, and therefore no risk score and no classification. That is the
+  # honest result: we cannot estimate it.
+  unestimable:
+    Blowout:                        {n_in_window: 2,  last_used: 2013}
+    Collision:                      {n_in_window: 5,  note: "superseded by Collision >$25K"}
+    "Damaged/Disabled Safety Sys.": {n_in_window: 15, note: "below the n>=20 floor"}
+  minimum_n: 20
+
+# --- Risk score and classification ---------------------------------------
+risk_score:
+  formula: "(consequence index 1-5) x likelihood"
+  assumption: >
+    ASSUMED, NOT SOURCED. The template's picklist lists scores 1-25 but not the
+    Consequence x Likelihood matrix that produces them, and it was not recoverable
+    from the workbook. A plain 5x5 product is the commonest form and reproduces
+    the observed 1-25 range. There is no author to supply the real matrix -- this
+    is a self-contained public dataset -- so the assumption is permanent and must
+    be read as ours. Anyone who disagrees changes this one block; nothing else in
+    this file depends on it.
+
+# Bands are the template's own, from its Monthly Data sheet: VSI 25-21,
+# SI 20-11, I 10-1. Not our invention.
+classification_bands:
+  - {at_least: 21, value: "Very Serious Incident"}
+  - {at_least: 11, value: "Serious Incident"}
+  - {at_least: 1,  value: "Incident"}
+
+# --- Financial: from the real dollar figure ------------------------------
+# Field 21 ESTIMATED AMOUNT, parsed on 39.3% of records. Actual cost, not
+# potential -- flagged because it is a different basis from the H&S column.
+financial_consequence:
+  basis: actual
+  bands:
+    - {under: 25000,    value: A}
+    - {under: 100000,   value: B}
+    - {under: 1000000,  value: C}
+    - {under: 10000000, value: D}
+    - {under: null,     value: E}
+
+# --- What is deliberately left unfilled ----------------------------------
+unfilled:
+  "Environment & Reputation - Likelihood": >
+    The mechanism rates above measure injury, not release volume. A separate
+    empirical pass would be needed and has not been done.
+  "Environment & Reputation - Risk Score": "depends on the likelihood above"
+  "Financial Cost & Business Interruption - Likelihood": >
+    Same reason. Damage cost is recorded as an actual, and no conditional
+    probability of cost given mechanism has been measured.
+  "What was the worst outcome that could reasonably be expected to have happened?": >
+    Free prose. The consequence letter is derivable; the sentence describing it
+    is not. Candidate for the LLM-assisted pass.

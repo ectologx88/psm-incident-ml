@@ -70,7 +70,12 @@ fields:
   26: {name: team_members,           region: admin,     label_hint: "Team Members",                kind: text}
   27: {name: operator_report_on_file, region: admin,    label_hint: "OPERATOR REPORT ON FILE",     kind: yesno}
   28: {name: accident_classification, region: admin,    label_hint: "ACCIDENT CLASSIFICATION",     kind: text}
-  29: {name: panel_formed,           region: admin,     label_hint: "PANEL FORMED",                kind: yesno}
+  # Two rows. The label wraps as "29. ACCIDENT INVESTIGATION" / "PANEL FORMED:",
+  # so a hint of "PANEL FORMED" alone never matches the anchor line, anchor 29 is
+  # rejected, and field 28's value runs on into 29's content. Same shape as
+  # field 17's two wordings.
+  29: {name: panel_formed,           region: admin,     kind: yesno,
+       label_hint: ["PANEL FORMED", "ACCIDENT INVESTIGATION"]}
   30: {name: district_supervisor,    region: admin,     label_hint: "DISTRICT SUPERVISOR",         kind: text}
 
 # Lines matching these are page furniture, dropped before field segmentation.
@@ -96,6 +101,65 @@ furniture_patterns:
 # ("17. INVESTIGATION FINDINGS: For Public Release") so a whole-line rule misses it.
 inline_strip_patterns:
   - '\s*For Public Release\s*'
+
+# Orphaned tails of this form's OWN field labels, which survive into fields
+# 18/19 body text and then satisfy every test for a cause category: short,
+# title-ish, colon-separated. In two-column soup the label wraps and its tail
+# lands alone on a line —
+#
+#     19. LIST THE CONTRIBUTING CAUSE(S) OF
+#     ACCIDENT:
+#
+# — so the `LIST THE ...` furniture rule in psm.causes, which needs the label
+# intact, never sees it. Measured: 24 statements corpus-wide became a cause
+# category named "ACCIDENT" or "OF ACCIDENT", making it the third most common
+# head in the corpus and inflating the "typed but no alias" diagnostic that
+# anyone extending schema/crosswalk.yaml would read.
+#
+# These are matched ONLY when the head is ALL CAPS. The general rule
+# "all-caps head is furniture" was tested and rejected: 6 of the corpus's 11
+# all-caps heads are the legitimate categories HUMAN ERROR, COMMUNICATION,
+# SUPERVISION, EQUIPMENT FAILURE, MANAGEMENT SYSTEM and WORK ENVIRONMENT.
+#
+# This is an observed blocklist, not a derivation, and it is here rather than in
+# psm/causes.py so it stays arguable and versioned.
+# Sentence-level cues that mark a CONSEQUENCE statement inside the field 17
+# narrative, for E19's "What was the outcome?".
+#
+# The obvious cues `resulting in` and `as a result` were tried first and
+# REJECTED on inspection: they are causal connectors, not outcome markers, and
+# fire constantly mid-narrative on cause statements ("A failed FSV allowed gas
+# to migrate to the hot exhaust resulting in the fire"). They lifted recall from
+# 36% to 56% and took precision with them. `resulting in` is kept ONLY when
+# followed by an injury noun, where it is unambiguous.
+#
+# Coverage is deliberately the lesser goal here. This column is filled from
+# verbatim source text, so a wrong sentence is a false `src` provenance mark --
+# the one error this schema exists to prevent. Records with no confident
+# sentence fall through to the xw composition in schema/xw_outcome.yaml, which
+# is honestly labelled as derived.
+outcome_sentence_cues:
+  - 'no\s+(?:injuries|injury|one was (?:injured|hurt))'
+  - '(?:was|were)\s+(?:transported|medevac\w*|air\s?lifted|flown)\s+to'
+  - '(?:sustain(?:ed)|suffer(?:ed))\s+(?:a|an|two|three|multiple|minor|serious|fatal|no)\b'
+  - '(?:was|were)\s+(?:fatally|seriously|severely)\s+injured'
+  - '(?:was|were)\s+pronounced\s+dead'
+  - '(?:was|were)\s+diagnosed\s+with'
+  - '(?:resulted|resulting)\s+in\s+(?:a\s+)?(?:fatalit|injur|contusion|fracture|laceration|burn|amputat|restricted work|lost time)'
+  - 'damage[sd]?\s+(?:was|were)\s+estimated'
+
+# A candidate outside these bounds is discarded rather than truncated: a
+# 20-character hit is a fragment, a 400-character one has swallowed the
+# paragraph.
+outcome_sentence_min_chars: 25
+outcome_sentence_max_chars: 400
+
+cause_field_furniture:
+  - 'ACCIDENT'                          # tail of "...PROBABLE CAUSE(S) OF ACCIDENT"
+  - 'OF ACCIDENT'                       # same label, wrapping one word earlier
+  - 'PROPERTY DAMAGED'                  # field 21's label
+  - 'ESTIMATED AMOUNT (TOTAL)'          # field 21's sub-label
+  - 'ADDITIONAL INFORMATION FROM ITEM 22'  # field 20's label, cross-referencing 22
 
 # --- Integrity guards -------------------------------------------------------
 #
@@ -140,3 +204,46 @@ form_revisions:
   field3_label:
     "LEASE": A
     "OPERATOR/CONTRACTOR": B
+
+# Label text that survives INTO a field's own body, removed in place.
+#
+# `segment_fields` strips a field's label by cutting to the first colon on the
+# first line. That fails on multi-line labels: field 22 reads
+#
+#     22. RECOMMENDATIONS TO PREVENT RECURRANCE
+#     NARRATIVE:
+#
+# and field 21's "NATURE OF DAMAGE ... ESTIMATED AMOUNT" block linearises
+# BETWEEN the two halves, so the first line carries no colon and nothing is
+# stripped. Measured 2026-08-29: 34.3% of non-empty field-22 values began with
+# their own label. This is NOT the terminal-anchor sink -- field 30 is correctly
+# located on 322 of the 369 affected records.
+#
+# Removed IN PLACE, not by cutting to a terminator: the body is split around the
+# interleaved block ("The Houma District has no recommendation | NATURE OF
+# DAMAGE: Ruptured, melted | NARRATIVE: | for the Regional Office."), so
+# everything-before-NARRATIVE would delete real text.
+#
+# Deliberately conservative. `NATURE OF DAMAGE` and its amount belong to field
+# 21 and are extracted there too, but their extent inside field 22 cannot be
+# bounded without the column-band work, so only the label token is removed and
+# the value it introduces is left visible rather than half-deleted.
+label_bleed_patterns:
+  - '\d{0,2}\s*\.?\s*RECOMMENDATIONS\s+TO\s+PREVENT\s+RECURRANCE'
+  - '\bNARRATIVE\s*[:''"]?'
+  - '\bNATURE\s+OF\s+DAMAGE\s*:?'
+  - '\bESTIMATED\s+AMOUNT\s*\(?TOTAL\)?\s*:?'
+  - '\bLIST\s+THE\s+(?:PROBABLE|CONTRIBUTING)\s+CAUSE\(?S\)?\s+OF(?:\s+ACCIDENT)?\s*:?'
+  - '\bLIST\s+THE\s+ADDITIONAL\s+INFORMATION\s*:?'
+
+# Ceiling for the LAST anchor in a document only. Every other field is bounded
+# by the next anchor; the terminal one runs to end-of-document, which is correct
+# when it is the form's final field (30) and catastrophic when it is not.
+#
+# `max_length_by_kind` covers the structured kinds. `prose` and
+# `cause_statements` declare no limit on purpose -- a field 17 narrative is
+# genuinely long -- so they use this instead. Sized to catch runaway absorption,
+# not to trim legitimate prose: the longest legitimate field 17 in the corpus is
+# well under this, while the two catastrophic cases held 267,928 and 280,537
+# characters. Overflow goes to `src_unassigned_tail`, never discarded.
+terminal_prose_cap: 20000

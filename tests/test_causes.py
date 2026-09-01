@@ -109,6 +109,67 @@ class TestFalsePositives:
         cat, _ = candidate_category(s)
         assert cat == "Listing errors"
 
+    def test_wrapped_field_label_tail_is_not_a_category(self):
+        """The test above passes only while the label is intact.
+
+        In two-column soup BSEE's own label wraps and the tail lands alone,
+        carrying the colon -- short, title-ish, colon-separated, i.e. every
+        test for a cause category. 24 statements corpus-wide became a category
+        called "ACCIDENT", the third most common head in the corpus. Verbatim
+        from 090401-pdf and MC 759 Beacon Growtco 20-Feb-26.
+        """
+        assert candidate_category("ACCIDENT: The crane boom contacted the derrick.")[0] is None
+        assert candidate_category("OF ACCIDENT: Failure to secure the load.")[0] is None
+
+    def test_all_caps_is_not_by_itself_furniture(self):
+        """The tempting general rule is wrong and this pins why.
+
+        Six of the corpus's eleven all-caps heads are legitimate categories.
+        A guard that swallowed them would silently delete 13 statements.
+        """
+        for head in ("HUMAN ERROR", "COMMUNICATION", "SUPERVISION",
+                     "EQUIPMENT FAILURE", "MANAGEMENT SYSTEM", "WORK ENVIRONMENT"):
+            cat, _ = candidate_category(f"{head}: some description of the cause.")
+            assert cat == head, f"{head!r} was wrongly treated as furniture"
+
+    def test_furniture_list_matches_only_in_caps(self):
+        """Title Case wins: a real statement about damaged property survives."""
+        cat, _ = candidate_category("Property damaged: the swivel housing cracked.")
+        assert cat == "Property damaged"
+
+
+class TestSpacedHyphenSeparator:
+    """`Category - Subcategory` was not a separator until 2026-08-29.
+
+    The letter-lookbehind required the hyphen to touch the preceding word, so
+    the spaced form ran on to the next qualifying separator and produced a head
+    too long to survive MAX_CATEGORY_WORDS. Silent: it lost mappings rather
+    than creating wrong ones, so nothing downstream complained.
+    """
+
+    def test_spaced_hyphen_splits_category_from_subcategory(self):
+        # Verbatim from BM 3 Cantium 5-Aug-2025, which names four canonical
+        # categories in its text and previously mapped to none of them.
+        s = ("Equipment Failure - Inadequate preventative maintenance/Inadequate "
+             "equipment repair- the crane's aux hoist system was operated with "
+             "documented mechanical deficiencies")
+        assert candidate_category(s)[0] == "Equipment Failure"
+
+    def test_unspaced_hyphen_still_compounds(self):
+        """The regression this separator was originally narrowed to avoid:
+        an earlier rule split "Flexi-Coil hose" and invented "The Flexi"."""
+        assert candidate_category("The Flexi-Coil hose parted under pressure.")[0] is None
+
+    def test_tight_hyphen_form_still_parses(self):
+        s = "Human Performance Error- Inattention to task: torch stored away"
+        assert candidate_category(s)[0] == "Human Performance Error"
+
+    def test_a_mid_sentence_dash_does_not_invent_a_category(self):
+        """Widening the separator opened this hole; the title-ish guard closes
+        it. Without the isupper() check the head here is 'a well-known issue'."""
+        s = "a well-known issue - the valve stuck open - caused the release"
+        assert candidate_category(s)[0] is None
+
 
 class TestCauseStatus:
     """`absent_legitimate` is not a parse failure — conflating them hides bugs."""

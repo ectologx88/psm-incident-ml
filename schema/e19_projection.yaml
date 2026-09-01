@@ -38,8 +38,10 @@ tables:
 # 'Description' appears twice in Incident Information (cells E18 and E23 - the
 # form's two "Description if Other" fields). A flat table cannot carry two
 # identically named columns, and both would draw from the same BSEE source
-# (field 7's OTHER free text), so they collapse to one column here. Flagged for
-# the template author rather than resolved by inventing a name.
+# (field 7's OTHER free text), so they collapse to one column here. Recorded
+# rather than resolved by inventing a name: the collapse is lossless because
+# both cells draw from one source, and a disambiguating suffix would be our
+# invention appearing in a byte-exact label.
 collapsed_duplicates:
   "Description": ["E18", "E23"]
 
@@ -51,7 +53,14 @@ mapping:
     note: "BSEE publishes no incident identifier; confirmed against the Data Center
            field definitions, which list seven columns and no ID. Structural, not data."
   "incident Title":       {blank: structural}
-  "Incident Classificatioin": {source: f28, extract: text}
+  # NOT the same vocabulary. BSEE field 28 is MAJOR/MINOR; the E19 picklist is
+  # Very Serious Incident / Serious Incident / Incident. Mapping raw text into a
+  # picklist column put 234 illegal values in it -- and because verbatim wins,
+  # they SUPPRESSED 149 rows that had a valid crosswalked classification.
+  # Field 28 now goes to the sidecar under its own name; the E19 column is filled
+  # by the crosswalk from the risk score.
+  "Incident Classificatioin": {blank: structural,
+    note: "BSEE MAJOR/MINOR is a different vocabulary; see bsee_accident_classification in the sidecar"}
   "Date of Incident":     {source: f01, extract: date}
   "Time of Incident":     {source: f01, extract: time}
   "Date of Report":
@@ -63,12 +72,40 @@ mapping:
   "Area":                 {source: f04, extract: block, fallback: whole_record}
   "Unit":                 {source: f05, extract: platform}
   "Detail":               {source: f05, extract: rig_name}
-  "Work Group":
-    blank: extractable
-    note: "E19's picklist is org structure (A-F Process Ops, Maintenance, Projects).
-           BSEE ACTIVITY is a lifecycle phase and OPERATION is work type; neither names
-           a team. Crew identity IS stated in field 17 prose - 'a Guardian well
-           abandonment crew', 'Two members of the Emergency Response Team'."
+  # Was `extractable` on the strength of prose mentions like "a Guardian well
+  # abandonment crew". Re-coded `structural` on 2026-08-29 after measuring it,
+  # because `extractable` was a to-do nobody could ever discharge.
+  #
+  # The picklist (vocabulary "Shift" in e19_labels.yaml) is: A-F Process Ops,
+  # Maintenance, Projects, Technical, Facilities Management, Admin, Other. Six
+  # of its twelve values are ONE COMPANY'S NAMED SHIFT CREWS. No public federal
+  # document can say which of an operator's process-ops shifts was on tour, and
+  # no amount of extraction changes that.
+  #
+  # The six functional values were tested rather than assumed. A cue list over
+  # field 17 prose reaches 16.5% unambiguously -- but a 10-sample read of the
+  # Maintenance hits gives roughly 30% precision FOR THIS QUESTION: most matches
+  # are the injured person's trade ("a Crane Mechanic received a puncture
+  # wound") or a post-incident actor ("a mechanic placed the crane out of
+  # service"), neither of which is the work group that was doing the work.
+  # Filling 16% of a column at 30% precision, under a provenance mark implying
+  # otherwise, is worse than a blank -- and nothing downstream reads this column.
+  #
+  # NOT the same case as Site/Area/Unit, which are `vocabulary_exempt`. Those
+  # substitute a different vocabulary for the SAME concept: BSEE publishes
+  # facility identifiers, the template's are placeholders. Here BSEE publishes
+  # no team identifier at all, so substituting field 6 ACTIVITY (a lifecycle
+  # phase) or field 8 OPERATION (a work type) would swap the concept, not the
+  # vocabulary.
+  #
+  # There is no template author to consult and no organisation whose records
+  # could fill this. The dataset is self-contained and synthetic where the
+  # source is silent, so this column is scaffolded by synth.py under a `syn_`
+  # mark rather than left blank. The measurement above still stands and is why
+  # it is NOT filled by inference from field 17: a 30%-precision guess carrying
+  # an `xw` mark would be a false claim about a real incident, where an openly
+  # `syn` value is not.
+  "Work Group": {blank: structural}
   "Description":          {source: f07, extract: other_text}
   "Incident Type A":      {blank: judgement}
   "Incident Type B":      {blank: judgement}
@@ -104,14 +141,20 @@ mapping:
 
   # --- Incident Description -------------------------------------------------
   "What happened?  ":     {source: f17, extract: subhead, subhead: "INCIDENT SUMMARY"}
-  "What was the outcome?":
-    blank: extractable
-    note: "Stated within the field 17 narrative but not separable as a field."
+  # Was `blank: extractable`, noted as "stated within the field 17 narrative but
+  # not separable as a field". Half true: it IS separable at sentence level for
+  # a minority of reports, and the honest design is a two-tier fill rather than
+  # a blank. This tier takes the last CONSEQUENCE sentence verbatim and is
+  # marked `src`. Records with no confident sentence are left for the xw
+  # composition in schema/xw_outcome.yaml. See bsee_form2010.yaml for the cue
+  # list, and for the two cues rejected as causal rather than consequential.
+  "What was the outcome?": {source: f17, extract: outcome}
 
   # --- Incident Classificatioin (Section 3) ---------------------------------
   # Every field below asks what could reasonably have happened. BSEE records only
   # what did happen. All judgement, none extractable.
-  "Incident Classification": {source: f28, extract: text}
+  "Incident Classification": {blank: structural,
+    note: "as Incident Classificatioin -- BSEE MAJOR/MINOR is not the E19 vocabulary"}
   "What was the worst outcome that could reasonably be expected to have happened?": {blank: judgement}
   "Health & Safety Incident - Classification":                    {blank: judgement}
   "Health & Safety - Risk Score":                                 {blank: judgement}
@@ -160,6 +203,40 @@ mapping:
   "Schedule Status": {blank: structural}
   "Date Completed":  {blank: structural}
 
+# --- Vocabulary constraints ------------------------------------------------
+# A picklist-backed column must not receive a value outside its picklist. Without
+# this, a raw text dump lands in a controlled column and nothing notices: field 28
+# put 234 illegal values into Incident Classification and blocked 149 valid ones.
+# Vocabularies are read from schema/e19_labels.yaml by name.
+vocabularies:
+  "Incident Type A": "Incident Type"
+  "Incident Type B": "B"
+  "Incident Type C": "C"
+  "Incident Type D": "D"
+  "Incident Classification": "Incident Classification"
+  "Incident Classificatioin": "Incident Classification"
+  "Health & Safety  - Consequence": "Consequence"
+  "Health & Safety - Likelihood": "Likelihood"
+  "Health & Safety - Risk Score": "Risk Score"
+  "Health & Safety Incident - Classification": "Incident Classification"
+  "Environment & Reputation  - Consequence": "Consequence"
+  "Financial Cost & Business Interruption  - Consequence": "Consequence"
+  "Cause type": "Cause Type"
+  "Risk Management Cause": "Risk Management Cause"
+  "Human Factors  Cause": "Human Factors"
+  " Failed PSM Framework Element": "Failed PSM Framework Element"
+
+# Columns whose template picklist is demo placeholder data that this project
+# deliberately repurposes. The template ships Site as Alpha/Beta/Gamma/Delta and
+# Area as One/Two/Three/Four -- placeholders for a single company's facilities.
+# BSEE geography (MC, GC, block numbers) is the real content, so these columns
+# are exempt from the constraint above. Recorded rather than left implicit,
+# because a strict validator would otherwise flag 2,237 cells.
+vocabulary_exempt:
+  Site: "template picklist is placeholder facility names; BSEE area codes used instead"
+  Area: "template picklist is placeholder area numbers; BSEE block numbers used instead"
+  Unit: "template picklist is placeholder unit letters; BSEE platform designators used instead"
+
 # BSEE data with no E19 home under verbatim rules. Written to
 # data/processed/e19/bsee_unmapped.csv, keyed on Incident Number. Not part of the
 # E19 output; this is where a later crosswalk will draw from.
@@ -173,6 +250,8 @@ sidecar:
   - {from: f23, as: bsee_possible_ocs_violations}
   - {from: f24, as: bsee_violations_narrative}
   - {from: f25, as: bsee_onsite_investigation_date}
+  - {from: f28, as: bsee_accident_classification}
+  - {from: f29, as: bsee_panel_formed}
   - {from: f02, as: bsee_operator}
   - {from: src_form_revision, as: bsee_form_revision}
   - {from: src_extract_status, as: bsee_extract_status}

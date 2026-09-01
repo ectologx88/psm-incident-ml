@@ -1,0 +1,136 @@
+# BSEE cause subcategory -> E19 Cause type / Risk Management Cause / Human Factors.
+#
+# THIS FILE IS AN OPINION, NOT A FACT. Output columns take the `xw_` prefix.
+#
+# ---------------------------------------------------------------------------
+# Matching is by PATTERN, not exact string, and that is deliberate.
+#
+# Level 2 was flagged in findings.md as "not yet shown to be closed". At full
+# corpus scale it is now shown to be OPEN: 309 statements carry a subcategory and
+# they are long-tailed free text with drift -- "Inadequate preventive
+# maintenance" vs "Inadequate preventative maintenance", "Inadequate
+# supervision" vs "Inadequate Supervision" vs "No supervision". An exact-string
+# lookup would match the modal spelling and silently drop the rest.
+# ---------------------------------------------------------------------------
+
+version: 1
+source_vocabulary: "BSEE fields 18/19 level-2 subcategories (n=309 with a subcategory)"
+matching: "case-insensitive substring, first match wins, evaluated in listed order"
+
+# --- Cause type: DELIBERATELY UNMAPPED -----------------------------------
+cause_type:
+  policy: leave_unmapped
+  note: >
+    The only available signal is which BSEE field a statement came from --
+    field 18 "Probable Cause" vs field 19 "Contributing Cause". That is an axis
+    of PRIMACY (how sure are we this caused it). E19's Immediate / Underlying /
+    Root is an axis of DEPTH (how far back in the causal chain). They are not
+    the same axis: a contributing cause can be a root cause, and a probable
+    cause is often immediate. Mapping one to the other would assert an
+    equivalence that does not hold.
+  action_taken: >
+    src_cause_field (18 or 19) is now recorded in the sidecar instead. It is
+    real provenance that psm.project was discarding, and it is what an LLM-
+    assisted pass would want as a feature.
+
+# --- Risk Management Cause: barrier state --------------------------------
+# The three E19 values describe the state of a control at the time of the event:
+# never identified, identified but inadequate, adequate but not applied.
+risk_management_cause:
+  confidence: medium
+  patterns:
+    - {match: "not aware of",            value: "Hazard not Identified"}
+    - {match: "unaware",                 value: "Hazard not Identified"}
+    - {match: "hazard analysis",         value: "Hazard not Identified"}
+    - {match: "hazards analysis",        value: "Hazard not Identified"}
+    - {match: "jsea",                    value: "Hazard not Identified"}
+    - {match: "weather",                 value: "Hazard not Identified"}
+    - {match: "environmental factor",    value: "Hazard not Identified"}
+
+    - {match: "not follow",              value: "Control Measures Not Implemented"}
+    - {match: "not followed",            value: "Control Measures Not Implemented"}
+    - {match: "failure to follow",       value: "Control Measures Not Implemented"}
+    - {match: "no response to",          value: "Control Measures Not Implemented"}
+    - {match: "no supervision",          value: "Control Measures Not Implemented"}
+    - {match: "failure to tie off",      value: "Control Measures Not Implemented"}
+    - {match: "no lockout",              value: "Control Measures Not Implemented"}
+    - {match: "not performed",           value: "Control Measures Not Implemented"}
+
+    # Everything else that names a control at all is a control that existed and
+    # was not good enough. Listed last so the two sharper buckets win.
+    - {match: "inadequate",              value: "Inadequate Control Measures"}
+    - {match: "flawed",                  value: "Inadequate Control Measures"}
+    - {match: "poor",                    value: "Inadequate Control Measures"}
+    - {match: "improper",                value: "Inadequate Control Measures"}
+    - {match: "no written",              value: "Inadequate Control Measures"}
+    - {match: "no or inadequate",        value: "Inadequate Control Measures"}
+    - {match: "exceeded",                value: "Inadequate Control Measures"}
+
+# --- Human Factors: cognitive mode ---------------------------------------
+# SCOPE: applied only to human-attributable categories (Human Performance Error,
+# Supervision, Communication, Management Systems). Equipment Failure and weather
+# subcategories get no human factor -- there is no person in them to attribute a
+# cognitive mode to.
+#
+# CONFIDENCE IS LOAD-BEARING HERE. E19's taxonomy classifies COGNITION
+# (competency / mistake / violation). BSEE subcategories describe BEHAVIOUR
+# ("Inattention to task", "Placing hand near striking point"). Where the source
+# names the cognitive mode, the mapping is observation. Where it names only what
+# the person did, it is attribution. Both are emitted per the Session 3 ruling,
+# and `xw_human_factor_confidence` goes to the sidecar so the two can be told
+# apart and filtered.
+human_factors:
+  applies_to_categories:
+    ["Human Performance Error", "Supervision", "Communication", "Management Systems"]
+  patterns:
+    # -- explicit cognitive mode: observation --------------------------------
+    - {match: "not following proper",  value: "Violation - Situational Violation", confidence: high}
+    - {match: "not follow",            value: "Violation - Situational Violation", confidence: high}
+    - {match: "not followed",          value: "Violation - Situational Violation", confidence: high}
+    - {match: "failure to follow",     value: "Violation - Situational Violation", confidence: high}
+    - {match: "policy violation",      value: "Violation - Wilful Violation",      confidence: high}
+    - {match: "wilful",                value: "Violation - Wilful Violation",      confidence: high}
+    - {match: "deliberate",            value: "Violation - Wilful Violation",      confidence: high}
+    - {match: "training",              value: "Competency - Lack of Competency",   confidence: high}
+    - {match: "inexperienc",           value: "Competency - Lack of Competency",   confidence: high}
+    - {match: "not qualified",         value: "Competency - Lack of Competency",   confidence: high}
+    - {match: "not certified",         value: "Competency - Lack of Competency",   confidence: high}
+
+    # -- information state: reasonably direct --------------------------------
+    - {match: "not aware",             value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: medium}
+    - {match: "unaware",               value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: medium}
+    - {match: "job instruction",       value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: medium}
+    - {match: "no written",            value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: medium}
+    - {match: "incorrect information", value: "Mistake - Information Issue -incorrect information", confidence: high}
+    - {match: "wrong information",     value: "Mistake - Information Issue -incorrect information", confidence: high}
+    - {match: "poorly presented",      value: "Mistake - Information Issue - too much or poorly presented information causing confusion", confidence: high}
+
+    # -- environment: reasonably direct --------------------------------------
+    - {match: "layout",                value: "Mistake - Work Environment - poor or confusing equipment design or layout", confidence: medium}
+    - {match: "equipment design",      value: "Mistake - Work Environment - poor or confusing equipment design or layout", confidence: medium}
+    - {match: "confusing",             value: "Mistake - Work Environment - poor or confusing equipment design or layout", confidence: medium}
+    - {match: "lighting",              value: "Mistake - Work Environment - poor or distrating conditions", confidence: medium}
+    - {match: "noise",                 value: "Mistake - Work Environment - poor or distrating conditions", confidence: medium}
+
+    # -- pressure and fatigue -------------------------------------------------
+    - {match: "rushing",               value: "Mistake - Stress Level Issue", confidence: medium}
+    - {match: "time pressure",         value: "Mistake - Stress Level Issue", confidence: medium}
+    - {match: "fatigue",               value: "Mistake - Stress Level Issue", confidence: high}
+    - {match: "stress",                value: "Mistake - Stress Level Issue", confidence: high}
+
+    # -- behavioural only: ATTRIBUTION, not observation ----------------------
+    # These name what the person did, never why. Emitted per the Session 3
+    # ruling; every one is low confidence and should be filterable.
+    - {match: "inattention",           value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "inattentive",           value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "distracted",            value: "Mistake - Work Environment - poor or distrating conditions", confidence: low}
+    - {match: "placing hand",          value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "body placement",        value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "position",              value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "supervision",           value: " Competency -  Lapse of Competency", confidence: low}
+    - {match: "pre-job",               value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: low}
+    - {match: "communication",         value: "Mistake - Information Issue -too little, missing or inaccesible information", confidence: low}
+
+# Statements whose subcategory matches nothing above get null rather than a
+# default. A default would be indistinguishable from a match in the output.
+unmatched_policy: leave_unmapped

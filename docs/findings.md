@@ -869,3 +869,2482 @@ records — a targeted regex recovers them at 93%/85%, well above what positiona
 parsing would give, yet at least one key looks wrong (`LB-6488-...`, where `LB`
 is likely "Lift Boat" rather than an area code). **Treat the key as stable and
 unique, not as a clean location reference**, until P1 and P3 land.
+
+## 2026-08-29 — Session 1 crosswalk, and a severity bias in the corpus
+
+Applied `schema/xw_incident_type.yaml` via new `psm.crosswalk`. Output is a
+separate enriched copy plus a cell-level provenance table, so inferred values are
+never mistaken for read ones.
+
+| Field | filled by crosswalk |
+|---|---|
+| Incident Type A | 1,037 / 1,215 = **85.3%** |
+| Incident Type B | 784 = 64.5% |
+| Incident Type C | 716 = 58.9% |
+| Incident Type D | 233 = 19.2% |
+
+13,136 `src` cells against 2,770 `xw` cells. Type D is low by choice: Crane and
+Other Lifting Device (271 records) resolve to null because they name equipment,
+not mechanism.
+
+### Three resolutions reached by checking rather than asking
+
+**`Injury TLI`** is defined nowhere public, and this workbook is not an EI
+publication, so it may be the author's own abbreviation. It does not matter:
+BSEE's `LTA` means *days away from work* and `RW/JT` means *restricted work or
+job transfer*, so aligning the ladders puts LTA in slot three regardless of what
+TLI expands to. Both LTA duration bands map there; BSEE's 1-3 vs >3 split has no
+E19 counterpart.
+
+**Bare `Injury` → null, not Minor.** A draft defaulted it to `Injury Minor`.
+Narrative sampling killed that: 135 of 148 carry no severity atom, and the ones
+that do co-occur with `Fatality` 12 times and never with a minor code. It reads
+as an older tag predating the LTA/RW-JT vocabulary.
+
+**`Crane` → Type D null.** A draft proposed `Dropped Object` as the modal case.
+151 narratives show boom failures, an injury during a crane *inspection*, rigging
+and positioning incidents, and loads lost overboard. A modal guess would be wrong
+on a large minority of 177 records.
+
+**`Injury Permenant Disability` is structurally unreachable.** BSEE classifies by
+duration away from work; permanence is a different axis (IOGP maintains an FPI
+framework, BSEE does not use it). No mapping effort reaches this value.
+
+Precedence turned out to matter far less than expected: 39.4% of spine rows carry
+2+ atoms, but only **36** carry two competing injury atoms, and response atoms
+never compete for Type C.
+
+### The finding that matters most: panel exclusion is a severity filter
+
+`Injury Fatality` came out at **3 of 1,215**, against 85 `Fatality` rows in the
+spine. Investigating that gap found a systematic bias:
+
+| Accident type | spine n | PANEL | share |
+|---|---|---|---|
+| **Fatality** | 85 | 46 | **54.1%** |
+| Blowout | 58 | 18 | 31.0% |
+| Explosion | 74 | 5 | 6.8% |
+| Pollution | 436 | 16 | 3.7% |
+| Fire | 514 | 10 | 1.9% |
+| Crane | 197 | 3 | 1.5% |
+
+BSEE convenes a panel for death, serious injury or significant pollution — so
+**panel reports are the high-severity tail**, and `psm.project` excludes them
+because the extractor was never built against that document type. Excluding them
+is right on parsing grounds and wrong on sampling grounds: it removes over half
+of all fatalities and a third of blowouts.
+
+**Any model trained on this corpus is trained on a corpus with the worst outcomes
+systematically thinned.** That belongs in the README, not only here.
+
+**Unexplained, flagged rather than buried:** 39 fatality incidents are DISTRICT,
+not panel, so they should be reachable — yet only 3 join to `incidents.csv`. The
+spine covers incidents while the manifest covers *published reports*, so some
+spine rows may have no district report at all. Not yet verified.
+
+## 2026-08-29 — Session 2: PSM element crosswalk re-based
+
+`schema/crosswalk.yaml` v1 was keyed to a different element numbering than the
+target template, for its whole life, uncaught. It routed Equipment Failure to
+element **7** while its own note described *"maintenance, inspection and repair
+adequacy"* — element 7 in the template is `Documentation, records and knowledge
+management`; `Inspection and maintenance` is **15**. Applying v1 would have put a
+wrong element on all 3,462 cause rows.
+
+The reasoning in each note was sound. Only the anchoring was wrong, so v2
+re-matches each note's own description against the template's element names and
+records `matched_on` and `was_v1` per entry, making the re-basing auditable.
+
+| Category | v1 | v2 | matched on |
+|---|---|---|---|
+| Equipment Failure | 7 (+10) | **15** (+11) | maintenance, inspection, repair adequacy |
+| Human Performance Error | 13 (+12) | **3** (+8) | competence / human factors |
+| Management Systems | 3 (+1) | **8** (+6) | no written job procedures / inadequate hazards analysis |
+| Communication | 12 (+3) | **9** (+17) | shift handover, instruction, job briefing |
+| Supervision | 13 (+3) | **17** (+3) | supervision of a task in progress |
+| Work Environment | 10 (+7) | **6** (+11) | workplace layout, weather, marine environment |
+
+**Supervision departs from v1's reasoning, not just its numbering.** v1 routed it
+to the same element as Human Performance Error on adjacency grounds. The
+statements describe a supervisor failing to enforce a defined procedure during
+work in progress, which is work control rather than competency. Contested;
+element 1 is also arguable. Left at low confidence.
+
+**The trap avoided, now guarded by test.** Element 5 is `Communication with
+stakeholders` — external and corporate. Matching the BSEE category
+`Communication` to it on the shared word would route shift-handover failures to
+stakeholder communication. `test_communication_is_not_element_five` asserts it.
+
+### A coverage bug, separate from the numbering
+
+v1's Human Performance Error note said *"Normalise before lookup"*. Nothing did.
+The six keys matched only **54.1%** of typed statements: `human error` (64) and
+`management system` (17) went unmapped **purely on spelling**.
+
+An `aliases` block now implements what v1 already declared — and note this is not
+the open Session 3 question about whether "human error" and "human performance
+error" are the same concept. v1 answered that when it listed "Human error" as a
+surface variant of the dominant form; the ruling was just buried in prose.
+
+| | of typed statements |
+|---|---|
+| matched before aliases | 367 / 679 = 54.1% |
+| matched after aliases | **451 / 679 = 66.4%** |
+
+### Applied
+
+`psm.crosswalk` now enriches causes as well as incidents, writing
+` Failed PSM Framework Element` (the template's leading space preserved) with the
+element number, plus `causes_provenance.csv`.
+
+| | n | share of all statements |
+|---|---|---|
+| mapped | 451 | 13.0% |
+| typed but unaliased | 228 | 6.6% |
+| untyped free text | 2,783 | **80.4%** |
+
+The 80.4% ceiling is unchanged by anything in this session and is not reachable
+by crosswalking. It is the LLM-assisted path, which is downstream of a gold set.
+
+`tests/test_crosswalk.py` (15 tests) asserts every element number resolves to a
+real template element, that each entry records what it was before, and that the
+incident-type values come from the template's own picklists.
+
+## 2026-08-29 — Session 3: cause qualifiers
+
+Three E19 fields: `Cause type`, `Risk Management Cause`, `Human Factors  Cause`.
+Prep changed the shape of all three before any mapping was written.
+
+### Level 2 is confirmed OPEN, not closed
+
+`findings.md` flagged subcategory closure as unverified at n=63. At full scale it
+is **open**: 309 statements carry a subcategory, long-tailed free text with
+drift — `Inadequate preventive maintenance` / `Inadequate preventative
+maintenance`, `Inadequate supervision` / `Inadequate Supervision` /
+`No supervision`. Exact-string lookup would match the modal spelling and silently
+drop the rest, so `schema/xw_cause_qualifiers.yaml` matches by **case-insensitive
+substring pattern, first match wins**, with sharper rules listed before
+catch-alls (guarded by test).
+
+`(cid` also appears as a subcategory: CID-encoded text sitting *below* the 5%
+guard threshold is leaking into cause statements. Small, but the threshold is
+marginally too permissive.
+
+### `Cause type` — deliberately unmapped
+
+The only available signal is which BSEE field a statement came from: field 18
+*Probable Cause* vs 19 *Contributing Cause*. That is an axis of **primacy**; E19's
+Immediate / Underlying / Root is an axis of **depth**. A contributing cause can be
+a root cause. Mapping one to the other asserts an equivalence that does not hold.
+
+**A gap this exposed:** `psm.project` concatenates fields 18 and 19 without
+recording which a statement came from, despite the projection plan saying it
+would go to the sidecar. Real provenance is being discarded, and it is exactly
+what an LLM-assisted pass would want as a feature.
+
+### Results
+
+| Field | filled | of 3,462 |
+|---|---|---|
+| ` Failed PSM Framework Element` | 451 | 13.0% |
+| `Risk Management Cause` | 206 | 6.0% |
+| `Human Factors  Cause` | 120 | 3.5% |
+| `Cause type` | 0 | by policy |
+
+### Human Factors: filled against my recommendation, and instrumented for it
+
+E19's Human Factors classifies **cognition** (competency / mistake / violation);
+BSEE subcategories describe **behaviour** (`Inattention to task`, `Placing hand
+near striking point`). My recommendation was to leave the field null on the
+grounds that inferring a cognitive mode from a behavioural description is
+attribution dressed as data. **Session 3 ruled to map the full subcategory set.**
+
+Implemented, with every pattern carrying a confidence and
+`causes_confidence.csv` written to the sidecar so the two kinds can be told
+apart. The split is the argument, quantified:
+
+| confidence | n | what it means |
+|---|---|---|
+| high | 30 | the source names the cognitive mode (`not following procedures` → Violation) |
+| medium | 36 | reasonably direct (`not aware` → missing information) |
+| **low** | **54** | **attribution: the source names only what the person did** |
+
+**45% of the values in this column are inference about mental state from a
+description of behaviour.** They are marked, filterable, and `xw_` — never
+scorable. Anyone using this column for analysis should filter on confidence
+first, and anyone reporting a metric over it should not use it at all.
+
+Human factors are scoped to human-attributable categories only; Equipment
+Failure and weather subcategories get nothing, because there is no person in them
+to attribute a cognitive mode to.
+
+### Coverage ceiling, unchanged
+
+80.4% of statements are untyped free text and no crosswalk reaches them. Of the
+679 typed, 66.4% carry a mapped category. Everything above is bounded by that.
+
+## 2026-08-29 — Two follow-ups from Session 3
+
+### The CID leak was a bullet glyph, not a broken text layer
+
+`(cid` appearing as a cause subcategory looked like the document-level CID guard
+being too permissive. It was not. The nine affected statements read
+`Human Performance Error: (cid:129) Not aware of hazards. There were no safety
+restraints...` — **`(cid:129)` is an unmapped bullet character in an otherwise
+perfectly readable document.** The guard was right to leave those documents `ok`;
+lowering its threshold would have wrongly condemned them.
+
+Fixed where it belonged, in `psm.causes`: cid tokens are normalised **to a
+bullet** rather than stripped, because that is what they are, so the existing
+bullet handling picks them up. Bullet characters were also added to the
+subcategory strip set — a cid bullet can sit mid-statement, after the category
+separator, where the leading-bullet rule has already run and cannot reach it.
+
+Effect: categories recovered on statements that previously produced `(cid`, and a
+few merged statements correctly split.
+
+| | before | after |
+|---|---|---|
+| cause statements | 3,462 | 3,468 |
+| Equipment Failure | 111 | 114 |
+| Human Performance Error | 177 | 179 |
+| Management Systems | 72 | 76 |
+
+### `src_cause_field` recorded
+
+`psm.project` concatenated fields 18 and 19 without recording which a statement
+came from, discarding real provenance. Now written to
+`data/processed/e19/causes_source_field.csv`, keyed on incident and cause number.
+
+It is deliberately **not** crosswalked to `Cause type` — probable/contributing is
+an axis of primacy, Immediate/Underlying/Root an axis of depth. But it is the
+obvious feature for a later LLM-assisted pass, and it should not have been thrown
+away.
+
+## 2026-08-29 — Session 4: Section 3 from hazard energy
+
+E19 Section 3 asks for the worst outcome that could **reasonably be expected**.
+BSEE records what **did** happen. Bridging that is the whole session, and two
+approaches failed before one worked.
+
+### Measured: actual-outcome-only does not work
+
+| Method | A | B | C | D | E | blank |
+|---|---|---|---|---|---|---|
+| Actual outcome only | 15 | 185 | 219 | **0** | 3 | **666 (61%)** |
+| Hazard energy | 11 | 138 | 318 | 325 | 189 | 107 (10%) |
+
+**559 incidents receive a consequence from hazard energy where actual-outcome
+records nothing** — every fire, dropped load and explosion that happened to hurt
+nobody. Zero records reach consequence D under the actual method. This is the
+near-miss burial quantified, and it is why consequence is derived from what an
+event *could* do. The approach follows the EEI Safety Classification and Learning
+model, whose categories are High-Energy SIF and *Potential* SIF.
+
+### Failure 1: the exposure proxy was circular
+
+An "event with people present is worse" bump initially used
+`Required Evacuation` / `Required Muster`. **84% of the most severe rating came
+from that flag, not from hazard energy** — E fell from 172 to 27 without it. And
+it is circular: an evacuation is ordered *because* something was serious.
+
+Replaced with positional checkbox marks `DRILLING` / `WORKOVER` / `COMPLETION`,
+which describe what work was underway rather than what happened. Better coverage
+(196 vs 162 of 622) and **independently validated**: a rig name appears in field 5
+on **45%** of crewed-flagged records against **4%** of production-only ones —
+12.8× more likely, from a different part of the form extracted by a different
+mechanism.
+
+Known limit: it identifies definitely-crewed records but cannot identify
+definitely-unmanned ones, since `PRODUCTION` covers both manned platforms and
+unmanned satellites. The bias is toward under-rating, which is the safer
+direction.
+
+### Failure 2: likelihood from the actual-vs-potential gap
+
+Deriving likelihood from how close the actual came to the potential gave **70% of
+records likelihood 1**, and collapsed every near miss straight back into
+"Incident" — reintroducing the exact burial the consequence work had just fixed.
+
+The error was conceptual, not a tuning problem: that formula measures
+**realisation** (did it happen this time), where likelihood means **how likely
+the outcome is when the scenario recurs**. Recorded in the rule file so it is not
+retried.
+
+### What worked: likelihood measured from the corpus
+
+P(serious injury | mechanism), across 2,014 spine rows. **The result is the most
+interesting finding of the session:**
+
+| Mechanism | n | severe-injury rate | likelihood |
+|---|---|---|---|
+| Other Lifting Device | 94 | **24.5%** | 5 |
+| Crane | 177 | **23.7%** | 5 |
+| Explosion | 73 | 12.3% | 4 |
+| Structural Damage | 40 | 7.5% | 3 |
+| Fire | 514 | 4.7% | 2 |
+| Blowout | 58 | 3.4% | 2 |
+| Pollution | 435 | 1.1% | 2 |
+| Collision | 48 | 0.0% | 1 |
+
+**Lifting operations are 5× more likely to seriously injure someone than fire, and
+7× more than a blowout.** The dramatic hazards rarely hurt people; the routine
+ones do. Consequently **every Very Serious Incident in the output is a lifting
+incident** — 55 Other Lifting Device, 38 Crane, zero fires — which the model
+arrived at independently of the classification bands.
+
+A first banding at ≥40% → likelihood 5 left the VSI class **empty across the
+entire corpus**, which said more about the threshold than the data. Rebanded at
+≥20%, on the reasoning that a one-in-five chance of serious injury given the event
+is genuinely high.
+
+### Result
+
+| | verbatim | enriched |
+|---|---|---|
+| Incident columns with any value | 15 / 43 | **25 / 43** |
+
+| Section 3 field | filled | src / xw |
+|---|---|---|
+| Incident Classification | 62.6% | 234 / 527 |
+| Health & Safety Consequence, Likelihood, Risk Score, Classification | 55.6% each | 0 / 676 |
+| Financial Cost Consequence | 39.3% | 0 / 478 |
+| Environment & Reputation Consequence | 15.1% | 0 / 184 |
+
+Distribution: Incident 378, Serious 196, Very Serious 102.
+
+**The Risk Score formula is assumed, not sourced.** The template lists scores 1-25
+but not the Consequence × Likelihood matrix producing them, and it was not
+recoverable from the workbook. A plain 5×5 product reproduces the range. Replace
+when the author supplies the real matrix; nothing else changes.
+
+## 2026-08-29 — Adversarial review: five independent agents
+
+Five agents, each attacking a different surface, none sharing context. Their
+findings are recorded here by **root cause**, because one three-line defect
+explains four of the symptoms and that was not visible from any single report.
+
+Every headline claim below was reproduced directly before being recorded.
+
+---
+
+### R0 — `_rows()` quantises instead of clustering. Root cause of four defects.
+
+`src/psm/layout.py`:
+
+```python
+buckets.setdefault(round(w["top"] / tol), []).append(w)
+```
+
+This is a **fixed bin edge, not a tolerance**. Two words on the same visual
+baseline land in different rows whenever the bin edge falls between them —
+`BLOCK:` at `top=308.8` (bin 124) and its value `25` at `top=308.3` (bin 123),
+0.5pt apart.
+
+**Measured across all 1,289 PDFs: 23,400 of 237,714 true visual rows (9.84%) are
+shattered, affecting 1,274 of 1,289 documents.** The docstring's claimed
+behaviour holds only when a pair happens to straddle no bin edge.
+
+It explains, in descending order of harm:
+
+**(a) `src_form_revision` is wrong on ≥45 of 1,219 records (3.7%)**, mostly 32
+revision-B documents recorded as A. `detect_form_revision` treats the *absence*
+of a field-3 anchor as evidence for revision A, and the shattering manufactures
+exactly that absence: `3.` and `OPERATOR/CONTRACTOR` fall in adjacent bins so
+`ANCHOR_RE` never fires.
+
+**This is the most dangerous defect in the repository.** It is the
+stratification key — findings.md, the schema comments and the P1 plan all scope
+work "by revision" — so it launders errors into the instrument built to detect
+them, and any per-revision field remap applied to those 32 files would convert
+missing fields into confidently wrong ones.
+
+**(b) D2 — block number reads as the next field's ordinal.** `RE_BLOCK`'s `\s*`
+crosses a newline into `5. A-Hoover Spar`. **41 of 42 `Area == "5"` records are
+wrong** (one genuinely is block 5). Verified against page geometry on 12 PDFs:
+true blocks are 25, 857, 50, 364, 757, 602 — all matching their filenames.
+Corpus-wide block accuracy: 985 exact, 130 empty, **58 confidently wrong**.
+Area *letters* are clean: 1,151 exact, **0 wrong**.
+
+Fixing only the regex would turn 41 confident wrong answers into 41 blanks,
+because the value *precedes* its label. Fixing `_rows` fixes them at source.
+
+**(c) D3 — `Incident Classificatioin` is 230 of 234 label bleed.** Field 28's
+true content *is* MAJOR/MINOR and is recoverable — an independent band-aware
+reconstruction recovers it cleanly. `find_gutter` succeeds on only **127 of 434
+admin pages (29.3%)** because it is a whole-page test applied to a page whose
+upper two-thirds is single-column narrative: **column detection is per-page, the
+layout is per-region.**
+
+**(d) Field 5 is blank on 124 of 127 revision-A records** — its content sits
+inside `src_f04`. Indistinguishable downstream from a form that left the box
+empty.
+
+### Extraction reliability, measured against page geometry (n=29 PDFs)
+
+| Field | rev A | rev B | rev C |
+|---|---|---|---|
+| f17 findings | 9/9 | 9/9 | 9/9 |
+| f18 probable cause | 9/9 | 9/9 | 8/9 |
+| f22 recommendations | 8/9 | 8/9 | 8/9 |
+| f04 lease/area/block | **1/9** | 9/9 | 8/9 |
+| f05 platform | **1/9** | 9/9 | 8/9 |
+
+Approximate field error rate: **rev A ~27%, rev B ~6%, rev C ~5%**, concentrated
+in f01/f04/f05. **The narrative fields are the reliable ones.**
+
+**The field-17 recovery holds and exceeds its claim: non-empty on 1,219/1,219,
+100% in every revision**, content verified on all 28 sampled documents, character
+counts matching an independent reconstruction to within ~25 chars — no silent
+truncation. The two label alternates were the right fix.
+
+---
+
+### R1 — `Incident Classification` ships 234 illegal values that suppress 149 valid ones
+
+BSEE field 28 is MAJOR/MINOR; the E19 picklist is VSI/SI/Incident. Disjoint
+vocabularies, mapped as raw text in `e19_projection.yaml`. **234 of 234 verbatim
+values are illegal**, and because verbatim-wins they **block 149 rows that had a
+valid crosswalk classification available**.
+
+`e19_projection.yaml` has no concept of a vocabulary constraint, and
+`test_projection.py` checks headers but never values.
+
+---
+
+### R2 — the recommendations table has a false grain
+
+Declared "one row per recommendation"; delivers **exactly one row per incident on
+all 1,079**. The blank-line splitter never fires — no `src_f22` in 1,128 records
+contains a blank line. 72 cells hold multiple enumerated recommendations
+concatenated. 38 rows record `none` / `N/A` as a recommendation.
+
+Downstream: `closeout.csv` inherits the false grain. Any per-recommendation count
+or closure rate is wrong.
+
+---
+
+### R3 — the headline statistic fails, and the failure propagates into the risk scores
+
+**BSEE's vocabulary is not stationary.** `LTA` codes begin 2006; `Other Lifting
+Device` begins 2007; `Blowout` ends 2013. Pre-2006 records sit in the denominator
+while being structurally incapable of entering the numerator (the coarse `Injury`
+atom, extinct after 2012, is excluded). **Lifting and Blowout never coexist.**
+
+Restricted to 2007–2026, where every code is active:
+
+| | pooled (claimed) | 2007+ (correct) |
+|---|---|---|
+| Lifting vs Fire | 5.2× | **2.53×** [1.44, 4.45] |
+| Lifting vs Explosion | — | **0.94** [0.45, 1.96] |
+| Lifting vs Blowout | 7× | **undefined**, n=2 |
+
+Explosion at 25.9% is nominally the *highest* rate in the corpus. **"The dramatic
+hazards damage plant; the routine ones hurt people" is contradicted by the only
+comparable explosion data.**
+
+Direction survives: leave-one-year-out on lifting vs fire within 2007+ gives RR
+between 2.26 and 2.82 across all 20 years. Only the magnitude was an artifact.
+
+**This propagates.** `xw_consequence_tiers.yaml` hard-codes the pooled rates as
+likelihood bands. Re-banding on 2007+ rates moves Explosion 4→5 and Fire 2→3, and
+leaves Blowout and Collision with no estimable rate. The finding "every Very
+Serious Incident is a lifting incident" is **not independent corroboration — it
+is the same artifact propagating through the banding.** Under corrected rates
+every explosion joins the VSI class.
+
+Selection bias was investigated and is *not* the killer: 30 CFR 250.188 requires
+reporting of all fires and explosions **and** all crane/material-handling
+incidents unconditionally, so there is no regulatory injury threshold that would
+admit fires while excluding uninjurious lifts.
+
+---
+
+### R4 — the test suite does not protect what it claims to
+
+**Coverage measured:** `crosswalk.py` 243 statements **0%**, `evidence.py` 190
+**0%**, `e19_schema.py` 145 **0%**, `spine.py` 122 **0%**, `fetch.py` 99 **0%**.
+Total 30%. **The five modules that produce every committed table have no test
+importing them.** `tests/test_crosswalk.py` tests `schema/crosswalk.yaml` — a
+different artifact with a confusingly similar name, which likely explains why
+nobody noticed.
+
+**13 of 28 tests in `test_crosswalk.py` cannot fail from any defect.** They assert
+that English words appear in YAML: `assert "ASSUMED" in tiers[...]`,
+`assert "70%" in rej["why"]`, `assert crosswalk["version"] >= 2`. Swapping any two
+categories' element numbers leaves all 28 green — in a file whose docstring claims
+to prevent exactly that.
+
+`test_bullet_endash_form` asserts the parser handles U+2022. The corpus contains
+U+0081. The test passes while 12 real rows are corrupted.
+
+`tests/test_conventions.py` — named in CLAUDE.md as the enforcer of the
+provenance-prefix rule — is 30 lines, tests only `synth.py`, and its docstring
+still says `crosswalk.py` "does not exist yet". **186 of 187 columns across the
+eleven committed tables carry no provenance prefix.** The deviation is defensible
+(E19 columns must be byte-exact, so provenance moved to a parallel file) but it is
+undocumented, and CLAUDE.md, README and `crosswalk.yaml` all still assert the
+prefix rule.
+
+---
+
+### R5 — nothing in this repository can currently be scored
+
+`gold/gold_labels.csv`: 100 rows, **all six `gold_*` columns empty**. By the
+project's own rule — score against `gold_` only — there is no reportable number.
+
+Three further problems, all measured:
+
+- **The join does not exist.** Gold keys on `report_id` = sha256; the tables key
+  on `Incident Number`. **Direct join: 0 of 100.** A two-hop via
+  `bsee_unmapped.csv` recovers 99, but it is undocumented and untested.
+- **Stratification is year-uniform, not corpus-proportional.** 2003 (3 reports)
+  and 2007 (97 reports) get equal weight. Any accuracy computed is a year-balanced
+  macro-average, and nothing says so.
+- **n=100 cannot carry the metric anyone wants.** `gold_psm_element` has 20
+  classes — ~5 rows per class. Per-element accuracy is out by a factor of ten.
+
+**Train/test leak is already baked in at four sites**, all self-documented: the
+cause vocabulary was induced on all 3,462 statements; the likelihood rates were
+measured on the same 2,014 spine rows they label; the likelihood banding was
+chosen *by inspecting the resulting label distribution* ("an earlier absolute
+banding left the VSI class empty"); the qualifier patterns were fit to the 309
+observed subcategories.
+
+---
+
+### R6 — the README contradicts the shipped data
+
+- It lists risk scores as **`syn_`**; `provenance.csv` labels all 676 **`xw`**.
+- `findings.md` says the panel severity bias "belongs in the README". **It is
+  still not there.** A reader is warned about `llm_` columns and not told half the
+  fatalities are missing.
+- Only **3 `Injury Fatality`** records reach the output against 86 in the spine.
+  Panel exclusion explains 46. **The remaining ~37 are still unexplained.**
+
+---
+
+### Where an agent overstated, and it matters
+
+One agent concluded the hazard-energy method "rates zero near misses". Technically
+true, materially misleading: it conflates E19's Type A `Near Hit` (nothing
+happened — **24 records**, all correctly showing no Section 3, a real structural
+gap) with the colloquial sense of a near miss (something happened, nobody hurt).
+There are **584** of the latter and they *are* rated. The gap is 24 records, not
+the method's purpose.
+
+Recorded because the difference decides whether the method is broken or merely
+incomplete. It is incomplete.
+
+## 2026-08-29 — R0 applied: `_rows` clusters instead of quantising
+
+### The fix
+
+`round(top / tol)` replaced with single linkage on the gap, **plus a span cap**.
+Both parts were necessary and the second was found by a test rather than by
+inspection.
+
+**The tolerance had to shrink with the algorithm.** As a bin width, 2.5 meant
+±1.25 from a centre; as a gap it means "chain anything within 2.5pt", which is
+far looser. Measured on a sampled form face, single linkage at tol 2.0 produced a
+within-row spread of 3.36pt — two distinct lines merged. The observed gap
+distribution is bimodal: **146 of 222 consecutive gaps under 1pt** (same-baseline
+jitter), **62 above 2.5pt** (genuine line breaks), only 14 between. `ROW_TOL` is
+now **1.5**, sitting in the empty middle.
+
+**A test I wrote caught a weakness in the fix I wrote.** Single linkage alone
+chains: six words stepping 1.4pt apart each pass the tolerance and merge across
+7pt. Real pages do not show that ladder, but nothing prevented it, so a row is
+now also capped at `ROW_SPAN_MAX = 2.0` from its first word.
+
+Baseline before the change, measured over 120 sampled PDFs: **5,112 excess rows
+against 10,734 true rows — 47.6% more rows than the pages have, affecting 119 of
+120 documents.**
+
+### Measured outcome — two fixed, one unchanged, one deferred
+
+| | before | after |
+|---|---|---|
+| **`Area == "5"`** (next field's ordinal) | 42 | **2** |
+| `src_form_revision` A / B / C / unknown (ok records) | 127 / 701 / 377 / 14 | **94 / 743 / 377 / 5** |
+| `Unit` populated | 691 | **764** |
+| UNKEYED incident numbers | 80 | 76 |
+| field 28 label bleed | 230 | **228** |
+| field 5 → `Unit` on revision A | 3/127 | 0/94 |
+
+**D2 is 95% resolved.** 33 revision-B documents were reclassified out of A —
+matching the 32 predicted — and 9 unknowns resolved. A collision key that read
+`261-20050225-1043` now reads `EI-261-...`: the missing area letter recovered
+itself, which is the clearest single demonstration that the row reconstruction
+was the cause.
+
+**D3 did not move, and that is expected.** Its root cause is `find_gutter` being
+a whole-page test applied to a page whose upper two-thirds is single-column
+narrative — R0.1 in the remediation plan, independent of `_rows`. The remediation
+plan predicted this; recording it because a fix that improves one symptom and not
+another is exactly where wishful reading creeps in.
+
+**Field 5 on revision A went from ~0 to 0.** On revision A the form numbering is
+shifted, so anchor 5 is `ACTIVITY`, not `PLATFORM`, and the label hint correctly
+refuses it. That is the P1 per-revision field map's job, not R0's. The previous
+3/127 were spurious matches; 0/94 is the more honest number.
+
+### Note on re-extraction
+
+The sandbox caps a single command at ~3 minutes, and a full 1,289-document
+extraction exceeds that. It was completed in two passes (1,169 then the
+remaining 120), and `anomalies.jsonl` was regenerated from the per-record
+anomaly lists afterwards, because the interrupted run had truncated it in `w`
+mode. Anyone re-running this should do it locally in one pass.
+
+## 2026-08-29 — R0.1 applied: column detection per band, not per page
+
+### The fix, in three parts — the second and third were found by being wrong
+
+**Part 1: band the page.** `find_gutter` asks whether *the page* is two-column.
+Wrong question: the admin block sits at the BOTTOM of a page whose upper
+two-thirds is single-column narrative, so the prose crosses every candidate x and
+the page-wide test can never fire (127 of 434 admin pages, 29.3%). Replaced with
+`find_column_bands`, which finds contiguous runs of rows sharing a gutter.
+
+**Part 2: judge the band, not the row.** A first version tested each row for a
+clear span with content on both sides. That fragmented the block into runs of
+one, because a long field-26 value legitimately spills across the gutter and
+`30. DISTRICT SUPERVISOR:` sits entirely in the right column. Both the
+clear-fraction tolerance and the content-on-both-sides test now apply to the
+band.
+
+**Part 3: require form structure, not just whitespace.** Part 2 worked on the
+admin block and **shredded narrative prose** — three consecutive ragged lines
+happened to share a gap, and `iv) Stress concentration areas` /
+`relieved by some means to prevent surface crack` came out as two "columns".
+That is exactly what the page-wide clear-fraction test used to prevent; a local
+test loses the protection and has to replace it with positive evidence. A band
+now also requires at least two rows carrying a form anchor (`NN. Label`). Prose
+does not.
+
+### A metric that hid a working fix
+
+After part 3 the measure said clean MAJOR/MINOR had fallen from 10 to 2, and the
+fix was one step from being reverted. The metric was `value.upper() in
+('MAJOR','MINOR')` — an exact match. The actual extracted value was
+`'MAJOR\n29. ACCIDENT INVESTIGATION\nPANEL FORMED:\nNO'`: **the classification was
+correct and leading**, with field 29's content trailing it. Measured as
+"starts with MAJOR/MINOR", the true figure was **62**, not 2.
+
+Recorded because the near-miss is the lesson: a too-strict metric scored a
+correct extraction as a regression, and the response to a regression is usually
+to revert.
+
+### The residue had a familiar shape
+
+Field 29's label wraps across two rows — `29. ACCIDENT INVESTIGATION` /
+`PANEL FORMED:` — so a hint of `PANEL FORMED` never matched the anchor line,
+anchor 29 was rejected, and field 28 ran on into its content. Identical in shape
+to field 17's two wordings, and fixed the same way: a `label_hint` alternate in
+YAML, no code change.
+
+### Measured outcome
+
+| | original | now |
+|---|---|---|
+| field 28 **clean MAJOR/MINOR** | 4 | **58** |
+| field 28 total non-empty (i.e. how much was bleed) | 234 | **119** |
+| field 29 located | ~460 | **1,006** / 1,219 |
+| `Area == "5"` | 42 | **2** |
+| `Unit` populated | 691 | **757** |
+| revision A / B / C / unknown | 127/701/377/14 | **94/743/377/5** |
+
+Field 28 non-empty *falling* is the point: field 29 now claims its own content
+instead of it being absorbed. The bleed collapsed from 230 to ~57, and the column
+carries 58 clean classifications where it carried 4.
+
+Field 17 fill holds at 99.7% of ok records. 226 tests pass. Enriched incident
+columns with any value remain 25/43 — R0 and R0.1 corrected values rather than
+adding columns, which was their purpose.
+
+**Still open from the review:** R1 vocabulary constraints (the 234 illegal
+classifications are now 119, but the column still mixes BSEE MAJOR/MINOR with
+E19's VSI/SI/Incident and still suppresses crosswalk values), R2 recommendation
+grain, R3 the retracted statistic and re-banded likelihood, R4 test honesty,
+R5 gold set, R6 README, R7 the ~37 unexplained missing fatalities.
+
+## 2026-08-29 — R1 and R2 applied
+
+### R1 — vocabulary constraints, and field 28 moved to the sidecar
+
+BSEE field 28 is `MAJOR`/`MINOR`. The E19 `Incident Classification` picklist is
+`Very Serious Incident` / `Serious Incident` / `Incident`. Disjoint vocabularies,
+mapped as raw text — so 234 illegal values shipped, and because verbatim wins
+they **suppressed 149 rows that had a valid crosswalked classification**.
+
+Field 28 now goes to the sidecar as `bsee_accident_classification` (with field 29
+alongside); the E19 column is filled by the crosswalk from the risk score.
+
+| | before | after |
+|---|---|---|
+| illegal values, **all committed tables** | 234 | **0** |
+| `Incident Classification` legitimate | 527 | **660** |
+| `Incident Classification` junk | 234 | **0** |
+
+Three things beyond the immediate fix:
+
+**A `vocabularies:` block** declaring which E19 columns are picklist-backed,
+enforced in `psm.project`: an illegal value is blanked and counted, never
+written. Blank beats wrong in a controlled column.
+
+**A `vocabulary_exempt:` block** for `Site` / `Area` / `Unit`. The template ships
+those as placeholder facility names (`Alpha`/`Beta`, `One`/`Two`) and this project
+repurposes them for BSEE geography deliberately; a strict validator would
+otherwise flag 2,237 cells. The exemption is now a recorded decision with a
+stated reason per column, and a test requires the reason.
+
+**A value-legality test** across all four tables and both directories. The point
+the review made was that header tests passed throughout while 234 illegal values
+shipped: nothing checked values.
+
+### R2 — recommendation grain
+
+The splitter used a blank line. **Zero of 1,077 non-empty field-22 values contain
+one**, so it never fired and every incident got exactly one row — the declared
+grain, "one row per recommendation", was false for the whole table.
+
+Recommendations are *enumerated*, not paragraph-separated. Measured across the
+corpus: 51 values carry `\n<digit>[.)]`, 24 use `2)` style, 9 use bullets, 7 use
+`b)`. Splitting on those, and treating nil returns (`None`, `N/A`) as
+`absent_legitimate` per the repo's existing convention rather than as
+recommendation text:
+
+| | before | after |
+|---|---|---|
+| rows | 1,079 | **1,244** |
+| incidents with 2+ recommendations | **0** | **56** |
+| max per incident | 1 | **12** |
+| distinct `Recommendation Number` values | 1 | **12** |
+| nil returns counted as recommendations | 38 | **0** |
+
+Worth stating plainly: the false grain was real but **narrower than the audit
+implied**. Only ~56 of 1,079 incidents genuinely hold multiple recommendations;
+the rest were correctly one row. The defect was that the number was meaningless,
+not that a thousand rows were wrong.
+
+A test now asserts the shipped table has a real grain — `max(per_incident) > 1`
+and `Recommendation Number` takes more than one value. That is the check that
+would have caught it, and it did not exist.
+
+**A test caught a lossy behaviour in the fix.** The first splitter stripped
+trailing full stops as separator debris. A single prose recommendation came back
+without its final period — against this project's verbatim principle. Only
+leading separator characters are stripped now.
+
+Tests 235 → 243, 2 skipped.
+
+## 2026-08-29 — R3 applied: likelihood re-banded, headline claim retracted
+
+### The claim is withdrawn
+
+> ~~"Lifting operations are 5x more likely to seriously injure someone than fire,
+> and 7x more than a blowout. The dramatic hazards damage plant; the routine ones
+> hurt people."~~
+
+**Do not present this.** BSEE's accident-type vocabulary is not stationary, and
+the rates were pooled across 1995–2026 as though it were.
+
+| code | first used | last used |
+|---|---|---|
+| Blowout | 1996 | **2013** |
+| Other Lifting Device | **2007** | 2026 |
+| `LTA (>3 days)` / `LTA (1-3) days` | **2006** | 2026 |
+| `Injury` (coarse, excluded from the numerator) | 1995 | 2012 |
+
+Two independent breaks, either fatal on its own. Pre-2006 records sit in the
+denominator while being **structurally incapable** of entering the numerator,
+because their injuries carry the coarse `Injury` atom the metric excludes. And
+**Blowout and Other Lifting Device never coexist in the data at all** — the 7x
+compared a 2007–2026 mechanism against one whose code was retired in 2013.
+
+Restricted to 2007–2026, where every code is in use:
+
+| mechanism | n | rate | band | was |
+|---|---|---|---|---|
+| Explosion | 27 | **0.259** | **5** | 4 |
+| Other Lifting Device | 94 | 0.245 | 5 | 5 |
+| Crane | 170 | 0.241 | 5 | 5 |
+| Fire | 186 | **0.097** | **3** | 2 |
+| Structural Damage | 36 | 0.083 | 3 | 3 |
+| Pollution | 176 | 0.017 | 2 | 2 |
+| Blowout | **2** | — | **unestimable** | 2 |
+| Collision | **5** | — | **unestimable** | 1 |
+
+Lifting vs fire falls **5.2x → 2.5x**. Lifting vs explosion is **0.94** —
+explosion is nominally the highest rate in the corpus. The rhetorical half of the
+claim is contradicted by the only explosion data comparable to the only lifting
+data.
+
+**The defensible wording**, if the finding is kept:
+
+> Among BSEE investigations 2007–2026 — the period in which both the lifting and
+> lost-time-injury codes were in use — 24% of investigations tagged Crane or Other
+> Lifting Device also record a fatality or lost-time injury (n=264), against 10%
+> of those tagged Fire (n=186): a rate ratio of 2.5 (95% CI 1.4–4.5). Explosion is
+> indistinguishable from lifting at 26% (n=27). Blowout and Collision cannot be
+> compared — their codes were retired before the lifting code came into use. These
+> are per-investigated-incident conditional rates, not per-lift or per-exposure
+> risks, over incidents BSEE chose to investigate.
+
+The *direction* survives: leave-one-year-out within the window gives a lifting/fire
+ratio between 2.26 and 2.82 across all 20 years. Only the magnitude was artifact.
+
+### It propagated, exactly as predicted
+
+The rates are not just a slide — they are the likelihood bands. Re-banding moved
+every Section 3 score:
+
+| | before | after |
+|---|---|---|
+| Likelihood distribution | 1:16 2:362 3:30 4:31 5:237 | 1:10 2:193 **3:177** 5:265 |
+| Incident | 378 | **203** |
+| Serious Incident | 196 | **310** |
+| Very Serious Incident | 102 | **132** |
+
+And the claim that looked like independent corroboration was the same artifact:
+
+| Very Serious Incident composition | before | after |
+|---|---|---|
+| Other Lifting Device | 55 | 59 |
+| Crane | 38 | 41 |
+| **Explosion** | **0** | **32** |
+| **Fire** | **0** | **14** |
+
+*"Every Very Serious Incident is a lifting incident — zero fires"* was true of the
+output and false about the world. It was the era artifact reappearing downstream,
+and it read as confirmation.
+
+### Unestimable is now a first-class outcome
+
+A mechanism whose code was retired before the outcome codes existed gets **no
+likelihood, and therefore no risk score and no classification** — but it keeps its
+consequence. Borrowing a rate from the pooled series would reinstate precisely the
+artifact this correction removes. 15 records lose a score this way (660
+consequence, 645 scored).
+
+A minimum of n=20 in-window is required for a rate; `Blowout` (2), `Collision` (5)
+and `Damaged/Disabled Safety Sys.` (15) fall below it and are listed with their
+in-window counts.
+
+Tests 243 → 249, including guards that the rates declare their window, that no
+unestimable mechanism carries a rate, that every rate meets the n floor, and that
+explosion is not banded below lifting.
+
+## 2026-08-29 — R4 applied: the test suite can now fail
+
+### The name collision that hid the gap
+
+`tests/test_crosswalk.py` tested `schema/crosswalk.yaml`. **Nothing tested
+`psm.crosswalk`** — 244 statements, 0%, the module that writes every enriched
+table. The near-identical names are the likely reason nobody noticed 28 passing
+tests sitting beside an untested module. Renamed to `test_crosswalk_schema.py`,
+and a new `test_crosswalk_module.py` tests the module.
+
+| module | before | after |
+|---|---|---|
+| `crosswalk.py` | **0%** | **48%** |
+| total | 30% | 35% |
+| tests | 249 | **281** |
+
+The 24 new module tests target defects that actually occurred, not happy paths:
+a mechanism alone must be a Loss Event (a record tagged only `Fire` previously
+got no Type A); a deliberate null must not backfill from a lower-precedence atom;
+an unestimable mechanism gets consequence but no score; verbatim always wins.
+
+### The test the file's own docstring promised and did not have
+
+`test_crosswalk_schema.py` opens by saying it exists so the v1 numbering bug
+"cannot recur silently" — v1 routed Equipment Failure to element 7 while its own
+note described element 15's subject matter. **Nothing compared the two.** Swapping
+any two categories' element numbers left all 28 tests green.
+
+Replaced `test_version_is_two_or_later` (a constant asserting a constant) with
+`test_every_element_matches_its_own_stated_reasoning`, which checks each entry's
+`matched_on` phrase against the element *name*.
+
+**It failed on first run, on exactly the two entries marked `confidence: low`** —
+`Supervision` (fixed by removing "task" from the stopword list, since element 17
+is "Work control, permit to work and **task** risk management") and
+`Work Environment`, whose "workplace layout, weather, marine environment" shares
+nothing with "Hazard identification and risk assessment". That is the file's own
+admission, so the test now permits a low-confidence entry to share no vocabulary
+**provided it declares low confidence and explains** — and requires agreement
+everywhere else.
+
+### The provenance convention: documented deviation, now enforced
+
+CLAUDE.md says every column in every processed table carries a
+`src_`/`xw_`/`llm_`/`gold_`/`syn_` prefix and names `test_conventions.py` as the
+enforcer. That file was 30 lines, tested only `synth.py`, and its docstring still
+said `crosswalk.py` "does not exist yet". **186 of 187 shipped columns carry no
+prefix.**
+
+The deviation is correct and was simply never written down: E19 columns must be
+byte-exact template labels, so prefixing them would break the exactness guarantee
+the projection layer exists to provide. Provenance moved to a **parallel file** —
+and that is a *stronger* guarantee than a prefix, because a prefix labels a whole
+column while the parallel file labels every cell, and the same E19 column is
+read-verbatim on one row and inferred on another.
+
+`test_conventions.py` now enforces what ships: prefixes on `synth.py` output and
+the sidecar, where the exactness constraint does not apply; and for the E19
+tables, that a provenance file exists with matching shape, that its tokens come
+from a closed set, that no non-empty cell lacks a provenance, that no provenance
+mark lacks a value, and that **`xw` never overwrote a verbatim value**.
+
+That last one is the enrichment step's central invariant and had no test at all.
+
+**CLAUDE.md still describes the prefix rule as universal.** It is not, and the
+deviation is deliberate. Left for the repo owner rather than amended unilaterally.
+
+### Still outstanding from the review
+
+R5 gold set (0/100 labelled, joins 0/100 directly — nothing scoreable), R6 README
+contradictions, R7 the ~37 unexplained missing fatalities. `e19_schema.py`,
+`evidence.py`, `fetch.py` and `spine.py` remain at 0%; they are one-shot
+generators rather than pipeline stages, which is a reason but not a defence.
+
+---
+
+## 2026-08-29 — S1: two silent cause-parser defects, found by adversarial review
+
+Both were **coverage** bugs, not correctness bugs: they withheld mappings rather
+than inventing wrong ones, so nothing downstream ever complained. That is why
+they survived 284 passing tests.
+
+### S1a — `Category - Subcategory` was never a separator
+
+`SEP_CLASS`'s ASCII-hyphen alternative was `(?<=[a-zA-Z])-(?=\s)`, which requires
+the hyphen to touch the preceding word. The equally common spaced form was not a
+separator at all, so the parser ran on to the next qualifying separator and
+produced a head too long for `MAX_CATEGORY_WORDS`:
+
+    Equipment Failure - Inadequate preventative maintenance/Inadequate
+    equipment repair- the crane's aux hoist system ...
+                    ^ not a separator          ^ separator; head is 11 words
+
+Report `BM 3 Cantium 5-Aug-2025` names four of the six canonical categories in
+its own text and mapped to none of them.
+
+Added a third alternative, `(?<=\s)-(?=\s)`. "Flexi-Coil" is unaffected — it has
+no space after the hyphen, which is what the original narrowing was for.
+
+Widening the separator opened one hole: a mid-sentence prose dash could yield a
+head ("a well-known issue - the valve stuck - ..."). Closed by requiring
+`head[0].isupper()` in `candidate_category`, which `unwrap` had always required
+to *begin* a statement. Measured cost of that guard: 2 statements corpus-wide,
+both junk (`construction`, `of this incident include`).
+
+### S1b — a wrapped field label became the corpus's third most common category
+
+`FURNITURE_HEAD_RE` catches `LIST THE ...` only while the label is intact. In
+two-column soup BSEE's own label wraps and the tail lands alone, carrying the
+colon:
+
+    19. LIST THE CONTRIBUTING CAUSE(S) OF
+    ACCIDENT:
+
+`ACCIDENT` is short, title-ish and colon-separated — every test for a cause
+category. 24 statements corpus-wide. `tests/test_causes.py` asserted only that
+the *unsplit* label is rejected, so the split form shipped untested.
+
+**A general rule was tried and rejected on evidence.** "An ALL-CAPS head is
+furniture" is wrong: of the corpus's 11 all-caps heads, **6 are legitimate
+categories** — HUMAN ERROR, COMMUNICATION, SUPERVISION, EQUIPMENT FAILURE,
+MANAGEMENT SYSTEM, WORK ENVIRONMENT — covering 13 statements. A blanket guard
+would have deleted them silently. Fragments are therefore listed as data in
+`schema/bsee_form2010.yaml:cause_field_furniture`, matched only when ALL CAPS.
+
+### Measured effect (full re-run of `psm.project` + `psm.crosswalk`)
+
+| | before | after | |
+|---|---|---|---|
+| cause statements | 3,587 | 3,609 | +22 |
+| mapped to a PSM element | 460 (12.8%) | **521 (14.4%)** | +13.3% |
+| `Risk Management Cause` | 218 (6.1%) | **276 (7.6%)** | +27% |
+| `Human Factors Cause` | 125 (3.5%) | **152 (4.2%)** | +22% |
+| typed but unaliased (junk diagnostic) | 255 | **238** | −17 |
+| gold typed rows | 29 | **30** | |
+| gold rows the crosswalk can score | 19 | **22** | |
+
+The two derived cause fields improved more, proportionally, than the element
+field did — they read the subcategory, which is exactly what the spaced-hyphen
+bug was hiding.
+
+### Verification
+
+5 new tests. Checked that they **fail against the pre-fix code**: 2 of the 5 do
+(the other 3 are guards against regressions the old code did not have). Full
+suite 284 → 291 passing, 2 skipped; `test_conventions.py` and
+`test_projection.py` clean after regeneration, so the parallel provenance files
+still match shape and `xw` still never overwrote a verbatim value.
+
+### Negative result worth recording
+
+`src_cause_status` was suspected of being conflated with crosswalk-mappability.
+It is not used **anywhere** outside `gold_scaffold.py` and `gold_sample.py` — no
+production module reads or branches on it, and no processed table carries it. The
+conflation is a documentation defect (CLAUDE.md defines `typed` as
+"controlled-vocabulary category present", while the code implements a *shape*
+test that consults no vocabulary), not a data defect.
+
+---
+
+## 2026-08-29 — S2: "What was the outcome?" 0% → 89.1%, in two provenance tiers
+
+The column was coded `blank: extractable`, noted as *"stated within the field 17
+narrative but not separable as a field"*. Half true, and the half that was wrong
+had left the column empty for the life of the project.
+
+### Tier 1 — verbatim sentence (`src`), 434/1,215 = 35.7%
+
+`psm.project` takes the **last** sentence in field 17 matching a consequence
+cue. Last, not first: a narrative states the injury twice, once in the opening
+summary and once at the close, and the later statement is the settled one — the
+opening says "a rigger was injured", the closing says which bone and how many
+days.
+
+**Two obvious cues were tried and rejected.** `resulting in` and `as a result`
+are *causal connectors*, not outcome markers, and fire constantly mid-narrative
+on cause statements ("A failed FSV allowed gas to migrate to the hot exhaust
+resulting in the fire"). They lifted recall 36% → 56% and took precision with
+them; on a 12-sample eyeball, 4 of 12 hits were causes, headings or opening
+summaries. `resulting in` is retained only when followed by an injury noun.
+
+Recall is deliberately the lesser goal. This tier writes `src`, so a wrong
+sentence is a false claim that BSEE said it — the one error the provenance
+design exists to prevent.
+
+### Tier 2 — composition from spine atoms (`xw`), 649 more = 53.4%
+
+`schema/xw_outcome.yaml` renders BSEE's own accident-type codes into English:
+`LTA (>3 days)` → "a lost-time accident with more than 3 days lost". This is
+**translation, not inference** — same granularity, nothing added — which is why
+it is `xw` and not `syn_`. Contrast `xw_consequence_tiers.yaml`, which decides
+which band a record falls into and is a real opinion.
+
+Three refusals are written into the rule file and tested:
+
+* **No negative claims.** Absence of an injury atom is *not* rendered "no
+  injuries". BSEE coding omissions are common and the spine's silence is not a
+  claim. Reports that genuinely say so are caught by tier 1, whose cue list
+  leads with that phrasing.
+* **No severity language.** "Serious", "significant", "severe", "minor" appear
+  nowhere and must not be added; that is the line between naming and judging.
+* **No sentence without atoms.** 12% of incidents do not join the spine and get
+  nothing. A sentence assembled from no outcome data would be fabrication with
+  an `xw` label on it.
+
+Response atoms (`Required Evacuation`, `Required Muster`) render as their own
+clause so an evacuation does not read as though it were the harm.
+
+### Result
+
+| | before | after |
+|---|---|---|
+| `What was the outcome?` | 0 (0.0%) | **1,083 (89.1%)** — 434 `src`, 649 `xw` |
+| `extractable` blanks remaining | 2 | **1** (`Work Group`) |
+
+### Verification, including a test that was itself wrong
+
+10 new tests. Rather than a source-copy revert (which broke schema path
+resolution and produced errors rather than failures — an invalid check), each
+guard was mutation-tested by replacing `outcome_text` in the loaded module:
+atom-order rendering, a "No injuries reported." default, a severity adjective,
+a non-empty return for no atoms, and a threshold atom rendered as a figure.
+
+**Four of five mutations were caught; one was missed.**
+`test_phrase_order_follows_the_rule_file_not_the_atom_string` used one atom per
+group, where the fixed group order hid the defect — the test asserted a property
+it could not observe. Rewritten to use atoms within a single group, plus a
+second test for the injury group. Both now catch the mutation.
+
+Recorded because it is the failure mode the project's own standard warns about:
+a test that cannot fail is worse than no test, and only the mutation check found
+it. Suite 291 → 300 passing, 2 skipped.
+
+---
+
+## 2026-08-29 — S3: `Work Group` re-coded `extractable` → `structural`
+
+`extractable` means "present in field 17 prose, not yet pulled out" — a to-do.
+This one could never be discharged, so it was a standing false promise. The
+`extractable` count is now 0; every remaining blank is `structural` (17) or
+`judgement` (27).
+
+**The picklist decides it.** The template vocabulary (named `Shift` in the
+workbook, bound to the Work Group cell) is: A-F Process Ops, Maintenance,
+Projects, Technical, Facilities Management, Admin, Other. **Six of the twelve
+values are one company's named shift crews.** No public federal document can say
+which of an operator's process-ops shifts was on tour.
+
+**The six functional values were measured, not dismissed.** A cue list over
+field 17 prose classifies 233 records (19.1%), 201 (16.5%) unambiguously. That
+looked worth having until the hits were read. Sampling 10 `Maintenance` matches:
+
+* ~4 name a **post-incident actor** — "a mechanic placed the crane out of
+  service for repair", "the crane mechanic found the boom cable stretched"
+  during a post-event inspection.
+* ~3 name the **injured person's trade** — "a Crane Mechanic received a puncture
+  wound", "a contract Mechanic fell through grating".
+* ~3 arguably name the crew doing the work.
+
+Roughly **30% precision for the question actually being asked**. Filling 16% of
+a column at 30% precision, under a provenance mark implying better, is worse
+than a blank — and nothing downstream reads this column.
+
+**Why this is not the Site/Area/Unit case.** Those three are `vocabulary_exempt`
+because the template ships placeholder identifiers (Alpha/Beta/Gamma/Delta,
+One/Two/Three/Four, A/B/C/D) for a concept BSEE *does* publish — so the
+substitution swaps vocabulary while keeping the concept. Work Group has no BSEE
+counterpart at all. Substituting field 6 ACTIVITY (a lifecycle phase) or field 8
+OPERATION (a work type) would swap the *concept*, which the exempt mechanism was
+not built to license.
+
+**Left open for the template author, not decided here.** If the picklist were
+extended with BSEE's own coarse work context — Drilling / Workover / Completion
+/ Production — the column becomes fillable at ~87% from field 6 (`src_f06`
+carries a value on 87.4% of records). That is a change to his template's
+semantics and is his call. Recorded in the projection entry and to be raised in
+the memo.
+
+### Negative result
+
+No code changed. `blank-by-reason` moved from
+`{structural: 16, extractable: 1, judgement: 27}` to
+`{structural: 17, judgement: 27}`; suite unchanged at 300 passing, 2 skipped.
+
+---
+
+## 2026-08-29 — S4: the field disposition ledger
+
+**37 of 57 obtainable fields carry data (65%).** All 20 unfilled obtainable
+fields are `synthetic` — the generator exists in `synth.py` and is not yet wired
+into the projection, so the honest reading is *65% now, 100% of obtainable once
+step 5 lands*, with 8 columns that will stay blank for stated reasons.
+
+Raw fill was 38%/46%/25%/50% across the four tables and meant nothing. Most
+empty cells are empty because a federal investigation report structurally cannot
+record an operator's internal close-out approver. Those are not gaps; they are
+the shape of the source. Mixed among them were a handful of genuinely fillable
+columns nobody had reached, and the two kinds of blank were indistinguishable.
+
+| disposition | n | in the denominator? |
+|---|---|---|
+| `filled` | 37 | yes |
+| `synthetic` | 20 | yes |
+| `deliberate_blank` | 7 | no — a decision, with the reason in a schema file |
+| `needs_human` | 1 | no — the labelling backlog, tracked in `gold/` |
+| `not_obtainable` | 1 | no — `Work Group` |
+
+`needs_human` and `deliberate_blank` are outside the denominator deliberately.
+Inside it, the headline would *rise* whenever we declined to do labelling work,
+which is the wrong incentive to build into a metric.
+
+Both numbers are reported because they answer different questions: the field
+count says whether a column was attempted, the cell count (39,063 / 84,083 =
+46.5%) says how far a typical BSEE report gets.
+
+### The ledger is self-policing, and that is the point
+
+`schema/e19_disposition.yaml` is not documentation — every entry is a claim
+about the world, and a claim nobody checks decays into decoration. A stale audit
+is worse than none, because it reads as authority while describing a table that
+no longer exists.
+
+`tests/test_ledger.py` (13 tests) checks each claim against the data:
+`not_obtainable` and `deliberate_blank` columns must be empty; `filled` columns
+must not be; `synthetic` columns must be empty *until the synth layer is wired*,
+with the failure message instructing that the test be rewritten to assert a
+`syn` provenance mark rather than deleted; every column in the data must be
+declared and every declaration must match a real column; every
+`deliberate_blank` must name a file that exists; every named generator must
+appear in `synth.SYN_COLUMN_MANIFEST`.
+
+**Mutation-checked, not assumed.** Six false claims were injected — calling a
+filled column `not_obtainable`, calling an empty one `filled`, calling a filled
+one `deliberate_blank` and `synthetic`, dropping a column, inventing one. All
+six were caught.
+
+One test exists only to stop the metric being gamed:
+`test_the_headline_is_not_vacuously_perfect` fails if every obtainable field is
+filled, on the grounds that a denominator whittled down to the columns that
+happen to be full would report 100% and mean nothing. It must be deleted
+deliberately, not allowed to pass by accident.
+
+### What this buys
+
+The memo to the template's author can now say *"we filled 65% of what a BSEE
+report can supply, rising to 100% once the synthetic scaffold is wired, and here
+are the 8 fields only your organisation's records can fill"* — a request he can
+act on, rather than a raw percentage that invites him to think the project
+failed. Suite 300 → 313.
+
+---
+
+## 2026-08-29 — S4b: CORRECTION. There is no template author, and no organisation
+
+Entries above this line — including today's S3 and S4 — were written on a
+premise that is false. They refer to "the template author", "his organisation's
+records", and a memo asking him to fill the columns BSEE cannot supply. **There
+is no author and no organisation.** This is a self-contained public dataset
+built from a public corpus for a hackathon. Nobody else is coming to fill
+anything.
+
+The premise came from an early framing in the project and was never re-checked;
+it then propagated into schema files, where it was shaping design decisions.
+`findings.md` is append-only, so the earlier entries stand as written and this
+is the correction of record. The schema files themselves were fixed.
+
+### What was actually wrong, not just mis-worded
+
+Three of the five dispositions in `e19_disposition.yaml` encoded *"somebody
+else fills this, or nobody does"*:
+
+* `not_obtainable` — `Work Group`. Deferred to an organisation that does not
+  exist. It is now a `synthetic_column`: nothing real can go there, and an
+  openly `syn` value beats a blank.
+* `deliberate_blank` — the seven risk columns our method declined to estimate.
+  The methodological reasons remain true and are kept as notes, but "leave it
+  blank" stops being an option when the sheet must be dense.
+* `needs_human` — `Cause type`. There is no separate human. 100% `syn`.
+
+Reduced to two dispositions (`real`, `synthetic_column`) plus a `gap_policy` on
+every real column. The headline metric changed with them: **"percent of
+obtainable fields filled" is meaningless for a dataset that is dense by
+construction** — it would read 100% and say nothing.
+
+### The number that replaces it
+
+**40.1% of this dataset is real.** 39,063 of 97,412 cells carry `src` or `xw`;
+the projected 58,349 remainder is fabricated under `syn`.
+
+That split is the fact a stranger most needs, and it decomposes in a way that
+decides how the fabrication should be done:
+
+| | cells | what filling it means |
+|---|---|---|
+| Wholly synthetic columns — approvers, workflow dates, action tracking, risk components | 37,948 (65% of the gap) | Uniform fabrication. Safe **because** it is uniform; nothing here is confusable with a fact about a real incident. |
+| Gaps **inside** real columns | 20,401 (35%) | A `syn` value in the same column as `src` values, describing the **same real incident**. |
+
+The second row is the hazard. `Incident Type D` is 18.4% real, so four cells in
+five will assert a mechanism for a named incident at a named block on a named
+date that BSEE never asserted. That is defensible for a synthetic dataset and
+indefensible the moment the marking is lost.
+
+### Guarding it
+
+`modelling_target: true` now flags the 16 columns an entrant would plausibly try
+to *predict*, and `psm.ledger --real-only` (to be built with the synth wiring)
+reduces them to their `src`/`xw` cells. The causes table is the sharpest case:
+one real prose input, `Cause Description` at 100% `src`, and four labels over it
+of which the best is 14.4% real. Training on the fabricated 85.6% is learning
+`schema/synth_rules.yaml`.
+
+`tests/test_ledger.py` was rewritten (13 → 15 tests) around the new vocabulary,
+and two new guards were added that can only fail on a real drift:
+`test_the_primary_input_feature_is_not_fabricated` pins `Cause Description` at
+100% real with `gap_policy: none`, and `test_a_meaningful_share_is_real` fails
+if the real share ever drops below 25% — a dataset that drifted to almost
+entirely fabricated would otherwise pass every other test while being useless.
+
+Suite 313 → 315.
+
+---
+
+## 2026-08-29 — P0-0: the 2010–14 label trough is REAL, not an artifact
+
+Diagnosed before starting Phase 0, because the spec's risk table said that if
+the trough turned out to be another form-revision artifact it belonged inside
+Phase 0's scope. **It is not.** Phase 0 proceeds as specced, and the trough is
+Phase 3's problem.
+
+### The revision hypothesis is refuted
+
+| era | n | rev A | rev B | rev C | mapped |
+|---|---|---|---|---|---|
+| 2000–04 | 19 | 9 | 10 | 0 | 0.0% |
+| 2005–09 | 402 | 85 | 316 | 0 | 9.0% |
+| **2010–14** | **288** | **0** | **284** | **0** | **1.7%** |
+| 2015–19 | 239 | 0 | 133 | 106 | 11.7% |
+| 2020–24 | 217 | 0 | 0 | 217 | 56.2% |
+| 2025–29 | 54 | 0 | 0 | 54 | 72.2% |
+
+2010–14 is 100% revision B. So is most of 2005–09, which maps at 9.0%. Same
+form, five times the mapping rate. The form is not the variable.
+
+### What is actually happening: four labelling regimes, not a ramp
+
+Per-year, with `Human Error` counted separately from the crosswalk's other five
+categories:
+
+| year | n | mapped | `Human Error` | modern six |
+|---|---|---|---|---|
+| 2003–06 | 162 | 0% | 0 | 0 |
+| 2007 | 96 | 12% | 12 | 0 |
+| 2008 | 88 | 22% | 17 | 2 |
+| 2009 | 75 | 7% | 3 | 2 |
+| 2010–2014 | 288 | 0–4% | 0–2/yr | 0–1/yr |
+| 2015–2018 | 189 | 3–13% | 0–1/yr | 1–5/yr |
+| **2019** | 50 | **34%** | 2 | **17** |
+| 2020–2026 | 271 | 31–77% | 0–5/yr | 17–29/yr |
+
+Four regimes with sharp edges:
+
+1. **2003–2006** — free prose. No controlled vocabulary at all.
+2. **2007–2009** — a brief `Human Error` era. Almost every mapped statement in
+   this window is that one head.
+3. **2010–2018** — the trough. `Human Error` falls out of use before the modern
+   vocabulary arrives. Investigators write **ad-hoc heads of their own**: 68
+   distinct ones across 105 occurrences in 477 records, e.g. `Poor Body
+   Placement` (6), `Failure to follow company policy` (5), `Inadequate Hazard
+   Analysis` (3), `Poor Communication` (2), `Inadequate JSA` (2). Real
+   categories, not in anyone's controlled list.
+4. **2019 onward** — the modern six. Adoption jumps from 5 occurrences in 2018
+   to 17 in 2019 and never falls back.
+
+### Consequences, which are larger than the trough itself
+
+**`schema/crosswalk.yaml`'s six categories are a 2019+ vocabulary.** 948 of
+1,219 records — 78% of the corpus — predate it. That is not a defect in the
+crosswalk; it is a fact about BSEE that the crosswalk cannot fix and that
+nothing in the repo currently states.
+
+* **Era-stratified splits must use these four regimes, not 5-year bins.** A bin
+  boundary at 2015 or 2020 cuts through the middle of a regime.
+* **The gold set is a regime-4 sample.** Its 30 typed rows are drawn almost
+  entirely from post-2019 reports, so any crosswalk accuracy measured on it
+  describes the modern regime only and must say so.
+* **Weak-supervision labelling functions built on the modern vocabulary will
+  have near-zero coverage on regimes 1–3.** That is 78% of the corpus, and it is
+  the strongest argument yet for the clustering pass: the only route to labels
+  before 2019 is inference from prose, because there is nothing to extract.
+* **The trough is not recoverable by better extraction.** 105 ad-hoc head
+  occurrences across 477 records is thin, and the rest is genuinely free prose.
+  No parser fix reaches it.
+
+### Correction
+
+The completion plan called the trough "probably a form-revision artifact, not a
+real change in reporting practice". Wrong on both counts — it is not the
+revision, and it *is* a real change in reporting practice.
+
+---
+
+## 2026-08-29 — P0-A: anchors resolved by label, not by number
+
+`Recommendation Description` label bleed **30.4% → 1.5%**; records carrying
+fields 8–16 **30.9% → 99.7%**.
+
+### The spec's fix was the wrong one
+
+The spec proposed a per-revision *number* map. Dumping the raw anchor stream of
+a revision-B report showed why that would not have worked:
+
+```
+REJ  6. 'OPERATION:'            hint='ACTIVITY'            -> really field 8
+REJ  8. 'CAUSE:'                hint='OPERATION'           -> really field 9
+REJ  9. 'WATER DEPTH: 23 FT.'   hint='CAUSE'               -> really field 10
+REJ 10. 'DISTANCE FROM SHORE'   hint='WATER DEPTH'         -> really field 11
+REJ  3. 'SEA STATE: FT.'        hint='OPERATOR/CONTRACTOR' -> really field 14
+```
+
+Revision B renumbers the form face **and** two-column linearisation drops
+digits, so "13. SEA STATE" arrives as "3. SEA STATE". A number map handles the
+first and not the second. The label is reliable; the number is not.
+
+`field_for_label()` resolves each anchor by matching its tail against the label
+hints already in `bsee_form2010.yaml`, longest hint first (so "OPERATOR" cannot
+claim an "OPERATOR/CONTRACTOR" anchor), anchored at the start of the tail (so a
+hint inside prose does not open a field). Fired **6,881 times**, and needs no
+per-revision map at all — it fixes A, B and future revisions identically.
+
+### The second defect was not the one diagnosed
+
+The spec attributed field 22's contamination to the terminal-anchor sink. **It
+is not.** On 322 of the 369 affected records field 30 is correctly located. The
+real mechanism, visible in the raw text:
+
+```
+22. RECOMMENDATIONS TO PREVENT RECURRANCE | NATURE OF DAMAGE: N/A $ | NARRATIVE: | <body>
+```
+
+Field 22's label spans two visual lines with field 21's block linearising
+between them, and the label-stripper only cuts to the first colon **on the first
+line** — which has no colon. Fixed by `label_bleed_patterns` in the form spec,
+removing label fragments **in place**: cutting to `NARRATIVE:` would delete real
+text, because the body is split around the interleaved block ("The Houma
+District has no recommendation | NATURE OF DAMAGE: Ruptured, melted |
+NARRATIVE: | for the Regional Office."). Fired 3,632 times.
+
+### A regression I introduced and caught
+
+The first version normalised whitespace with `" ".join(body.split())`, which
+flattens newlines. `psm.causes.unwrap` segments fields 18/19 **by line**, so a
+bullet or category head that no longer starts a line stops starting a statement:
+cause statements fell **3,607 → 2,298**, a 36% loss, with no error anywhere.
+Fixed to normalise within lines only. This is exactly the silent-plausible-wrong
+failure the repo keeps meeting, and it was caught only because the count was
+being watched.
+
+### Acceptance criteria
+
+| # | criterion | before | after | target | |
+|---|---|---|---|---|---|
+| A1 | records with f08–f16 | 30.9% | **99.7%** | ≥90% | PASS |
+| A2 | field 7 over length | 743 | **0** | ≤100 | PASS |
+| A3 | field 30 not located | 169 | 145 | ≤40 | **FAIL** |
+| A4 | `Recommendation Description` bleed | 30.4% | **1.5%** | ≤5% | PASS |
+| A5 | `Cause Description` unusable | 7.6% | **5.4%** | ≤3% | **FAIL** |
+| A6 | records with any over-length field | 899 | 426 | ≤200 | **FAIL** |
+| A7 | longest single field | 280,537 | 267,928 | ≤20,000 | **FAIL** |
+| A8 | E19 columns losing fill | — | **0** | 0 | PASS |
+
+A3, A6 and A7 are **P0-B's** targets, not P0-A's — they are the terminal-anchor
+sink, untouched so far. A7 barely moved because one report still has 267,928
+characters in field 8. A5 is close and the residue is now short fragments rather
+than form furniture.
+
+A8 passes with four columns *gaining*: `Unit` +7.7pp (62.3→70.0),
+`Description` +2.1pp, both Acceptor fields +2.0pp. Nothing lost.
+
+### Row-count changes, and why they are not losses
+
+Cause statements 3,607 → 3,172; recommendations 1,244 → 1,186. Both fell because
+stripped label text was previously being split into spurious statements. The
+mapped *rate* rose 14.4% → **15.3%** and `typed_but_unaliased` fell 238 → 203,
+which is the direction that indicates junk removal rather than data loss.
+
+Suite unchanged at 315 passing, 2 skipped. **No new tests yet — P0-A's tests
+land with P0-B so both fixes are covered by one re-extraction.**
+
+---
+
+## 2026-08-29 — P0-B: the terminal anchor bounded
+
+**Records with any over-length field: 899 → 119.** The two records holding an
+entire document in one field are gone: the worst is now 700 characters with
+267,228 in `src_unassigned_tail`.
+
+### Bounding by page furniture does not work
+
+The spec proposed stopping at the first furniture line after the terminal
+anchor. `kept_lines` has already **dropped** every furniture line by the time
+`segment_fields` runs, so there is nothing left to stop at. Bounded instead by
+`max_length_by_kind`, which is data already in the form spec, with a separate
+`terminal_prose_cap` for the two kinds that deliberately declare no limit.
+
+Overflow goes to `src_unassigned_tail`, never discarded. 351 records now carry
+one. Without it, the bound would be indistinguishable from data loss.
+
+### Acceptance criteria, final
+
+| # | criterion | before | after | target | |
+|---|---|---|---|---|---|
+| A1 | records with f08–f16 | 30.9% | **99.7%** | ≥90% | PASS |
+| A2 | field 7 over length | 743 | **0** | ≤100 | PASS |
+| A3 | field 30 not located | 169 | 145 | ≤40 | **FAIL** |
+| A4 | `Recommendation Description` bleed | 30.4% | **1.5%** | ≤5% | PASS |
+| A5 | `Cause Description` unusable | 7.6% | **5.4%** | ≤3% | **FAIL** |
+| A6 | records with any over-length field | 899 | **119** | ≤200 | PASS |
+| A7 | longest single field | 280,537 | 37,050 | ≤20,000 | **FAIL** |
+| A8 | E19 columns losing fill | — | **0** | 0 | PASS |
+
+### A7's target was wrong, not the code
+
+All five fields still over 20,000 characters are **field 17 narratives**, and
+they are legitimate. The largest, 37,050 characters in
+`31-MAY-2023_GC468_EV2010R-2.pdf`, is an 11-page Hess TLP investigation reading
+cleanly from `"Incident Summary: On May 31, 2023, Hess Corporation notified
+BSEE..."` to a coherent closing sentence about the IP's fall.
+
+The 20,000 figure was set before anyone had measured what a legitimate field 17
+looks like. **The criterion should have excluded prose kinds**, and is restated:
+*longest non-prose field ≤ 20,000*, which passes at 700.
+
+### A3 is a different defect, now contained
+
+145 records still lack field 30, and the cause is visible in what field 27
+absorbs on them:
+
+    'INDIRECTLY CONTRIBUTING. ACCIDENT CLASSIFICATION: 28. ACCIDENT INVESTIGATION
+     29. PANEL FORMED: NO DISTRICT SUP...'
+
+Column linearisation **transposes label and number**: `ACCIDENT CLASSIFICATION:`
+(field 28's label) arrives before the digits `28.`, which are then followed by
+field 29's label. And field 30's label appears with no number at all, so
+`ANCHOR_RE` — which requires `\d+\.` — cannot see it.
+
+Fixing that needs label-without-number detection, which is a third mechanism and
+out of Phase 0's scope. The terminal bound has made it **harmless**: A6 passes,
+and the absorbed text is capped at 150 characters instead of running to
+end-of-document. Deferred, with the evidence recorded.
+
+### Verification
+
+`tests/test_extract_anchors.py`, 17 tests, using verbatim strings from named
+reports. Mutation-checked against five plausible wrong implementations —
+trusting the number, shortest-hint-first, unanchored hint matching, a tidied-down
+prose cap, and the cut-to-`NARRATIVE:` strip that would have deleted half a
+sentence. All five caught.
+
+Suite 315 → 332. A8 passes with four columns gaining and none losing.
+
+---
+
+## 2026-08-29 — P0-C: `real` stops meaning `non-empty`
+
+The ledger now reports a third number: **94.3% of checked cells pass their shape
+check** (10,245 of 10,870). Separate from the 40.3% real / 59.7% fabricated
+split, and separate on purpose — a cell can be present and still be form
+furniture, a fragment, or truncated.
+
+### Checks are opt-in, and the reason is measured
+
+A global rule was the obvious design and is wrong. Tested before implementing:
+"at least four words" fails **100%** of `Incident Number`, `Date of Incident`,
+`Incident Type A`, and every risk band — every code, key and picklist value in
+the dataset. A validity layer that fires everywhere reports nothing. Eight
+columns declare checks; the rest declare none because none would distinguish
+good from bad.
+
+`no_form_label` uses `form_label_tokens` in `e19_disposition.yaml`, deliberately
+a **different list in a different file** from `label_bleed_patterns` in
+`bsee_form2010.yaml`, which does the stripping. A detector sharing its patterns
+with the thing it checks can only ever report success. A test asserts the two
+lists differ.
+
+### The check found something on its first run
+
+`Incident Number` came back **80.6% valid, 236 failures** — and the pattern was
+mine, not the data's. The key is documented as
+`{AREA}-{BLOCK}-{YYYYMMDD}-{HHMM}`. It is not: it is **variable arity**, because
+the generator drops components the source did not supply.
+
+| components | keys |
+|---|---|
+| 4 | 1,002 |
+| 3 | 129 |
+| 2 | 79 |
+| 5 | 4 (content-hash suffix on colliding groups) |
+
+162 carry no time at all, and `UNKEYED-<hash>` appears where neither area nor
+date is available. I had written the check without knowing the shape of the
+primary join key.
+
+The pattern was rewritten to admit every legitimate variant and **still fails 38
+keys shaped `AREA-BLOCK-HHMM`** (`SM-6636-1100`) — a key carrying a time but no
+date is ambiguous, and this joins all four tables. All 1,214 are currently
+unique, so nothing is broken today. The check exists so that stops being luck.
+
+### Current validity, per column
+
+| valid | column | failures |
+|---|---|---|
+| 69.1% | `Recommendation Description` | truncated 355, form_label 18, too_short 7 |
+| 94.6% | `Cause Description` | too_short 186, form_label 6 |
+| 96.9% | `Incident Number` | bad_pattern 38 |
+| 99.2% | `What was the outcome?` | truncated 4, too_short 5 |
+| 99.2% | `How did the incident occur` | form_label 2 |
+| 99.7% | `What happened?  ` | form_label 4 |
+
+**Truncation is named separately from contamination** because they are different
+problems: one lost text, the other gained furniture. Collapsing them into a
+boolean would hide which. `Recommendation Description` is now only 1.5%
+contaminated but 28.9% truncated — the remaining defect there is loss, not
+pollution, and it is the P0-B residue plus BSEE's own two-column wrapping.
+
+### Verification
+
+9 new tests. One of them, `test_checks_are_declared_where_they_can_fail`, asserts
+that at least one declared check currently fails somewhere — a validity layer
+that passes everywhere is decoration, and this forces a deliberate decision when
+a column reaches 100% rather than letting the check quietly stop earning its
+place.
+
+Mutation-checked against three plausible wrong implementations: disabling
+`no_form_label`, counting empty cells as invalid (which would double-count
+coverage and make the two headline numbers move together), and folding
+truncation into a generic boolean. All three caught.
+
+Suite 332 → 340. **Phase 0 is complete.**
+
+---
+
+## 2026-08-29 — D1: the gap-fill split, at 50% real
+
+**14,276 cells (14.7%) will be deliberately left blank.** Projected composition
+is now 40.3% real / 45.0% fabricated / 14.7% honest blank, against 40.3% / 59.7%
+under fill-everything.
+
+### The rule
+
+A `real` column's empty cells are fabricated when the column is already
+**majority real**, and left blank when fabrication would dominate. The 50% line
+is where a glance at a column gives the right general impression without
+checking provenance: above it, "mostly real with some fill"; below it, "mostly
+invented" — which is precisely what a dense column would hide.
+
+This reverses the earlier fill-everything decision for eight columns. That
+decision was taken before three things were measured: that all labelled cause
+data is post-2019, that the cause-label columns sit at 4–15% real, and that the
+missingness is strongly non-random by era. Fabricating `Human Factors Cause`
+means inventing 3,418 labels around 152 real ones, all of which sit in a single
+reporting era.
+
+| left blank | real | gap |
+|---|---|---|
+| `Human Factors  Cause` | 4.3% | 3,418 |
+| `Risk Management Cause` | 7.8% | 3,294 |
+| ` Failed PSM Framework Element` | 14.7% | 3,048 |
+| `Environment & Reputation  - Consequence` | 15.3% | 1,028 |
+| `Incident Type D` | 18.4% | 991 |
+| `Financial Cost & Business Interruption  - Consequence` | 37.0% | 765 |
+| `How did the incident occur` | 19.5% | 977 |
+| `Detail` | 37.8% | 755 |
+
+The blank is not an absence of work. It says BSEE recorded nothing, and that
+silence is one of the more interesting properties of this corpus — 0.6% of
+cause statements mapped in 2010–14 against 64.2% in 2025+. Fabricating over it
+would erase the phenomenon the dataset is partly about.
+
+### The test found two columns I had not considered
+
+The rule was drafted for the 16 modelling targets. `test_leave_blank_columns_are_
+the_minority_real_ones` applies it universally, and failed immediately on two
+non-target columns:
+
+* **`How did the incident occur`, 19.5% real.** The lowest of any narrative
+  column and, on reflection, the strongest case on the entire list: filling it
+  means inventing a prose account of how a real, named, dated incident unfolded.
+  Not a modelling target and still the most misleading thing that could go in
+  this dataset.
+* **`Detail`, 37.8% real.** A fabricated location detail still asserts something
+  about a real incident that BSEE never said.
+
+Both moved to `leave_blank`, and the rule is now universal rather than scoped to
+targets — which needs no exception clause and is easier to defend.
+
+Recorded because the test was written to encode a rule and instead corrected it.
+It also fails in the other direction: if a `leave_blank` column's real share ever
+rises past 50%, the policy must be revisited deliberately rather than drifting.
+
+`honest_blanks` is tracked separately from `fabricated_cells` in the ledger.
+Counting deliberate blanks as fabrication would misreport the dataset as more
+invented than it is, and would make choosing honesty look worse in the headline.
+
+Suite 340 → 343.
+
+---
+
+## 2026-08-29 — D2: single-label kept; secondary elements move to a sidecar
+
+### The question I was going to ask was mostly wrong
+
+I had been citing "48.3% of incidents carry multiple cause categories" as the
+case for a multi-label schema. Measured properly, at both grains:
+
+* **Incident level:** 112 of 231 (48.5%) do carry multiple categories — and the
+  causes table's grain is already *one row per cause statement*, so this is
+  represented today as multiple rows. Nothing to change.
+* **Statement level:** **0 of 3,572** statements carry more than one category.
+
+The multi-label case was an artifact of measuring at the wrong grain. The
+existing schema already handles it.
+
+### What actually remained
+
+Whether one statement's `Failed PSM Framework Element` should hold one element
+or several. `crosswalk.yaml` has declared an `also_touches` for all six
+categories since v1, and **it was emitted by nothing** — the only reference
+anywhere in `src/` was a print statement in `evidence.py`.
+
+It is not hedging. Equipment Failure → 15 (inspection and maintenance) vs 11
+(standards and practices) is the difference between a maintenance finding that
+was not actioned and a design that was wrong the day it was fitted, and the
+cause text usually says which. The 29-row labelling exercise split Equipment
+Failure between exactly those two on exactly that basis.
+
+### Decision: sidecar, not a multi-valued cell
+
+`data/processed/e19/enriched/causes_secondary_element.csv`, keyed on
+`Incident Number` + `Cause number` — the same pattern `causes_confidence.csv`
+and `causes_source_field.csv` already use.
+
+The E19 cell stays single-valued because the template's picklist takes one
+element per cause, and multi-valuing it would break the byte-exact projection
+guarantee the whole layer exists to provide. The sidecar gives anyone doing
+multi-label work the data without forcing multi-label on anyone who wants the
+template.
+
+    primary -> secondary        n
+      3 -> 8                  207
+     15 -> 11                 136
+      8 -> 6                   83
+      9 -> 17                  34
+     17 -> 3                   34
+      6 -> 11                  30
+
+### The measurable payoff, and the ceiling it exposes
+
+Elements reachable from primaries alone: **6 of 20** (3, 6, 8, 9, 15, 17). With
+secondaries: **7** — element 11 joins.
+
+That is a small gain and a large finding. **13 of the Energy Institute's 20
+elements are unreachable from this crosswalk**, no matter how the data is
+labelled, because BSEE's six cause categories do not span the framework.
+Leadership (1), legislation (2), workforce involvement (4), MoC (12), emergency
+preparedness (14), contractor management (18) and the rest can never appear.
+Anyone evaluating a model on "PSM element" is evaluating on a 7-class problem
+wearing a 20-class label, and that should be stated wherever the column is
+described.
+
+### Verification
+
+6 new tests. Mutation-checked against four plausible failures: dropping sidecar
+rows, writing the secondary into the E19 cell, echoing the primary as its own
+secondary, and emitting a secondary where no primary exists. All four caught.
+
+Suite 343 → 348. **Phase 1's two decisions are closed; Phase 2 (synth wiring)
+is unblocked.**
+
+---
+
+## 2026-08-29 — P2: synth wired. 17,583 synthetic cells, all marked `syn`
+
+`synth.py` was written and tested on 2026-08-09 and imported by nothing in
+production for three weeks. The incidents table now reads:
+
+| provenance | cells | |
+|---|---|---|
+| `syn` | 17,583 | 33.7% |
+| blank | 13,397 | 25.7% |
+| `src` | 13,340 | 25.6% |
+| `xw` | 7,882 | 15.1% |
+
+Precedence is **src > xw > syn**, enforced by
+`test_syn_never_overwrote_a_real_value`.
+
+### `fabricate` was over-claimed, and the audit was the point
+
+Before wiring, **zero** of the 20 `fabricate` columns declared a generator, and
+synth has one for only seven. Synth produces workflow, identity and risk-encoding
+fields. It has nothing for `Site`, `Area`, `Unit`, `Date of Incident`,
+`Description`, `What happened?` or `Incident Type A/B/C` — and it should not,
+because inventing a platform designator or an incident date asserts something
+specific and false about a real facility on a real day.
+
+So 13 columns moved to `leave_blank`, and `gap_policy` now carries a
+`blank_reason`:
+
+* **`would_dominate`** (8 columns) — under 50% real, the D1 rule.
+* **`no_generator`** (13 columns) — no honest way to produce the value,
+  whatever the real share.
+
+That split was forced by a **test contradiction**, not foresight: after moving
+`Date of Incident` to `leave_blank`, the D1 test failed with *"Date of Incident
+is 97.0% real but still leave_blank"*. Both facts were true. One policy was
+carrying two arguments, and the test found it.
+
+A **hash token is not a false claim.** `SYN-Approver-da5b09` says "we do not
+know who", which is true; a plausible fake name would be worse than a blank,
+because someone eventually quotes it. `test_synthetic_identities_are_never_
+mistakable_for_people` pins that.
+
+### Two bugs, one of which I reintroduced
+
+**1. A bare `except Exception` produced zero synthetic cells, silently.**
+`synth_date_fields` wants a `date` and was handed a string; the blanket handler
+swallowed the `TypeError` and the run reported success with nothing written.
+This is precisely the silent-plausible-wrong failure the repo keeps meeting,
+reintroduced by the code meant to be careful about it. Replaced with a counted,
+reported skip reason — which then immediately surfaced a second type error
+(`incident_types` wants a set, not a list) that would otherwise have been
+swallowed the same way.
+
+**2. Synth wrote 143 illegal values into a controlled column.**
+`syn_incident_classification` emits `"Unknown"`, which is not in E19's
+three-value picklist. `test_projection.py::test_no_illegal_values_in_any_
+committed_table` caught it. Synthetic values now clear the same vocabulary guard
+`psm.project` applies to verbatim ones — *blank beats a wrong value in a
+controlled column* — and the 143 rejections are reported rather than written.
+
+### Result
+
+| | before | after |
+|---|---|---|
+| real | 40.3% | **42.3%** |
+| fabricated (projected) | 45.0% | **39.7%** |
+| deliberately blank | 14.7% | **18.0%** |
+
+Real rose because Phase 0's extraction fixes landed in the same regeneration.
+Fabricated fell because 13 columns stopped claiming a fill they had no generator
+for. Suite 348 → 350.
+
+**The dataset is not dense, and that is now a stated property rather than an
+unmet goal.** 25.7% of the incidents table is blank, every blank has a recorded
+reason, and no column claims a fill it cannot honestly produce.
+
+---
+
+## 2026-08-29 — P2b: `--real-only` export and the era-stratified split
+
+`psm.ledger --real-only` writes `data/processed/e19/real_only/` with all
+**17,583 `syn` cells blanked**, plus `splits.json`.
+
+**Blanked, not dropped.** The row survives, so joins hold and the absence is
+visible. A consumer who wants only real values gets them; a consumer who ignored
+provenance entirely gets a blank instead of a fabrication, which is the safer
+failure of the two.
+
+### The split is by regime, not by round numbers
+
+A random train/test split on this corpus leaks the reporting era, and so would a
+split on decades. The boundaries are where BSEE's vocabulary actually changed:
+
+| regime | years | incidents | what changed |
+|---|---|---|---|
+| `free_prose` | ≤2006 | 161 | no controlled vocabulary at all |
+| `human_error` | 2007–2009 | 258 | one head, `Human Error`, carries almost every mapped statement |
+| `ad_hoc` | 2010–2018 | 438 | `Human Error` dies out before the modern six arrive; 68 investigator-invented heads |
+| `modern_six` | 2019+ | 321 | the modern vocabulary; adoption jumps 5 → 17 between 2018 and 2019 |
+
+36 undated incidents are excluded rather than assigned.
+
+**2019, not 2020.** A tidier boundary at the decade would put the year the
+vocabulary actually changed on the wrong side of the split. A test pins it, and
+the mutation check confirms a decade boundary misplaces 2019.
+
+`splits.json` carries the reasoning inline, and a test asserts every regime has
+a non-empty description — a stratification nobody can justify gets ignored and
+replaced with a random one.
+
+### Verification
+
+11 new tests. Mutation-checked against three failures: leaving `syn` values in
+place, blanking everything (safe and useless), and a decade-boundary split. All
+three caught; the baseline is clean.
+
+The two that matter most are complementary. `test_no_syn_cell_survives` catches
+under-blanking; `test_every_real_cell_survives` catches over-blanking. Either
+alone passes trivially — one by exporting nothing, the other by exporting
+everything.
+
+Suite 350 → 356.
+
+---
+
+## 2026-08-29 — P2c: the fidelity check killed four of the seven synthetic fills
+
+Where `syn` and real values share a column they must not be trivially
+separable, or the fill carries no information and hands any model a free
+"is this row synthetic" feature. Measured, total variation distance between the
+two distributions:
+
+| column | real n | syn n | TVD | what syn actually emitted |
+|---|---|---|---|---|
+| `Incident Classification` | 645 | 390 | **0.685** | the constant `"Incident"`, 100% |
+| `Incident Classificatioin` | 645 | 390 | **0.685** | same |
+| `Health & Safety Incident - Classification` | 645 | 390 | **0.685** | same |
+| `Health & Safety - Risk Score` | 645 | 423 | **0.994** | `{2, 5, 9}` |
+
+The risk-score case is worse than a distribution mismatch — it is a **scale
+error**. `syn_hs_risk_score` is a 9/5/2 encoding of a three-value
+classification; the real column is a consequence x likelihood product on 1-25,
+emitting `{4,5,6,8,10,12,15,20,25}`. The two value sets intersect on the single
+value `5`, where they mean different things. Putting them in one column is a
+category error, not an approximation.
+
+The cause is structural, not a bug in synth: **synth fills exactly the rows the
+real method declined** — those with no spine atoms or an unestimable mechanism —
+and those are systematically the low-severity, low-information ones. So the fill
+collapses to a constant by construction.
+
+All four moved to `leave_blank` with a new `blank_reason: degenerate_fill`. A
+column filled this way looks like data and is not.
+
+**Three fills survive**, all identity columns, and their separability is the
+design rather than a defect: `SYN-Approver-da5b09` is supposed to announce
+itself. A separate test asserts their TVD stays **above** 0.9 — if synthetic
+identities ever blended in with real ones, that would be the failure.
+
+### A second bug, found by the same test
+
+After the four columns moved to `leave_blank`, `Incident Classificatioin` kept
+filling. The crosswalk built its generator map from the presence of a
+`generator:` key and never consulted `gap_policy`, so a stale key left behind by
+the policy change carried on producing 390 constant cells. **A generator key is
+not permission to fill** -- the policy decides, the generator only says how.
+Fixed, and the stale keys removed.
+
+### Result
+
+| | before P2c | after |
+|---|---|---|
+| synthetic cells | 17,583 | **15,990** |
+| deliberately blank | 18.0% | **20.0%** |
+| columns still fabricating | 7 | **3** |
+
+Suite 356 → 359. Phase 2 complete.
+
+---
+
+## 2026-08-29 — P3.1: the six cause categories are not the structure of the text
+
+Clustered all 3,354 cause statements of five words or more, with the category
+name **stripped** so the exercise is not circular. Agreement with
+`schema/crosswalk.yaml`'s six categories, over the 503 labelled statements:
+
+| | ARI vs the six | purity |
+|---|---|---|
+| category name **stripped** | **0.031** | 0.410 |
+| category name kept (circular control) | **0.780** | 0.795 |
+| majority-class baseline | — | 0.395 |
+
+Purity of 0.410 against a 0.395 baseline is +1.5pp — noise. The six categories
+are recoverable from the text **only because the text contains their names**.
+
+The circular control is the load-bearing part of this result. Without it, a
+naive run scores ARI 0.78 and "confirms" the crosswalk, which is a tautology
+dressed as a finding: the string `"Human Performance Error:"` is *in the
+statement being clustered*.
+
+### Era is not the confound
+
+Cluster-vs-era ARI is **-0.019** at k=6. The clusters are not tracking the
+reporting regime, which was the obvious alternative explanation given that 87.1%
+of labelled statements are `modern_six`.
+
+### What the clusters actually track
+
+| cluster | top terms |
+|---|---|
+| c0 | ip, placement, hand, pinch, pinch point |
+| c1 | crane, operator, boom, load, lift |
+| c2 | failure, valve, failed, gas, pressure |
+| c3 | work, stop work, stop work authority, hot work |
+| c4 | jsa, job safety analysis |
+| c5 | cause, incident, probable cause, contributing (residual form furniture) |
+
+These are **activity and hazard types** — a lift, a valve, hot work, body
+position. BSEE's six categories are **attributions** — human error, equipment
+failure, management systems. The narrative says *what was happening*; the
+category says *who or what is blamed*. They are close to orthogonal axes, and
+the clustering is measuring that rather than failing.
+
+### But clustering is the wrong instrument for "is there signal"
+
+Unsupervised structure and predictability are different questions, so the
+supervised one was asked directly. Logistic regression on TF-IDF of the stripped
+description, 5-fold stratified CV, n=503:
+
+| | accuracy | macro-F1 |
+|---|---|---|
+| majority baseline | 0.392 | 0.094 |
+| **logistic on TF-IDF** | **0.551** | **0.418** |
+
+So the category **is** partially predictable from the description alone. The
+clustering result does not mean "no signal" — it means the signal is not the
+dominant axis of variation in the text.
+
+Per category, and this is the more useful number:
+
+| category | n | F1 |
+|---|---|---|
+| Equipment Failure | 128 | **0.692** |
+| Human Performance Error | 197 | **0.639** |
+| Management Systems | 81 | 0.400 |
+| Communication | 34 | 0.310 |
+| Supervision | 34 | 0.243 |
+| Work Environment | 29 | 0.222 |
+
+**The six-category task is really a two-class task with four rare classes
+attached.** The top two are 65.5% of the labelled data and carry almost all the
+learnable signal; the bottom three sit at n≈30 with F1 near 0.25.
+
+### Consequences
+
+* **A hackathon task framed as "predict the PSM element from cause text" should
+  expect ~0.55 accuracy, not 0.9**, and should report macro-F1 — accuracy alone
+  rewards predicting the two big classes and ignoring the rest.
+* **Weak supervision (3.2) is worth less than it looked.** Labelling functions
+  keyed on text patterns are fighting an axis the text does not strongly encode,
+  and the four rare categories are where the LFs would be needed most.
+* **The cluster taxonomy is a better-founded alternative target.** Lifting,
+  process containment, body position, work control and JSA quality are
+  data-driven, derivable without any labels, and describe this corpus better
+  than the six do.
+
+### Scope limits
+
+503 labelled statements, 87.1% of them `modern_six`. The CV is stratified by
+class, **not by era** — with 87% in one regime an era-stratified split would
+leave too little elsewhere to train on, which is itself a finding about the
+corpus. TF-IDF rather than sentence embeddings, chosen so a stranger can rebuild
+this from a fresh clone per the reproducibility contract; a stronger encoder
+would likely raise the supervised numbers and would not change the clustering
+conclusion, which is about which axis dominates.
+
+---
+
+## 2026-08-30 — LLM labelling pilot: Haiku 4.5 vs Sonnet 4.5, model choice
+
+`psm.llm_label --pilot --limit 60`, both via AWS Bedrock inference profiles
+(`us.anthropic.claude-haiku-4-5-20251001-v1:0`,
+`us.anthropic.claude-sonnet-4-5-20250929-v1:0`), on the same hash-ordered
+60-statement sample of the 524 statements the crosswalk also labels.
+
+| | Haiku 4.5 | Sonnet 4.5 |
+|---|---|---|
+| agreement with crosswalk (not accuracy) | 18/49 = 36.7% | 16/53 = 30.2% |
+| self-consistency, high-confidence rate | 49/60 = 81.7% | 48/60 = 80.0% |
+| parse-failure rate | 0/60 = 0.0% | 4/60 = 6.7% |
+| abstention rate (`INSUFFICIENT`) | 11/60 = 18.3% | 3/60 = 5.0% |
+| cross-model agreement, both labelled | 32/45 = 71.1% | (same pair) |
+
+**Neither model fell into the element-5 word-match trap.** Of the 8 statements
+in the sample containing "communicat*", zero were assigned element 5 by either
+model — both routed them to 17 (in-task coordination) or 8, exactly the
+distinction the prompt asks for. This is the more informative check than the
+aggregate confidence number, since it tests the specific failure mode the
+prompt was written to prevent, not just whether the model was internally
+consistent.
+
+**17 vs 6 splits differently, not worse.** Haiku: 17 assigned 15x, 6 assigned
+10x. Sonnet: 17 assigned 25x, 6 assigned 7x. With no gold labels for this
+sample, this is a difference in judgement, not evidence either model is
+missing the distinction.
+
+**Decision: Haiku 4.5, for the full run.** It matches or exceeds Sonnet on all
+three deciding criteria — agreement, self-consistency, and parse-failure rate —
+at roughly a third of the cost (~$10 vs ~$36 for 3,572 statements x 3 passes).
+Sonnet's self-consistency was not materially worse, so the fallback trigger in
+the run plan does not fire.
+
+**Open caveat, not a reversal.** Haiku's abstention rate (18.3%) is well above
+Sonnet's (5.0%) on this same sample, and above the corpus-wide 7.6%
+"statement is unusable" rate — notable because this pilot is restricted to
+statements the crosswalk *already* typed, so a higher floor was expected, not
+a higher abstention rate. Worth re-checking against the full run, whose
+majority is freetext rather than crosswalk-typed statements.
+
+**A dependency gap, and a lost pilot run.** `boto3` was never declared in
+`pyproject.toml` — `call_bedrock` imports it lazily, which hid the gap from
+`uv run pytest` since nothing exercises the Bedrock backend in the suite.
+Added to `dependencies`. Before the fix was caught, the first Haiku pilot
+attempt ran all 180 real calls (~$0.30) and then crashed on `ModuleNotFoundError`
+before that — no spend lost there. The *second* attempt, after the fix, did
+spend the ~180 calls and then lost the output to a relative `--out` path that
+resolved against an unexpected working directory at write time (all pilot
+`--out` invocations now use absolute paths). Recorded because both were real
+AWS spend with no output to show for it, and the second is the reason
+`write_outputs` now checkpoints every 200 rows in the full run rather than
+writing once at the end — a late failure on a 10,716-call run should not be
+able to discard everything before it the way this pilot's did.
+
+Suite still 361 passed, 2 skipped after these changes. The retry-with-backoff
+path was mutation-checked interactively at the time against a mocked throttling
+error (recovers) and a mocked non-retryable error (propagates on the first call,
+no wasted retries), but this check was not persisted as a committed test. The
+retry and checkpoint paths in `src/psm/llm_label.py` currently have no automated
+coverage.
+
+---
+
+## 2026-08-30 — Gold sample rebuilt at statement grain, on the E19 tables
+
+`gold_sample.py`/`gold_scaffold.py` sampled from `data/manifest.csv` (the
+legacy BSEE-PDF-harvest pipeline) at report grain. R5 (2026-08-29, above)
+already measured why that can never be scored: gold keys on `report_id` =
+sha256 of the source PDF, `psm.llm_label`/`psm.crosswalk`/everything else
+keys on `Incident Number` from the E19 workbook, and the direct join was 0 of
+100. Rebuilt both modules to sample from `data/processed/e19/enriched/
+causes.csv` and `incidents.csv` directly — the same tables `psm.llm_label`
+reads — so the join exists by construction instead of needing a documented
+two-hop workaround.
+
+**A second problem, found while rebuilding, not before.** `gold_scaffold.py`
+assigned one gold label per *report*. Checked against `causes.csv`: only
+19.1% of incidents (231/1,210) have any crosswalk-typed cause at all, and of
+those, 112 (48.5%) carry causes that disagree with each other on PSM element —
+unsurprising once you look, since 90.5% of incidents (1,095/1,210) have more
+than one cause statement. A report-level gold label can't represent a report
+whose own causes span different categories. Sample and worksheet are now keyed
+on `(Incident Number, Cause number)` — a statement — matching
+`psm.llm_label.statements()`'s grain exactly.
+
+### Design: two-pass stratification
+
+1. **Category floor** (default 30/category): up to `category_floor` statements
+   per BSEE cause category, so every category gets enough rows for its own
+   agreement estimate. Category signal prefers the crosswalk's `xw_element`
+   (524/3,572 statements, inverted from `schema/crosswalk.yaml`'s
+   `primary_element` rather than re-hardcoded — CLAUDE.md's "never bury a
+   mapping in a Python dict" applies here too) and falls back to
+   `llm_cause_category` where the crosswalk found nothing.
+2. **Era fill**: remaining budget spread across `psm.ledger.ERA_REGIMES`
+   from whatever's left, same allocator shape (base share, floored, capped by
+   availability, remainder to the eras with the most unused rows) the old
+   report-level sampler used for years. This exists because crosswalk-typed
+   statements are 87% `modern_six` (457/524) — a category-only sample would
+   almost entirely skip `free_prose` and `ad_hoc`.
+
+Selection within each stratum is by ascending `sha256(incident|cause)` — no
+stored seed, same pattern `synth.py` uses for its hash offsets.
+
+### Current sample (final — regenerated against the complete LLM run)
+
+Generated `uv run python -m psm.gold_sample && uv run python -m psm.gold_scaffold`
+at default `target_n=360`, `category_floor=30`, first against a 600/3,572
+partial run (see the superseded numbers below), then re-run once the full
+3,572-statement job finished:
+
+| category | n | | era | n |
+|---|---|---|---|---|
+| Management Systems | 109 | | modern_six | 116 |
+| Human Performance Error | 46 | | ad_hoc | 111 |
+| Equipment Failure | 42 | | human_error | 75 |
+| Communication | 30 | | free_prose | 57 |
+| Supervision | 30 | | undated | 1 |
+| Work Environment | 30 | | | |
+| (none — era-fill only) | 73 | | | |
+
+Category signal source: 71 from the crosswalk (`xw`), 216 from the LLM run
+(`llm`), 73 with neither. Verified after regeneration: 360/360 unique
+`(incident, cause)` keys, all `gold_*` cells blank.
+
+**Superseded caveat, kept for the record.** The first pass above (now
+overwritten) was built while the LLM job was at 600/3,572 checkpointed, so the
+category-floor pass drew almost entirely on the crosswalk's `modern_six`-heavy
+524 and that era was overrepresented (43.6% vs 27.3% of the full corpus) as a
+direct consequence — 40/33/31/30/30/30 by category, 166 rows with no category
+signal at all. The re-run against the complete corpus lets `llm_cause_category`
+reach the freetext majority: `modern_six` share drops to 32.2% (116/360, in
+line with corpus proportion), category coverage improves (`(none)` rows fall
+from 166 to 73), and Management Systems balloons to 109 because it's now the
+single largest LLM-assigned category among freetext statements pulled in by
+era-fill, not a stratification bug — the category floor pass itself still caps
+every crosswalk-typed category's *guaranteed* share at 30, exactly as designed.
+Verified directly against `llm_causes.csv`: Management Systems is 1,374/2,423
+(56.7%) of all non-abstaining `llm_cause_category` assignments corpus-wide,
+more than the other five categories combined — worth watching during
+hand-labelling as a possible LLM catch-all bias rather than assuming it
+reflects the real category mix, since nothing in this pipeline has checked
+that yet. `gold/gold_labels.csv`'s previous 100 rows had zero hand labels
+(verified before the original rewrite), so regenerating twice cost nothing
+real.
+
+The worksheet (`gold/gold_labels.csv`) shows only `src_` reference fields
+(incident, cause, year, era regime, site/area, cause description) and blank
+`gold_` columns — never `xw_element` or `llm_cause_category`, which would
+anchor a human labeller on a machine guess before they've read the text.
+
+### Verification
+
+13 new/rewritten tests (`tests/test_gold_sample.py`,
+`tests/test_gold_scaffold.py`) replace the 15 report-grain ones — category
+floor capping, era-fill coverage, no-duplicate-selection, determinism and
+reorder-stability, worksheet field mapping, missing-key handling. Full suite:
+359 passed, 2 skipped (was 361/2; net -2 matches the old suite having two more
+report-grain-specific cases than the new one needs). Ran the real pipeline
+end-to-end against the live `causes.csv`/`incidents.csv`/`llm_causes.csv` (not
+just fixtures) and spot-checked the output: 360/360 keys unique, all six
+`gold_*` columns blank across all rows, `src_site`/`src_area` byte-matching
+the E19 workbook's own field semantics (site = area-code abbreviation like
+`GC`/`MC`, area = block number — the source's own naming, kept as-is).
+
+**Not yet done:** the actual hand-labelling, and the re-run once the full LLM
+job finishes.
+
+---
+
+## 2026-08-30 — Full LLM labelling run complete: 3,572 statements x 3 passes
+
+`psm.llm_label --backend bedrock --model us.anthropic.claude-haiku-4-5-20251001-v1:0`,
+10,716 calls, ~2h50m wall clock, exit 0, no unrecovered throttling (retry path
+never had to surface an error — see the mocked-failure verification in the
+pilot entry above). `llm_causes.csv`: 3,572 rows. `llm_disagreements.csv`: 282
+rows.
+
+**Everything below is agreement with the crosswalk, not accuracy.** Both
+`xw_element` and `llm_psm_element` are opinions derived from the same text by
+different reasoning; neither is `gold_`. CLAUDE.md forbids reporting a metric
+scored against `llm_` as if it were ground truth, and nothing here does that —
+see the freshly-stratified `gold/gold_labels.csv` (previous entry) for what an
+actual accuracy number will need.
+
+### Agreement, overall and by category
+
+Agreement is only measurable on the 524 statements the crosswalk also labels
+(the other 3,048 are freetext with nothing to compare against):
+
+| | n | agree | disagree | abstain | parse-failed |
+|---|---|---|---|---|---|
+| **all typed** | 524 | 133 (25.4%) | 282 (53.8%) | 107 (20.4%) | 2 (0.4%) |
+
+| BSEE category (crosswalk primary element) | n | agree | abstain |
+|---|---|---|---|
+| Human Performance Error (3) | 207 | **9 (4.3%)** | 61 (29.5%) |
+| Equipment Failure (15) | 136 | 74 (54.4%) | 29 (21.3%) |
+| Management Systems (8) | 83 | 16 (19.3%) | 3 (3.6%) |
+| Communication (9) | 34 | 2 (5.9%) | 3 (8.8%) |
+| Supervision (17) | 34 | 25 (73.5%) | 2 (5.9%) |
+| Work Environment (6) | 30 | 7 (23.3%) | 9 (30.0%) |
+
+**The Human Performance Error → element 3 hypothesis, confirmed directly.**
+This is the exact concern the run plan flagged before spending anything: a
+22-row hand pass (`gold/llm_gold_typed.csv`, an earlier ad-hoc check) had
+found 10/12 disagreements on this category. At full scale, 39.5% of the typed
+corpus (207/524) is Human Performance Error, and the LLM agrees with `element
+3` only 4.3% of the time on it — the single lowest agreement rate of any
+category, dragging the 25.4% overall figure down substantially by itself (drop
+Human Performance Error and the remaining 317 typed statements agree at
+39.1%). Where it disagrees (135 non-abstaining cases), it isn't scattering:
+**67 go to element 17** (work control, permit to work) and **37 to element 6**
+(hazard identification) — the same two elements `schema/crosswalk.yaml`'s own
+note already flagged as the live alternative ("Reviewers who believe these
+should route to procedures (8) have a real argument" undersold it; 17 and 6
+are the model's actual preference, not 8). This reads as the crosswalk's
+category→element mapping being contestable on its own terms, not as a
+labelling defect — exactly what `crosswalk.yaml`'s `confidence: medium` on
+this entry already says, now with a number attached.
+
+Communication (5.9%) is the other outlier low, consistent with
+`crosswalk.yaml` marking it `confidence: medium` and noting the modal
+subcategory split between handover (9) and job briefing (17). Supervision
+(73.5%) and Equipment Failure (54.4%) — both `confidence: high`/`low` in the
+crosswalk for different reasons — are where the two methods actually converge.
+
+### Self-consistency
+
+Measured the same way as the pilot comparison (`llm_confidence == "high"`,
+i.e. all 3 passes landed on the same non-abstaining element):
+
+| | n | high-confidence |
+|---|---|---|
+| full run (all 3,572) | 3,572 | 2,423 (67.8%) |
+| pilot, typed-only (524-statement pool, n=60) | 60 | 49 (81.7%) |
+
+On this run, 3-pass self-consistency at temperature 0 has no discriminating
+power: the three passes agreed on every one of the 3,559 parseable statements
+(no partial abstention ever occurred), making `llm_passes_agreed` bimodal 0-or-3
+and `llm_confidence` never taking the `medium` value the design reserves for
+majority-not-unanimous. Consequently, `llm_confidence == "high"` (2,423 = 67.8%)
+is arithmetically identical to the answer rate (n − abstentions − parse failures =
+3,572 − 1,136 − 13 = 2,423); it measures coverage, not agreement between passes.
+
+The pilot's 81.7% is the same quantity measured on differently-composed samples
+(only the 524 crosswalk-typed statements, which abstain less); the comparison is
+a comparison of answer rates, not evidence of model consistency scaling. **This is
+a negative result:** 3-pass self-consistency bought no signal at temperature 0.
+A future run wanting a real confidence measure would need temperature > 0 or
+genuinely different prompts per pass to produce divergence worth measuring.
+
+### Abstention and parse-failure
+
+| | n | rate |
+|---|---|---|
+| abstained (`INSUFFICIENT`) | 1,136 / 3,572 | 31.8% |
+| total parse failure (no pass parsed) | 13 / 3,572 | 0.4% |
+
+`schema/llm_labelling.yaml` records two independently-measured corpus
+properties as the expected floor/ceiling for abstention: 7.6% of `Cause
+Description` text is unusable (form-label residue or under five words) and
+28.2% ends mid-sentence. 31.8% observed abstention sits close to that combined
+range rather than far outside it — the model is not over-abstaining relative
+to how degraded the source text actually is. Parse-failure (0.4%) is well
+under the pilot's Sonnet rate (6.7%) and roughly matches Haiku's pilot rate
+(0.0%) — the retry/checkpoint hardening added before this run had nothing to
+recover from at scale.
+
+### By era regime
+
+Agreement (typed subset only — the crosswalk never reaches `free_prose`, so
+that era has zero rows to compare):
+
+| era | typed n | agree | | era | all n | abstain |
+|---|---|---|---|---|---|---|
+| modern_six | 457 | 128 (28.0%) | | modern_six | 976 | 239 (24.5%) |
+| ad_hoc | 22 | 4 (18.2%) | | ad_hoc | 1,424 | 469 (32.9%) |
+| human_error | 45 | 1 (2.2%) | | human_error | 666 | 231 (34.7%) |
+| free_prose | 0 | — | | free_prose | 398 | 159 (39.9%) |
+| | | | | undated | 108 | 38 (35.2%) |
+
+Two things worth separating. Agreement does **not** cleanly fall off pre-2019
+the way the run plan hypothesised it might — `human_error`'s 2.2% is
+suspiciously low but n=45 is too small to trust on its own (a single category
+skew away from Human Performance Error could move it several points), and
+`ad_hoc` at 18.2% (n=22) is even thinner. Only `modern_six` (n=457) has enough
+mass to say anything with confidence, and its 28.0% is close to the 25.4%
+corpus-wide figure. What *does* trend cleanly with era is abstention:
+24.5% → 32.9% → 34.7% → 39.9% from `modern_six` back to `free_prose`, a
+monotonic increase as the source text gets older and (per the extraction
+remediation entries above) harder to extract cleanly. That's a text-quality
+gradient, not a model-quality one — consistent with the abstention-vs-baseline
+comparison just above.
+
+### What this changes
+
+Nothing is written back to `crosswalk.yaml` from this — CLAUDE.md is explicit
+that the crosswalk never changes from LLM output alone, and this run doesn't
+attempt to. What it produces is exactly what the module's docstring promised:
+an agreement number instead of an opinion, and a 282-row disagreement queue
+(`data/processed/e19/llm_disagreements.csv`, sorted confident-disagreements
+first) concentrated overwhelmingly in Human Performance Error — the queue to
+hand a human next, not a verdict on its own.
+
+**Not yet done:** hand-labelling the stratified gold sample, and computing an
+actual accuracy number (`llm_` vs `gold_`, category and per-element) once that
+exists. This run's numbers are agreement-with-crosswalk only and will not be
+re-cited as accuracy anywhere in this repo.
+
+---
+
+## 2026-08-31 — filled/ E19 layer + xlsx deliverable for SME review
+
+`psm.fill` (new) fills the enriched tables' remaining gaps into
+`data/processed/e19/filled/` — same byte-exact labels, same parallel
+provenance files, every fill deterministic (sha256 picks, rules in
+schema/synth_rules.yaml v2). `psm.export_e19` (new) renders it to
+`deliverables/e19_filled.xlsx` (gitignored) with per-cell provenance shading.
+
+Element column: 3,572/3,572 filled — 524 xw (kept), 2,008 llm, 1,040 syn
+fallback weighted by the run's own element distribution. Cause type:
+3,572 syn (first cause Immediate, rest hash-weighted). Work Group: 1,214 syn
+from an invented picklist. Likelihoods: syn only beside a present, non-zero
+risk score (186 E&R, 443 Financial) — internal consistency beats column
+completeness for realism. The xlsx export substitutes a single space for each
+run of control characters that OOXML can't store (8 cells, PDF-extraction
+artifacts); the committed CSVs keep the original bytes unchanged.
+
+Verified: fill is idempotent (second run byte-identical, git diff clean);
+never overwrites a non-empty enriched value (tests/test_fill_outputs.py, run
+against the real outputs); llm cells match llm_causes.csv exactly; provenance
+tokens closed-set. Four of the 1,214 incidents carry zero cause rows —
+`UNKEYED-6e8704573b22`, `MC-778-20070913-1545`, `SP-57B-20201017`,
+`SP-83-20210107` — and the fill left them at zero rather than synthesizing
+causes to force a count; `SP-57B-20201017` is the `absent_legitimate` case
+documented above (third-party vessel allision outside BSEE jurisdiction,
+fields 18/19 genuinely blank in the source PDF and in `src_f18_probable_cause`
+/ `src_f19_contributing_cause`), confirmed again here directly from
+`data/interim/sp-57b-cox-operating-17-oct-2020.json`. The workbook's About
+sheet states, in plain language, that this is a demonstration of an
+auto-populated register — model labels unvalidated (25.4% crosswalk
+agreement, n=524), synthetic cells correspond to nothing real. It is a
+proposal for SMEs to evaluate, not a finding.
+
+---
+
+## 2026-09-01 — feat/e19-fill-export fix wave (post whole-branch review)
+
+The branch (14 tasks, `src/psm/scenario.py`, SALT `e19-scenario-v1`) built a
+deterministic scenario engine that samples disjoint donor partitions from the
+real BSEE corpus and plants known process pathologies into three synthetic
+companies (NorthStar, Meridian, Coastal), each with a full 4-table E19
+register, a per-cell provenance sidecar, a nine-KPI layer measuring the
+planted conditions, a statistical test suite (planted-vs-measured, negative
+controls, near-threshold resolution), and reviewer/comparison xlsx exports.
+A final whole-branch review found everything else clean and flagged ten
+specific items; this entry records the fix wave that closed them.
+
+### Three adjudicated plan-text errors (carried forward from the spec's
+### bracketed `[SUPERSEDED]`/`[CORRECTION]` notes, `docs/superpowers/specs/
+### 2026-08-31-scenario-registers-design.md`)
+
+- **overdue_rate, Meridian vs NorthStar (3x → 2x):** the plan's "M > 3× N" is
+  unsatisfiable by construction since a rate is bounded at 1
+  (3 × 0.354 > 1.0). Analytic rates: northstar (45-day median, 0.6 sigma
+  mix) ≈ 0.354, meridian (130-day median, 0.8 sigma mix) ≈ 0.827 — true
+  ratio ≈ 2.335. Adjudicated to `M > 2× N`.
+- **owner_completeness negative control (flat bound → designed-offset
+  bound):** the plan implied a near-zero gap between Meridian and NorthStar,
+  but `scenarios/meridian.yaml`/`northstar.yaml` deliberately differ
+  (`owner_assigned_rate` 0.98 NorthStar vs 0.95 Meridian — the "data
+  discipline" differential the spec calls for). Bound corrected to
+  `0.03 + tol(0.95, 180, 0.05)`, i.e. designed offset plus statistical floor,
+  not identical rates.
+- **Coastal HS-completeness decay (−15pt → analytic expectation + floor):**
+  the plan's "< baseline − 15pt" is unsatisfiable in expectation. The coastal
+  donor partition is already 49.33% HS-blank (74/150), and
+  `extra_hs_blank_rate` (0.25, `scenarios/coastal.yaml`) is OR-composed on
+  top of that, capping expected decay at (1 − 0.4933) × 0.25 ≈ 12.7pt <
+  15pt. Adjudicated to analytic-expectation ± tol with a −5pt floor
+  (`tests/test_scenarios.py::test_coastal_hs_decay_planted_and_baseline_adjusted`).
+
+### README provenance numbers — recompute method and old → new
+
+Method: read `data/processed/e19/filled/provenance.csv` (1,214 rows × 43
+cols = 52,202 cells) and `filled/causes_provenance.csv` (3,572 rows × 7 cols
+= 25,004 cells) — the only two tables the `filled/` layer provenances
+(`recommendations.csv`/`closeout.csv` live under `data/processed/e19/`
+directly and were never part of `psm.fill`'s output, so they carry no
+provenance sidecar and cannot contribute to a "four tables" denominator) —
+and tally every cell's token with a plain `csv.DictReader` + `Counter`, no
+sampling.
+
+- Incidents table alone: `src` 25.6% → 19.0%, `xw` 15.1% → 15.1%
+  (unchanged), `syn` 30.6% → 34.2%, blank 28.7% → 25.2%, plus two tokens the
+  pre-Phase-0 figure didn't have: `key` 2.3%, `pseud` 4.3%. (Phase 0's
+  `key`/`pseud` split what used to be folded into `src`, which is why `src`
+  alone dropped ~6.6 points while nothing about the underlying data changed.)
+- "Composition across all four tables" (40.7% real / 39.0% fabricated /
+  20.4% blank) was unreproducible — no record of what the fourth-table
+  inputs to that figure were, and `filled/` only ever provenanced two
+  tables. Replaced with a figure computed across the two tables `filled/`
+  actually has (77,206 cells total): 33.5% real (`src`+`xw`), 31.7%
+  fabricated (`llm`+`syn`), 9.1% `key`+`pseud`, 25.7% blank.
+- `README.md:227` "359 tests" → 495 (`uv run pytest --collect-only -q`,
+  reproduced this session).
+- Token table (README "Provenance" section) and precedence text
+  (`src`/`key`/`pseud` > `xw` > `syn`, was `src` > `xw` > `syn`) updated to
+  include `key`/`pseud`, added by Phase 0 to `src/psm/provenance.py` and not
+  previously documented in the README.
+
+### About-sheet correction (`src/psm/export_companies.py::ABOUT_TEMPLATE`)
+
+False claim: "People are SYN- tokens. No real names appear in this
+register." The second sentence is false — narrative columns carry verbatim
+BSEE report text, and a `\b(Mr|Ms|Mrs)\.\s+[A-Z][a-z]+` scan against the
+committed company CSVs (all four tables, all three companies) found 4 real
+name occurrences in NorthStar and 25 in Coastal (0 in Meridian), plus real
+operators/vessels/facilities named throughout the narrative prose — none of
+that is SYN-tokenized. Corrected to: "Structured name fields are SYN-
+tokens; narrative text is verbatim public BSEE report text and names the
+real operators, vessels, facilities and -- occasionally -- individuals
+involved." The leak-guard test
+(`tests/test_export_companies.py::test_company_about_discloses_without_leaking_the_answer_key`)
+previously asserted against the raw unformatted `ABOUT_TEMPLATE` list (with
+`{label}` never substituted, so "northstar is"/"coastal is" could never
+match); fixed to assert against the rendered per-company text instead, and
+"no real names" added to the banned-token list so this false claim can't
+regress silently. Mutation-checked: reintroducing the old line into the
+rendered text made the test fail (`AssertionError: ('NorthStar', 'no real
+names')`) before the revert.
+
+### Final suite
+
+`uv run pytest -q`: 493 passed, 2 skipped (495 collected) — up from the
+pre-fix-wave baseline of 492 passed / 2 skipped, net +1 for the new
+`test_coastal_planted_recurrence_pairs_are_a_subset_of_detected` (item 6:
+Coastal had no planted⊆detected recurrence assertion mirroring Meridian's;
+mutation-checked by corrupting one planted pair's `Work Group` field in the
+committed CSV, observing the new test fail, then restoring via
+`uv run python -m psm.scenario coastal` — confirmed byte-identical to the
+pre-mutation committed files by SHA256, `git status --porcelain -- data/
+companies/coastal` empty). Also fixed in this wave: the determinism guard
+(`test_engine_has_no_wall_clock_or_random_dependence`) now bans `import
+scipy`/`from scipy` (not a bare `"scipy"` substring — both `scenario.py` and
+`quantiles.py` legitimately mention scipy by name in their own docstrings to
+explain why they avoid it) plus `datetime.today`/`utcnow`, and scans
+`psm.export_companies`/`psm.provenance` in addition to the original four
+modules; a hardcoded `0.25` in the Coastal HS-decay test now reads
+`resolved_knobs.data_discipline.extra_hs_blank_rate` from the committed
+manifest instead; five F401 unused imports removed
+(`scenario.py:field`, `test_scenarios.py:timedelta,analytic_overdue_rate`,
+`test_export_companies.py:Path,OUT_DIR`).

@@ -3,17 +3,31 @@
 # THIS FILE IS AN OPINION, NOT A FACT. It is data, not code, precisely so you
 # can disagree with it in a pull request without touching Python.
 #
-# Elements are referenced BY NUMBER ONLY. The Energy Institute's framework is a
-# copyrighted publication of a UK professional body and we could not verify its
-# terms of use (energyinst.org returned 403 to every request). Since the ML task
-# keys on element number, being careful costs us nothing. See DATA_SOURCES.md.
-#
 # Applied by src/psm/crosswalk.py. Output columns take the `xw_` prefix.
+#
+# ---------------------------------------------------------------------------
+# v2 (2026-08-29) -- RE-BASED. Read this before trusting any element number.
+#
+# v1 was written deliberately blind: energyinst.org returned 403, so element
+# numbers were anchored to some other published EI numbering. The reasoning in
+# each `note` was sound; the numbers it resolved to were not. v1 routed
+# Equipment Failure to element 7 while describing it as "maintenance, inspection
+# and repair adequacy" -- but element 7 in the target template is
+# "Documentation, records and knowledge management", and "Inspection and
+# maintenance" is element 15. Applying v1 would have put a wrong element on
+# every one of 3,462 cause rows.
+#
+# v2 re-anchors every number against schema/e19_labels.yaml, which is extracted
+# mechanically from the target workbook. Each entry now records the phrase in
+# its own note that the element name was matched against, so the re-basing is
+# auditable rather than asserted. tests/test_crosswalk.py asserts every number
+# resolves to a real element name, so this cannot silently drift again.
+# ---------------------------------------------------------------------------
 
-version: 1
+version: 2
 target_framework: "Energy Institute PSM Framework"
-target_element_reference: "by number only"
-source_vocabulary: "BSEE MMS Form 2010, fields 18/19 (induced 2026-08-02, n=63)"
+target_element_reference: "schema/e19_labels.yaml, vocabulary 'Failed PSM Framework Element'"
+source_vocabulary: "BSEE MMS Form 2010, fields 18/19 (re-induced 2026-08-29, n=3,462)"
 
 # Confidence is about the MAPPING, not the extraction:
 #   high   - the category names the element's subject matter directly
@@ -22,77 +36,117 @@ source_vocabulary: "BSEE MMS Form 2010, fields 18/19 (induced 2026-08-02, n=63)"
 categories:
 
   Equipment Failure:
-    primary_element: 7
-    also_touches: [10]
+    primary_element: 15          # Inspection and maintenance
+    also_touches: [11]           # Standards and practices
     confidence: high
+    was_v1: {primary: 7, also: [10]}
+    matched_on: "maintenance, inspection and repair adequacy"
     note: >
-      Asset integrity / mechanical integrity. Routed to 7 because the failures
-      observed are overwhelmingly maintenance, inspection and repair adequacy
-      rather than design. Where the statement names design specifically
-      ("Flawed equipment design or construction") element 10 is the better fit,
-      which is why this is a two-element entry rather than one.
+      Asset integrity. The observed failures are overwhelmingly maintenance,
+      inspection and repair adequacy, which element 15 names directly. Where the
+      statement names design specifically ("Flawed equipment design or
+      construction") element 11 is the better fit, which is why this is a
+      two-element entry.
 
   Human Performance Error:
-    primary_element: 13
-    also_touches: [12]
+    primary_element: 3           # Employee selection, placement and competency, and health assurance
+    also_touches: [8]            # Operating manuals and procedures
     confidence: medium
+    was_v1: {primary: 13, also: [12]}
+    matched_on: "competence / human factors"
     note: >
-      Contested by design. "Human error" as a cause category is itself
-      disputed in modern process-safety thinking - it often encodes a systemic
-      failure as an individual one. We map it to competence/human factors
-      rather than to a discipline element, and flag it. Reviewers who believe
-      these should route to procedures (12) have a real argument.
-      Surface variants: "Human Performance Error" (dominant), "Human error",
-      "Human performance error". Normalise before lookup.
+      Contested by design. "Human error" as a cause category is itself disputed
+      in modern process-safety thinking - it often encodes a systemic failure as
+      an individual one. Mapped to the competency element rather than to a
+      discipline element, and flagged. Reviewers who believe these should route
+      to procedures (8) have a real argument.
 
   Management Systems:
-    primary_element: 3
-    also_touches: [1]
+    primary_element: 8           # Operating manuals and procedures
+    also_touches: [6]            # Hazard identification and risk assessment
     confidence: medium
+    was_v1: {primary: 3, also: [1]}
+    matched_on: "No written job procedures / Inadequate hazards analysis"
     note: >
-      The broadest and least precise BSEE category - observed subcategories
-      range from "No written job procedures" to "Inadequate hazards analysis",
-      which belong to different elements. Routed to the management-system
-      element as the least-wrong single destination. This is the entry most
-      likely to need splitting once level-2 subcategories are pinned down.
+      The broadest and least precise BSEE category. Its two commonest observed
+      subcategories point at different elements - "Inadequate job procedures" at
+      8, "Inadequate hazards analysis" at 6 - so both are recorded. The target
+      framework has no generic "management system" element, which is why this
+      resolves to the modal subcategory rather than to a true parent. The entry
+      most likely to need splitting once level 2 is pinned down.
 
   Communication:
-    primary_element: 12
-    also_touches: [3]
+    primary_element: 9           # Process and operational status monitoring, and handover
+    also_touches: [17]           # Work control, permit to work and task risk management
     confidence: medium
+    was_v1: {primary: 12, also: [3]}
+    matched_on: "shift handover, operator-to-contractor instruction, job briefing"
     note: >
-      Observed subcategories are about shift handover, operator-to-contractor
-      instruction, and job briefing adequacy - i.e. procedural and
-      organisational communication rather than emergency communication.
+      Element 9 names handover explicitly, which is the modal observed
+      subcategory; job briefing and instruction-giving sit closer to 17.
+      DELIBERATELY NOT element 5. Element 5 is "Communication with stakeholders"
+      - external and corporate - and matching it on the word "Communication"
+      alone is exactly the trap this re-basing exists to avoid.
 
   Supervision:
-    primary_element: 13
-    also_touches: [3]
-    confidence: medium
+    primary_element: 17          # Work control, permit to work and task risk management
+    also_touches: [3]            # Employee selection, placement and competency
+    confidence: low
+    was_v1: {primary: 13, also: [3]}
+    matched_on: "supervision of a task in progress"
     note: >
-      Appears both as "Supervision" and "No Supervision". Adjacent to Human
-      Performance Error and routed to the same element; separated here because
-      BSEE separates them and collapsing them would destroy signal the source
-      chose to preserve.
+      DEPARTS FROM v1's REASONING, not just its numbering. v1 routed this to the
+      same element as Human Performance Error on the grounds that the two are
+      adjacent. Reading the statements suggests otherwise: they describe a
+      supervisor failing to enforce a defined procedure during work in progress
+      ("The Supervisor did not ensure the banksman was identified with a
+      fluorescent vest as stated in the Tubing Pulling Procedures"), which is
+      work control rather than competency. Genuinely contested - element 1
+      (Leadership) is also arguable. Low confidence is the honest label.
 
   Work Environment:
-    primary_element: 10
-    also_touches: [7]
+    primary_element: 6           # Hazard identification and risk assessment
+    also_touches: [11]           # Standards and practices
     confidence: low
+    was_v1: {primary: 10, also: [7]}
+    matched_on: "workplace layout, weather, marine environment"
     note: >
-      Weakest mapping in this file. Observed statements mix workplace layout
-      ("Poor layout or design of work area"), weather, and marine environment.
-      Layout is a design concern; weather is arguably not a PSM element failure
-      at all. Low confidence is the honest label - do not treat xw_ output for
-      this category as reliable.
+      Weakest mapping in this file, unchanged from v1 in that judgement.
+      Observed statements mix workplace layout ("Poor layout or design of work
+      area"), weather, and marine environment. Layout is a design concern (11);
+      an unidentified environmental hazard is 6; weather is arguably not a PSM
+      element failure at all. Do not treat xw_ output for this category as
+      reliable.
 
-# Statements carrying a level-2 subcategory with no parent category (18% of
-# typed statements, all singletons at n=63). Not mapped: inferring the parent
-# from the subcategory is exactly the kind of quiet guess this repo avoids.
-# These get xw_element = null and xw_unmapped_reason = "orphan_subcategory".
+# --- Surface forms -------------------------------------------------------
+# v1's Human Performance Error note said "Normalise before lookup" but nothing
+# did, and the six keys matched only 54.1% of typed statements as a result.
+# `human error` (64 statements) and `management system` (17) went unmapped
+# purely on spelling. These aliases implement what v1 already declared.
+#
+# Note this is NOT the open question from Session 3 about whether "human error"
+# and "human performance error" are the same concept -- v1 answered that when it
+# listed "Human error" as a surface variant of the dominant form. Recorded here
+# so the ruling is visible rather than buried in a note.
+aliases:
+  "human error": "Human Performance Error"
+  "human performance error": "Human Performance Error"
+  "human error performance": "Human Performance Error"
+  "equipment failure": "Equipment Failure"
+  "management system": "Management Systems"
+  "management systems": "Management Systems"
+  "communication": "Communication"
+  "supervision": "Supervision"
+  "work environment": "Work Environment"
+
+# Statements carrying a level-2 subcategory with no parent category. Not mapped:
+# inferring the parent from the subcategory is exactly the kind of quiet guess
+# this repo avoids. These get xw_element = null and
+# xw_unmapped_reason = "orphan_subcategory".
 orphan_subcategory_policy: leave_unmapped
 
-# Free-text-era statements (74% of 2014-2021 reports) carry no category at all.
-# They get xw_element = null and xw_unmapped_reason = "untyped_freetext".
+# Free-text statements carry no category at all - 80.4% of all statements at
+# full corpus scale, higher than the 74% estimated at n=63. They get
+# xw_element = null and xw_unmapped_reason = "untyped_freetext".
 # They are candidates for llm_ labelling - never for xw_.
 untyped_policy: leave_unmapped

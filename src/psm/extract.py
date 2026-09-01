@@ -59,6 +59,80 @@ def _inline_strips(schema: dict) -> list[re.Pattern]:
     return [re.compile(p, re.IGNORECASE) for p in schema.get("inline_strip_patterns", [])]
 
 
+_LABEL_BLEED_CACHE: list[re.Pattern] | None = None
+
+
+def _label_bleed(schema: dict) -> list[re.Pattern]:
+    """Label text that survives into a field's own body. Cached."""
+    global _LABEL_BLEED_CACHE
+    if _LABEL_BLEED_CACHE is None:
+        _LABEL_BLEED_CACHE = [re.compile(p, re.IGNORECASE)
+                              for p in schema.get("label_bleed_patterns", [])]
+    return _LABEL_BLEED_CACHE
+
+
+def _terminal_cap(field_no: int, schema: dict) -> int:
+    """Character ceiling for the LAST anchor in a document.
+
+    Only the terminal anchor needs this: every other field is bounded by the
+    next anchor. The terminal one runs to end-of-document, which is right when
+    it is the form's last field and catastrophic when it is not.
+
+    Uses `max_length_by_kind` where the kind declares one. `prose` and
+    `cause_statements` deliberately declare none -- field 17 narratives are
+    genuinely long -- so they fall back to `terminal_prose_cap`, which exists to
+    catch runaway absorption, not to trim legitimate prose.
+    """
+    spec = schema["fields"].get(field_no) or {}
+    limits = schema.get("max_length_by_kind") or {}
+    cap = limits.get(spec.get("kind"))
+    if cap is not None:
+        return int(cap)
+    return int(schema.get("terminal_prose_cap", 20000))
+
+
+def _hint_index(schema: dict) -> list[tuple[str, int]]:
+    """Every label hint in the form spec, longest first, as (HINT, field_no).
+
+    Longest first matters: "OPERATOR" is a prefix of "OPERATOR/CONTRACTOR", and
+    "CAUSE" sits inside both "PROBABLE CAUSE" and "CONTRIBUTING CAUSE". Shortest
+    first would claim field 2 for every field-3 anchor.
+    """
+    pairs: list[tuple[str, int]] = []
+    for num, spec in schema["fields"].items():
+        hint = spec.get("label_hint")
+        if not hint:
+            continue
+        for h in ([hint] if isinstance(hint, str) else hint):
+            pairs.append((h.upper(), int(num)))
+    return sorted(pairs, key=lambda p: -len(p[0]))
+
+
+def field_for_label(tail: str, schema: dict) -> int | None:
+    """Which field does this anchor's LABEL name, ignoring its number?
+
+    The printed number is not reliable and the label is. Revision B renumbers
+    the form face -- its "9. WATER DEPTH" is revision C's field 10 -- and on top
+    of that, two-column linearisation drops digits, so revision B's
+    "13. SEA STATE" arrives as "3. SEA STATE" and would be read as field 3
+    (OPERATOR/CONTRACTOR).
+
+    Measured consequence of trusting the number: fields 8-16 were rejected on
+    ~69% of records, field 7's slice then ran all the way to field 17 (743
+    records over length, holding nine fields of checkbox soup), and the
+    shortened anchor stream left field 30 unlocated on 169 records, where the
+    terminal anchor swallowed the rest of the document.
+
+    Anchored at the START of the tail so a hint occurring inside prose does not
+    open a field.
+    """
+    up = tail.upper().lstrip(" .:-")
+    for hint, num in _hint_index(schema):
+        if up.startswith(hint):
+            return num
+    return None
+
+
 def _label_matches(field_no: int, tail: str, schema: dict) -> bool:
     """Confirm an anchor by its label, tolerating era-to-era wording drift.
 
@@ -187,7 +261,16 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
                 continue
             tail = ln.text[m.end(): m.end() + 90]
             if not _label_matches(num, tail, schema):
-                continue
+                # The number disagrees with the label. Trust the label: see
+                # field_for_label for why the printed number is unreliable.
+                relabelled = field_for_label(tail, schema)
+                if relabelled is None:
+                    continue
+                anomalies.append({
+                    "type": "anchor_renumbered", "printed": num,
+                    "resolved_to": relabelled, "line": ln.text[:120], "page": ln.page,
+                })
+                num = relabelled
             if num in seen:
                 anomalies.append({
                     "type": "duplicate_anchor", "field": num,
@@ -210,11 +293,30 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
 
     # Pass 2: content runs from one anchor to the next.
     fields: dict[int, str] = {}
+    tail_overflow = ""
     for a, (li, ci, num) in enumerate(anchors):
+        terminal = False
         if a + 1 < len(anchors):
             lj, cj, _ = anchors[a + 1]
         else:
+            # THE TERMINAL ANCHOR SINK. Running the last anchor to
+            # end-of-document is correct only when the last anchor is the last
+            # field. It usually is -- field 30 closes the form -- but when field
+            # 30 is not located (145 records) whatever anchor happens to be last
+            # swallows the remainder of the PDF. Measured before this bound:
+            # field 27 terminal on 89 records carried label bleed on 95.5% of
+            # them, field 26 on 100%, and two records held the ENTIRE DOCUMENT
+            # in one field (267,928 and 280,537 characters).
+            #
+            # Bounding by page furniture was the obvious idea and does not work:
+            # `kept_lines` has already dropped every furniture line, so there is
+            # nothing left to stop at. Bounded instead by the field's declared
+            # `max_length_by_kind`, which is data already in the form spec, with
+            # a separate ceiling for the uncapped prose kinds. Overflow is kept
+            # in `src_unassigned_tail` rather than discarded, so the loss is
+            # visible and measurable.
             lj, cj = len(kept) - 1, len(kept[-1].text)
+            terminal = True
 
         if li == lj:
             chunk = [kept[li].text[ci:cj]]
@@ -229,7 +331,46 @@ def segment_fields(lines, schema: dict) -> tuple[dict[int, str], list[dict]]:
         first, _, rest = body.partition("\n")
         if ":" in first:
             first = first.split(":", 1)[1]
-        fields[num] = (first + ("\n" + rest if rest else "")).strip()
+        body = (first + ("\n" + rest if rest else "")).strip()
+
+        # ...but a MULTI-LINE label survives that, because only its first line is
+        # examined. Field 22's label is two visual lines --
+        #     22. RECOMMENDATIONS TO PREVENT RECURRANCE
+        #     NARRATIVE:
+        # -- with field 21's "NATURE OF DAMAGE ... ESTIMATED AMOUNT" block
+        # linearising BETWEEN them, so the first line carries no colon and
+        # nothing is stripped. Measured: 34.3% of field-22 values began with
+        # their own label text. Not the terminal-anchor sink -- field 30 is
+        # correctly located on 322 of the 369 affected records.
+        #
+        # Stripping "everything before NARRATIVE:" would be wrong: the body is
+        # split around the interleaved block, so text before it would be lost.
+        # Only the label fragments themselves are removed, in place.
+        for pat in _label_bleed(schema):
+            body, n_sub = pat.subn(" ", body)
+            if n_sub:
+                anomalies.append({"type": "label_bleed_stripped", "field": num,
+                                  "pattern": pat.pattern, "count": n_sub})
+        # Normalise WITHIN lines only. Flattening newlines here cost 1,309 cause
+        # statements (3,607 -> 2,298) before it was caught: psm.causes.unwrap
+        # segments field 18/19 by line, and a bullet or category head that no
+        # longer starts a line stops starting a statement.
+        body = "\n".join(" ".join(ln.split()) for ln in body.splitlines()
+                          if ln.strip()).strip()
+
+        if terminal:
+            cap = _terminal_cap(num, schema)
+            if len(body) > cap:
+                tail_overflow = body[cap:]
+                body = body[:cap]
+                anomalies.append({
+                    "type": "terminal_anchor_truncated", "field": num,
+                    "kept": cap, "discarded_to_tail": len(tail_overflow),
+                })
+        fields[num] = body
+
+    if tail_overflow:
+        fields[0] = tail_overflow      # field 0 == src_unassigned_tail
 
     missing = [n for n in schema["fields"] if n not in fields]
     if missing:
@@ -270,9 +411,15 @@ def extract_report(pdf_path: Path, schema: dict) -> dict:
             rec["anomalies"].extend(anomalies)
             rec["anomalies"].extend(check_field_lengths(fields, schema))
             for num, text in sorted(fields.items()):
+                if num == 0:
+                    # Overflow past the terminal anchor's cap. Kept, not
+                    # discarded: it is the only evidence of what the bound
+                    # removed, and A8-style regressions are invisible without it.
+                    rec["src_unassigned_tail"] = text
+                    continue
                 name = schema["fields"][num]["name"]
                 rec[f"src_f{num:02d}_{name}"] = text
-            rec["src_fields_found"] = sorted(fields)
+            rec["src_fields_found"] = sorted(n for n in fields if n)
             if pdf.pages:
                 rec["src_checkboxes_page0"] = [
                     lbl for lbl, _, _ in checkbox_labels(pdf.pages[0], 0)

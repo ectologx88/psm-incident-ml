@@ -1,0 +1,7 @@
+report_lag:      {median_days: 10, sigma: 0.8}          # planted
+investigation:   {skip_rate: 0.03, root_cause_prob: 0.80, duration_median_days: 30, duration_sigma: 0.7}
+closeout:        {median_days: 130, sigma: 0.8}         # planted
+agreed_offset:   {min_days: 30, max_days: 90}
+recurrence:      {planted_pairs: 8, window_days: 365, work_group: Maintenance}
+controls_mix:    {elimination: 0.05, engineering: 0.50, admin: 0.35, ppe: 0.10}  # = NorthStar (negative control)
+data_discipline: {owner_assigned_rate: 0.95, extra_hs_blank_rate: 0.00}

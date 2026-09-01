@@ -5,7 +5,7 @@
 # explanation. src/psm/synth.py applies these rules; it must not hardcode a
 # threshold, tier, salt, or word-list defined here.
 
-version: 1
+version: 2
 
 # Frozen anchor for every age-based rule (action_status, schedule_status).
 # NEVER read wall-clock time — that breaks the byte-identical reproducibility
@@ -92,3 +92,50 @@ mitigation_delta: 2
 mitigation_floor: 1
 
 incident_title_template: "{incident_type} incident at {area_block}"
+
+# --- v2 (2026-08-30): fill-stage rules for psm.fill ------------------------
+# These fill the E19 columns the SME deliverable needs shape-complete.
+# All picks: int(sha256(key + salt), 16) % total_weight, walked over the
+# weight table in sorted-key order. See docs/superpowers/plans/
+# 2026-08-30-e19-fill-and-export.md for the design decisions.
+
+# Invented picklist — the real workbook's picklist is one company's named
+# shift crews (see e19_disposition.yaml "Work Group" note), so nothing real
+# can go here. Generic offshore work groups, uniform weights.
+work_group_weights:
+  "Production Operations": 1
+  "Maintenance": 1
+  "Drilling": 1
+  "Well Services": 1
+  "Marine & Logistics": 1
+  "Construction": 1
+work_group_salt: "work_group"
+
+# Immediate/Underlying/Root. First cause of an incident reads as the
+# immediate cause; later causes split Underlying-heavy — invented ratio,
+# openly syn.
+cause_type_first_cause: "Immediate"
+cause_type_weights:
+  "Underlying": 3
+  "Root": 2
+cause_type_salt: "cause_type"
+
+# Mirrors the xw Health & Safety - Likelihood distribution this repo
+# derives (n=645; token xw on every non-blank cell, via
+# schema/xw_consequence_tiers.yaml -- not an observed real-world register,
+# see CLAUDE.md's xw_/syn_ boundary rule) measured 2026-08-30
+# (5:265, 2:193, 3:177, 1:10, 4 never used) so synthetic likelihoods look
+# like this repo's own rule output.
+likelihood_weights:
+  "5": 41
+  "2": 30
+  "3": 27
+  "1": 2
+er_likelihood_salt: "er_likelihood"
+fin_likelihood_salt: "fin_likelihood"
+
+# Salt for the abstention-fallback element pick (weights are NOT frozen
+# here — they are the observed llm_psm_element distribution, computed at
+# fill time from the committed llm_causes.csv, so they are deterministic
+# without being duplicated data).
+element_fallback_salt: "element_fallback"

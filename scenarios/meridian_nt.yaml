@@ -1,0 +1,10 @@
+# Near-threshold sensitivity variant: NorthStar in every respect except a
+# small closeout decay. Exists only to prove the KPI margins have
+# resolution; generated inside tests, never committed as data.
+report_lag:      {median_days: 2,  sigma: 0.6}
+investigation:   {skip_rate: 0.02, root_cause_prob: 0.85, duration_median_days: 21, duration_sigma: 0.6}
+closeout:        {median_days: 60, sigma: 0.6}
+agreed_offset:   {min_days: 30, max_days: 90}
+recurrence:      {planted_pairs: 0, window_days: 365}
+controls_mix:    {elimination: 0.05, engineering: 0.50, admin: 0.35, ppe: 0.10}
+data_discipline: {owner_assigned_rate: 0.98, extra_hs_blank_rate: 0.00}

@@ -52,6 +52,27 @@ RE_BLOCK = re.compile(r"BLOCK:\s*(\d{1,4})\b")
 RE_RIG = re.compile(r"RIG NAME:\s*(.+)", re.IGNORECASE)
 RE_OTHER = re.compile(r"\bOTHER\s+([A-Za-z][A-Za-z /&'-]{2,60})")
 
+# Recommendations are enumerated, not paragraph-separated. An earlier splitter
+# used a blank line and NEVER FIRED: zero of 1,077 non-empty field-22 values
+# contain one, so every incident got exactly one row and the declared grain
+# ("one row per recommendation") was false for the whole table.
+RE_REC_ITEM = re.compile(r"\n\s*(?:\d{1,2}\s*[.)]|[a-h]\s*\)|[\u2022\u25cf\u25aa])\s+")
+
+# BSEE writes a nil return as prose. Per the repo's absent_legitimate convention
+# these are not recommendations and must not be counted as one.
+NIL_RETURN = {"none", "n/a", "na", "no", "nil", "none.", "n/a.", "no recommendations"}
+
+
+def split_recommendations(text: str) -> list[str]:
+    """One string per recommendation. Empty list for a nil return."""
+    body = (text or "").strip()
+    if not body or body.lower().rstrip(".") in NIL_RETURN:
+        return []
+    # Only leading separator debris is stripped. A trailing full stop is part of
+    # the sentence, and this project keeps source text verbatim.
+    parts = [p.lstrip(" .);:-") for p in RE_REC_ITEM.split("\n" + body)]
+    return [" ".join(p.split()) for p in parts if p.strip()]
+
 
 def load_yaml(path: Path) -> dict:
     with open(path, encoding="utf-8") as fh:
@@ -144,6 +165,48 @@ def _sequence(text: str) -> str:
     return text[i:].strip() if i >= 0 else ""
 
 
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
+_OUTCOME_CUE: re.Pattern | None = None
+_OUTCOME_BOUNDS: tuple[int, int] = (25, 400)
+
+
+def _outcome_cue() -> re.Pattern:
+    """Consequence-sentence cues, from schema/bsee_form2010.yaml. Cached."""
+    global _OUTCOME_CUE, _OUTCOME_BOUNDS
+    if _OUTCOME_CUE is None:
+        spec = load_yaml(REPO / "schema" / "bsee_form2010.yaml")
+        cues = spec["outcome_sentence_cues"]
+        _OUTCOME_BOUNDS = (int(spec["outcome_sentence_min_chars"]),
+                           int(spec["outcome_sentence_max_chars"]))
+        _OUTCOME_CUE = re.compile(r"\b(?:" + "|".join(cues) + r")\b", re.IGNORECASE)
+    return _OUTCOME_CUE
+
+
+def _outcome(text: str) -> str:
+    """A verbatim consequence sentence from field 17 -- E19's "What was the
+    outcome?".
+
+    Takes the LAST matching sentence, not the first. A narrative states the
+    injury twice: once in the opening summary, once at the end of the sequence
+    of events. The later statement is the settled one -- the opening often says
+    "a rigger was injured" where the closing says which bone was broken and how
+    many days were lost.
+
+    Returns "" rather than a guess. Everything this writes is marked `src`, so
+    a wrong sentence would be a false claim that BSEE said it.
+    """
+    body = " ".join((text or "").split())
+    if not body:
+        return ""
+    cue = _outcome_cue()    # also populates _OUTCOME_BOUNDS on first call
+    lo, hi = _OUTCOME_BOUNDS
+    hits = [s.strip() for s in _SENT_SPLIT.split(body) if cue.search(s)]
+    if not hits:
+        return ""
+    best = hits[-1]
+    return best if lo <= len(best) <= hi else ""
+
+
 FIELD_KEY_RE = re.compile(r"^src_f\d{2}_")
 
 
@@ -196,6 +259,8 @@ def resolve(rec: dict, spec: dict, manifest_row: dict) -> str:
         return _subhead(text, spec["subhead"])
     if kind == "sequence":
         return _sequence(text)
+    if kind == "outcome":
+        return _outcome(text)
     return " ".join(text.split())
 
 
@@ -208,9 +273,34 @@ def incident_number(rec: dict, manifest_row: dict, mapping: dict) -> str:
     return "-".join(parts) if len(parts) >= 3 else ""
 
 
+def picklists(labels: dict, proj: dict) -> dict[str, set[str]]:
+    """E19 column -> its legal values, for the columns declared picklist-backed.
+
+    Without this a raw text dump lands in a controlled column and nothing
+    notices: BSEE field 28 (MAJOR/MINOR) put 234 illegal values into
+    `Incident Classification`, whose picklist is Very Serious Incident / Serious
+    Incident / Incident -- and because verbatim wins, those illegal values
+    suppressed 149 rows that had a valid crosswalked classification.
+
+    Columns in `vocabulary_exempt` are skipped: the template ships Site/Area/Unit
+    as placeholder facility names, and this project repurposes them for BSEE
+    geography on purpose.
+    """
+    by_name = {v["name"]: {str(x) for x in v["values"]}
+               for v in labels.get("vocabularies", []) if v.get("name")}
+    exempt = set(proj.get("vocabulary_exempt") or {})
+    out: dict[str, set[str]] = {}
+    for col, vocab in (proj.get("vocabularies") or {}).items():
+        if col not in exempt and vocab in by_name:
+            out[col] = by_name[vocab]
+    return out
+
+
 def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
     groups = label_groups(labels)
     mapping = proj["mapping"]
+    legal = picklists(labels, proj)
+    illegal: Counter = Counter()
 
     manifest_by_sha: dict[str, dict] = {}
     if manifest.exists():
@@ -229,6 +319,7 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
 
     tables = {t: [] for t in proj["tables"]}
     sidecar_rows = []
+    cause_fields: list[dict] = []
     reasons = Counter()
     collisions: list[str] = []
     seen_ids: set[str] = set()
@@ -271,25 +362,38 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
         row = {}
         for lab in cols("incidents"):
             spec = mapping.get(lab, {})
-            row[lab] = inc_id if lab == "Incident Number" else resolve(rec, spec, mrow)
+            val = inc_id if lab == "Incident Number" else resolve(rec, spec, mrow)
+            if val and lab in legal and val not in legal[lab]:
+                illegal[lab] += 1
+                val = ""          # blank beats a wrong value in a controlled column
+            row[lab] = val
         tables["incidents"].append(row)
 
+        # Tag each statement with the field it came from. BSEE's field 18 is
+        # "Probable Cause" and 19 is "Contributing Cause" -- an axis of primacy,
+        # not the depth axis E19's `Cause type` asks for (see
+        # schema/xw_cause_qualifiers.yaml). So it is NOT crosswalked, but it is
+        # real provenance and an obvious feature for a later LLM-assisted pass,
+        # and concatenating the two fields was silently discarding it.
         statements = []
         for fnum in ("f18", "f19"):
-            statements += [s for s in segment_statements(field(rec, fnum) or "") if s.strip()]
-        for i, stmt in enumerate(statements, start=1):
+            statements += [(s, fnum[1:]) for s in segment_statements(field(rec, fnum) or "")
+                           if s.strip()]
+        for i, (stmt, src_field) in enumerate(statements, start=1):
             r = {c: "" for c in cols("causes")}
             r["Incident Number"] = inc_id
             r["Cause number"] = str(i)
             r["Cause Description"] = " ".join(stmt.split())
             tables["causes"].append(r)
+            cause_fields.append({"Incident Number": inc_id, "Cause number": str(i),
+                                 "bsee_source_field": src_field})
 
-        recs22 = [b.strip() for b in re.split(r"\n\s*\n", field(rec, "f22") or "") if b.strip()]
+        recs22 = split_recommendations(field(rec, "f22"))
         for i, block in enumerate(recs22, start=1):
             r = {c: "" for c in cols("recommendations")}
             r["Incident Number"] = inc_id
             r["Recommendation Number"] = str(i)
-            r["Recommendation Description"] = " ".join(block.split())
+            r["Recommendation Description"] = block
             tables["recommendations"].append(r)
             c = {k: "" for k in cols("closeout")}
             c["Incident Number"] = inc_id
@@ -309,7 +413,8 @@ def build(interim: Path, manifest: Path, labels: dict, proj: dict) -> dict:
             reasons[spec["blank"]] += 1
 
     return {"tables": tables, "sidecar": sidecar_rows, "cols": {t: cols(t) for t in tables},
-            "reasons": reasons, "collisions": collisions, "skipped": skipped}
+            "reasons": reasons, "collisions": collisions, "skipped": skipped,
+            "cause_fields": cause_fields, "illegal": illegal}
 
 
 def write_csv(path: Path, cols: list[str], rows: list[dict]) -> None:
@@ -335,12 +440,18 @@ def main(argv=None) -> int:
     for name, rows in built["tables"].items():
         write_csv(args.out / f"{name}.csv", built["cols"][name], rows)
         print(f"  {name}.csv: {len(rows)} rows x {len(built['cols'][name])} cols")
+    if built["cause_fields"]:
+        cf = built["cause_fields"]
+        write_csv(args.out / "causes_source_field.csv", list(cf[0]), cf)
+        print(f"  causes_source_field.csv: {len(cf)} rows (BSEE field 18 vs 19)")
     if built["sidecar"]:
         side_cols = list(built["sidecar"][0])
         write_csv(args.out / "bsee_unmapped.csv", side_cols, built["sidecar"])
         print(f"  bsee_unmapped.csv: {len(built['sidecar'])} rows x {len(side_cols)} cols")
 
     print(f"\nblank-by-reason: {dict(built['reasons'])}")
+    if built["illegal"]:
+        print(f"\nblanked as outside the column's picklist: {dict(built['illegal'])}")
     if built["skipped"]:
         print(f"\nskipped: {dict(built['skipped'])}")
     if built["collisions"]:

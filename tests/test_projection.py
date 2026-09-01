@@ -137,3 +137,113 @@ class TestExtractors:
 
     def test_pseudonym_carries_prefix(self):
         assert pseudonym("Gerald Taylor", "INV").startswith("INV-")
+
+
+class TestValuesAreLegal:
+    """Header tests are not enough: nothing checked the VALUES.
+
+    BSEE field 28 (MAJOR/MINOR) was mapped as raw text into
+    `Incident Classification`, whose picklist is Very Serious Incident / Serious
+    Incident / Incident. 234 illegal values shipped, and because verbatim wins
+    they suppressed 149 rows that had a valid crosswalked classification. Every
+    header test passed throughout.
+    """
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def vocab() -> dict:
+        labels = load_yaml(LABELS_PATH)
+        proj = load_yaml(PROJECTION_PATH)
+        by_name = {v["name"]: {str(x) for x in v["values"]}
+                   for v in labels.get("vocabularies", []) if v.get("name")}
+        exempt = set(proj.get("vocabulary_exempt") or {})
+        return {c: by_name[v] for c, v in (proj.get("vocabularies") or {}).items()
+                if c not in exempt and v in by_name}
+
+    def test_declared_vocabularies_resolve(self, vocab):
+        proj = load_yaml(PROJECTION_PATH)
+        exempt = set(proj.get("vocabulary_exempt") or {})
+        assert len(vocab) == len({c for c in proj["vocabularies"] if c not in exempt})
+
+    def test_exemptions_are_justified(self):
+        """An exemption is a decision. Unexplained, it is a hole in the guard."""
+        proj = load_yaml(PROJECTION_PATH)
+        for col, why in (proj.get("vocabulary_exempt") or {}).items():
+            assert why and len(why) > 20, f"{col}: exemption with no stated reason"
+
+    @pytest.mark.skipif(not (DEFAULT_OUT / "incidents.csv").exists(),
+                        reason="run `python -m psm.project` first")
+    @pytest.mark.parametrize("table", ["incidents", "causes", "recommendations", "closeout"])
+    @pytest.mark.parametrize("subdir", ["", "enriched"])
+    def test_no_illegal_values_in_any_committed_table(self, vocab, table, subdir):
+        import csv as _csv
+        _csv.field_size_limit(10 ** 9)
+        path = (DEFAULT_OUT / subdir / f"{table}.csv") if subdir else (DEFAULT_OUT / f"{table}.csv")
+        if not path.exists():
+            pytest.skip(f"{path.name} not built")
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(_csv.DictReader(fh))
+        if not rows:
+            pytest.skip("empty table")
+        for col, allowed in vocab.items():
+            if col not in rows[0]:
+                continue
+            bad = [r[col] for r in rows if (r[col] or "").strip() and r[col] not in allowed]
+            assert not bad, f"{path.name}:{col!r} has {len(bad)} illegal, e.g. {bad[0]!r}"
+
+    def test_bsee_classification_is_not_mapped_into_the_e19_column(self):
+        """The specific defect: two disjoint vocabularies, one column."""
+        proj = load_yaml(PROJECTION_PATH)
+        for col in ("Incident Classification", "Incident Classificatioin"):
+            assert "source" not in proj["mapping"][col], (
+                f"{col} must not take a verbatim source -- BSEE field 28 is MAJOR/MINOR")
+
+
+class TestRecommendationGrain:
+    """The declared grain was "one row per recommendation" and the table
+    delivered exactly one row per INCIDENT on all 1,079. The splitter used a
+    blank line; zero of 1,077 non-empty field-22 values contain one, so it never
+    fired once. Nothing noticed, because nothing asserted the grain."""
+
+    def test_nil_returns_are_not_recommendations(self):
+        from psm.project import split_recommendations
+        for nil in ("None", "N/A", "no", "NIL", "none."):
+            assert split_recommendations(nil) == [], f"{nil!r} counted as a recommendation"
+
+    def test_enumerated_items_split(self):
+        from psm.project import split_recommendations
+        body = "1. Conduct inspections\n2. Survey bulkheads\n3. Verify isolation"
+        assert len(split_recommendations(body)) == 3
+
+    @pytest.mark.parametrize("marker", ["1)", "a)", "•"])
+    def test_other_enumeration_styles(self, marker):
+        from psm.project import split_recommendations
+        second = {"1)": "2)", "a)": "b)", "•": "•"}[marker]
+        body = f"{marker} first item\n{second} second item"
+        assert len(split_recommendations(body)) == 2, body
+
+    def test_a_blank_line_is_not_the_separator(self):
+        """Guards the original defect directly: prose split by a blank line is
+        still ONE recommendation unless it is enumerated."""
+        from psm.project import split_recommendations
+        assert len(split_recommendations("first para\n\nsecond para")) == 1
+
+    def test_single_prose_recommendation_stays_one(self):
+        from psm.project import split_recommendations
+        body = "The district recommends a safety alert be issued to operators."
+        assert split_recommendations(body) == [body]
+
+    @pytest.mark.skipif(not (DEFAULT_OUT / "recommendations.csv").exists(),
+                        reason="run `python -m psm.project` first")
+    def test_shipped_table_has_a_real_grain(self):
+        """The check that would have caught it: if every incident has exactly one
+        recommendation, the splitter is not working."""
+        import csv as _csv
+        from collections import Counter
+        _csv.field_size_limit(10 ** 9)
+        with (DEFAULT_OUT / "recommendations.csv").open(encoding="utf-8", newline="") as fh:
+            rows = list(_csv.DictReader(fh))
+        per = Counter(r["Incident Number"] for r in rows)
+        assert max(per.values()) > 1, "every incident has exactly one recommendation"
+        assert len({r["Recommendation Number"] for r in rows}) > 1, \
+            "Recommendation Number is constant"
