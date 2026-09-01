@@ -52,3 +52,49 @@ def test_skip_rate_uses_the_and_of_both_conditions():
                  if not r["Investigation leader - Name"].strip()
                  and not causes_by.get(r["Incident Number"]))
     assert compute_kpis(tables)["skip_rate"] == manual / len(tables["incidents"])
+
+
+def test_skip_rate_and_semantics_survive_marker_decorrelation():
+    """coastal's generated incidents always correlate the two skip markers
+    (blank leader <-> zero cause rows), so an AND-to-OR mutation is invisible
+    against real scenario data. This hand-built fixture decorrelates them so
+    the AND-specific behavior is actually observable by a test."""
+    incidents = [
+        {  # A: blank leader, zero causes -> skipped
+            "Incident Number": "A", "Date of Report": "2024-01-10",
+            "Date of Incident": "2024-01-01",
+            "Investigation leader - Name": "",
+            "Health & Safety - Risk Score": "",
+            "Work Group": "Ops", "Close out Date": "",
+        },
+        {  # B: blank leader, HAS a cause row -> NOT skipped (OR would count it)
+            "Incident Number": "B", "Date of Report": "2024-01-10",
+            "Date of Incident": "2024-01-02",
+            "Investigation leader - Name": "",
+            "Health & Safety - Risk Score": "",
+            "Work Group": "Ops", "Close out Date": "",
+        },
+        {  # C: non-blank leader, zero causes -> NOT skipped (OR would count it)
+            "Incident Number": "C", "Date of Report": "2024-01-10",
+            "Date of Incident": "2024-01-03",
+            "Investigation leader - Name": "Jane Doe",
+            "Health & Safety - Risk Score": "",
+            "Work Group": "Ops", "Close out Date": "",
+        },
+        {  # D: non-blank leader, has cause row -> NOT skipped
+            "Incident Number": "D", "Date of Report": "2024-01-10",
+            "Date of Incident": "2024-01-04",
+            "Investigation leader - Name": "Jane Doe",
+            "Health & Safety - Risk Score": "",
+            "Work Group": "Ops", "Close out Date": "",
+        },
+    ]
+    causes = [
+        {"Incident Number": "B", "Cause type": "Immediate",
+         " Failed PSM Framework Element": ""},
+        {"Incident Number": "D", "Cause type": "Immediate",
+         " Failed PSM Framework Element": ""},
+    ]
+    tables = {"incidents": incidents, "causes": causes,
+              "recommendations": [], "closeout": []}
+    assert compute_kpis(tables)["skip_rate"] == 1 / 4
