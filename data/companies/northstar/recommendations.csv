@@ -1,0 +1,178 @@
+Incident Number,Recommendation Number,Recommendation Description,Unmittigated Risk - Score,Unmittigated Risk - Consequence,Unmittigated Risk - Likelihood,Mittigated Risk - Score,Mittigated Risk - Consequence,Mittigated Risk - Likelihood,Agreed Completion Date,Responsible Owner - Name,Responsible Owner - Position
+NS-C42558E3D5,1,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2021-03-16,SYN-8037be,Marine Coordinator
+NS-B125B85E7E,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2021-04-27,SYN-29c65c,Facility Engineer
+NS-B125B85E7E,2,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2021-03-23,SYN-996ad1,Operations Superintendent
+NS-4710EE8790,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2021-03-24,SYN-849567,Facility Engineer
+NS-28D57F30B3,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2021-04-01,SYN-eb7867,Operations Superintendent
+NS-9563B7C1CA,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2021-04-07,SYN-0f9ce2,HSE Advisor
+NS-DBA06F51F9,1,Relocate the control panel outside the enclosed control room so personnel can monitor it without entering during normal operation.,,,,,,,2021-07-14,SYN-1ce3a3,Production Foreman
+NS-DBA06F51F9,2,Replace the local-only alarm panel with a remote-annunciating alarm system so the compressor alarm no longer requires a manual silence step at the unit.,,,,,,,2021-06-07,SYN-c5cd3b,Operations Superintendent
+NS-A495397DCE,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2021-05-29,SYN-0efbe7,Production Foreman
+NS-8497899769,1,Replace the local-only alarm panel with a remote-annunciating alarm system so the compressor alarm no longer requires a manual silence step at the unit.,,,,,,,2021-06-13,SYN-3f2107,Facility Engineer
+NS-8497899769,2,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2021-07-28,SYN-a89844,Marine Coordinator
+NS-E9FFCBE6B5,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2021-10-01,SYN-4185e4,Marine Coordinator
+NS-656F70413F,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2021-08-26,SYN-bc1a59,Maintenance Supervisor
+NS-F1B9AA531C,1,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2021-08-05,SYN-262dd9,Production Foreman
+NS-9F7015D96B,1,Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.,,,,,,,2021-10-13,SYN-09175f,Marine Coordinator
+NS-DA9C4FA9ED,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2021-09-15,SYN-5dddd4,Marine Coordinator
+NS-DA9C4FA9ED,2,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2021-11-07,SYN-a7b853,Marine Coordinator
+NS-4955485885,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2021-11-29,SYN-9507e0,Maintenance Supervisor
+NS-0CB854E630,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2021-10-23,SYN-6ab502,Marine Coordinator
+NS-03A04B99E2,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2021-12-03,SYN-e5ece8,HSE Advisor
+NS-1AD6923A55,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2021-12-16,SYN-cb4a23,Operations Superintendent
+NS-027FB14F2D,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2021-11-28,SYN-90e06a,HSE Advisor
+NS-44502BDD7E,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2021-12-16,SYN-583b1d,HSE Advisor
+NS-4F96D8DFE2,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-01-01,SYN-879e2e,Marine Coordinator
+NS-0E767F8E4B,1,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2021-12-16,SYN-c6d264,Operations Superintendent
+NS-0E767F8E4B,2,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-01-04,SYN-c9e083,Operations Superintendent
+NS-062423C5CC,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2022-01-15,SYN-20add9,Maintenance Supervisor
+NS-D9250CEAA5,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2021-12-12,SYN-0a8c03,Operations Superintendent
+NS-2D7CF0B375,1,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2022-01-21,SYN-6f666d,Operations Superintendent
+NS-E8C9AD866B,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2022-01-19,SYN-6ef39d,Facility Engineer
+NS-B2ECF10894,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2022-03-08,SYN-c11c0d,Marine Coordinator
+NS-5C05C29868,1,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2022-02-17,SYN-2546ef,HSE Advisor
+NS-A931BA4FA3,1,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2022-03-23,SYN-76c0d2,Operations Superintendent
+NS-035A281351,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-03-24,SYN-207da6,Marine Coordinator
+NS-B5A14F24ED,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2022-03-19,SYN-f2ec92,HSE Advisor
+NS-7AC5B86665,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2022-03-07,SYN-90078b,Production Foreman
+NS-26F655878E,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2022-04-06,SYN-f6c480,Production Foreman
+NS-E727749B4E,1,"Reposition the flare vent outlet so prevailing gas flow is directed clear of any nearby ignition sources, including engine exhaust stacks.",,,,,,,2022-03-24,SYN-1d26bd,Production Foreman
+NS-09DCDB4EE6,1,Eliminate the scaffolding plank gap by removing loose planking before work resumes on that level.,,,,,,,2022-03-25,SYN-6b3411,Maintenance Supervisor
+NS-09DCDB4EE6,2,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2022-04-07,SYN-29bba2,Facility Engineer
+NS-4538E59E85,1,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2022-04-30,SYN-d11809,Facility Engineer
+NS-7A2149ED8B,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2022-06-22,SYN-2e6d42,Marine Coordinator
+NS-AC571044DF,1,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2022-05-29,SYN-67ffa9,Marine Coordinator
+NS-AC571044DF,2,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2022-05-18,SYN-2529d0,Facility Engineer
+NS-124AB1E30F,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2022-06-25,SYN-8c54ec,Facility Engineer
+NS-C89F365F7E,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2022-06-24,SYN-c234a6,Maintenance Supervisor
+NS-774B359FC1,1,"Reposition the flare vent outlet so prevailing gas flow is directed clear of any nearby ignition sources, including engine exhaust stacks.",,,,,,,2022-08-07,SYN-9a2801,Facility Engineer
+NS-757D25E2C2,1,Eliminate the scaffolding plank gap by removing loose planking before work resumes on that level.,,,,,,,2022-08-02,SYN-80e692,Facility Engineer
+NS-D9E794D341,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2022-08-22,SYN-ed68c5,Maintenance Supervisor
+NS-C282B498B8,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2022-10-11,SYN-e6acc0,HSE Advisor
+NS-919D6D3052,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-09-16,SYN-32ca7a,HSE Advisor
+NS-EE419CED17,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2022-10-05,SYN-64c24c,Marine Coordinator
+NS-7BA20A5647,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-12-02,SYN-905d8a,Maintenance Supervisor
+NS-A16A27B76D,1,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2022-11-24,SYN-0b4807,Marine Coordinator
+NS-A16A27B76D,2,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2022-11-18,SYN-a0d806,Marine Coordinator
+NS-3E3D017B45,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2022-10-30,SYN-66ea73,HSE Advisor
+NS-3E3D017B45,2,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-11-29,SYN-08a1d6,Maintenance Supervisor
+NS-04F5066829,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2022-12-19,SYN-1f7661,Facility Engineer
+NS-CC8C5063B9,1,Require insulated gloves for personnel adjusting the compressor discharge cooler piping during operation.,,,,,,,2022-12-16,SYN-701b63,Marine Coordinator
+NS-CCDF772D0A,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2022-12-13,SYN-a04784,Operations Superintendent
+NS-7EE9B6DCA6,1,Require a self-contained breathing apparatus on standby for personnel entering the control room during gas testing.,,,,,,,2022-12-25,SYN-5a5469,HSE Advisor
+NS-BFCBB3F5D8,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2022-11-11,SYN-87ff52,Operations Superintendent
+NS-290D926704,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-12-16,SYN-8c4a85,Marine Coordinator
+NS-290D926704,2,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2023-01-15,,
+NS-D059706438,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2023-01-10,SYN-930d4c,Maintenance Supervisor
+NS-B6008A9135,1,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2023-01-05,SYN-e5599b,Operations Superintendent
+NS-CE15517413,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2023-01-21,SYN-2783fb,Operations Superintendent
+NS-CCABBB693D,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2023-01-21,SYN-552141,HSE Advisor
+NS-B88D3430E5,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2023-02-13,SYN-5f7315,Marine Coordinator
+NS-B88D3430E5,2,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2023-02-24,SYN-91a756,Marine Coordinator
+NS-8F33C7791B,1,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2023-02-17,SYN-72b14c,Production Foreman
+NS-E61F2E3210,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2023-03-04,SYN-b49777,Operations Superintendent
+NS-60CA91515B,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2023-03-17,SYN-41912f,Facility Engineer
+NS-BC24DE04F1,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2023-05-02,SYN-4c3543,Facility Engineer
+NS-04CB0A4CD4,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2023-05-04,SYN-f02bce,Facility Engineer
+NS-3C1FE549B8,1,Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.,,,,,,,2023-04-08,SYN-17204c,HSE Advisor
+NS-ED0E4CC69C,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2023-06-08,SYN-c469b7,HSE Advisor
+NS-ED0E4CC69C,2,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2023-06-11,SYN-6e1c96,Operations Superintendent
+NS-652DDFCFD9,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2023-05-17,SYN-596a15,HSE Advisor
+NS-34BD094098,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2023-06-25,SYN-0ff5b2,Facility Engineer
+NS-0471CF6175,1,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2023-08-16,SYN-6f2ac9,Production Foreman
+NS-08678620F4,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2023-09-10,SYN-6a72b6,Operations Superintendent
+NS-0D8A68D0A2,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2023-07-31,SYN-f90409,Operations Superintendent
+NS-E7BED009A0,1,Relocate the control panel outside the enclosed control room so personnel can monitor it without entering during normal operation.,,,,,,,2023-09-05,SYN-aa90e1,Marine Coordinator
+NS-E7BED009A0,2,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2023-09-16,SYN-ebd20c,Facility Engineer
+NS-044778E2A8,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2023-08-15,SYN-c1f2e2,Facility Engineer
+NS-921E14BDDF,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2023-10-03,SYN-4de368,Marine Coordinator
+NS-88C271C470,1,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2023-08-29,SYN-520e54,Operations Superintendent
+NS-041547E13F,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2023-09-10,SYN-47d8a7,Marine Coordinator
+NS-D5B60ADB65,1,Relocate the control panel outside the enclosed control room so personnel can monitor it without entering during normal operation.,,,,,,,2023-10-15,SYN-2261a2,Facility Engineer
+NS-4F73FCBFF1,1,Require insulated gloves for personnel adjusting the compressor discharge cooler piping during operation.,,,,,,,2023-12-08,SYN-597cd9,Facility Engineer
+NS-080EA0563E,1,Eliminate the scaffolding plank gap by removing loose planking before work resumes on that level.,,,,,,,2023-11-04,SYN-903656,Production Foreman
+NS-241283A77C,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2023-12-01,SYN-ccf012,Production Foreman
+NS-241283A77C,2,Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.,,,,,,,2023-12-25,SYN-c4644d,Production Foreman
+NS-D784625649,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2024-01-22,SYN-ecc92a,HSE Advisor
+NS-6398EC078F,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2024-01-20,SYN-8a47c9,Operations Superintendent
+NS-6398EC078F,2,Relocate the control panel outside the enclosed control room so personnel can monitor it without entering during normal operation.,,,,,,,2024-01-28,SYN-a04a3e,Marine Coordinator
+NS-986C937DFC,1,Replace the local-only alarm panel with a remote-annunciating alarm system so the compressor alarm no longer requires a manual silence step at the unit.,,,,,,,2024-01-06,SYN-e6678d,HSE Advisor
+NS-265D15E95B,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2024-02-09,SYN-734dca,Operations Superintendent
+NS-6D49C0270E,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2024-02-04,SYN-c9850d,Facility Engineer
+NS-28BF8829E8,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2024-02-28,SYN-ce9898,Production Foreman
+NS-A5F4968976,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2024-02-14,SYN-adc87c,Operations Superintendent
+NS-C42E981F87,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-04-23,SYN-71bcae,HSE Advisor
+NS-B5445D723F,1,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2024-04-19,SYN-82736f,Facility Engineer
+NS-E04FE21029,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-06-04,SYN-5dbc27,Facility Engineer
+NS-2922813ADD,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2024-05-28,SYN-4d4fcd,Maintenance Supervisor
+NS-2922813ADD,2,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2024-04-15,SYN-aae20f,HSE Advisor
+NS-C161BF5798,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2024-06-13,SYN-dbb53f,Facility Engineer
+NS-62754CBCB2,1,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2024-07-03,SYN-5a23c5,Maintenance Supervisor
+NS-7533986930,1,Remove the requirement for an operator to stand under the traveling block during pickup by relocating the spotting position clear of the load path.,,,,,,,2024-06-28,SYN-85337e,Facility Engineer
+NS-C19DA180E4,1,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2024-07-04,SYN-fdb7df,Production Foreman
+NS-C60DFEB8F2,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2024-08-03,SYN-4b5876,HSE Advisor
+NS-BAAC8CAC32,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2024-07-23,SYN-8576fa,Operations Superintendent
+NS-4EB1629BB9,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2024-06-30,SYN-41f060,Facility Engineer
+NS-6ED0604192,1,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2024-08-10,SYN-0a5693,Production Foreman
+NS-6ED0604192,2,Relocate the control panel outside the enclosed control room so personnel can monitor it without entering during normal operation.,,,,,,,2024-08-10,SYN-67b9ba,Operations Superintendent
+NS-11EE5991F7,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-09-02,SYN-bb8ae5,Maintenance Supervisor
+NS-D54017DA3A,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2024-08-12,SYN-7a4c69,Marine Coordinator
+NS-5BD7868F21,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2024-09-03,SYN-dcf182,Maintenance Supervisor
+NS-898DA04286,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2024-08-29,SYN-7064e6,Maintenance Supervisor
+NS-898DA04286,2,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2024-09-09,SYN-fd876c,Operations Superintendent
+NS-7668CFB452,1,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2024-11-13,SYN-4d1503,HSE Advisor
+NS-27A9EA7484,1,"Reposition the flare vent outlet so prevailing gas flow is directed clear of any nearby ignition sources, including engine exhaust stacks.",,,,,,,2024-11-14,SYN-adebe1,Marine Coordinator
+NS-BD8359FBC3,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2024-12-21,SYN-29ba00,Maintenance Supervisor
+NS-09D838266E,1,Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.,,,,,,,2024-12-07,SYN-d59957,Operations Superintendent
+NS-09D838266E,2,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2025-01-05,SYN-740401,Facility Engineer
+NS-3DF1711ACE,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2025-01-02,SYN-ecbb61,Production Foreman
+NS-3DF1711ACE,2,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2024-12-04,SYN-f93428,Production Foreman
+NS-F48E3D17B3,1,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2024-12-21,SYN-7f9852,Production Foreman
+NS-8DFE5707ED,1,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2025-01-15,SYN-359b99,Marine Coordinator
+NS-F767B2A133,1,Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.,,,,,,,2025-02-05,SYN-cad449,Production Foreman
+NS-980EDAB662,1,Require face shields in addition to safety glasses for all sandblasting operations.,,,,,,,2024-12-24,SYN-c9a7eb,Maintenance Supervisor
+NS-C7B72D1191,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2025-01-29,SYN-783528,Maintenance Supervisor
+NS-811642131F,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2025-01-12,SYN-ac824a,HSE Advisor
+NS-A5F93620D1,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2025-01-27,SYN-06ac72,HSE Advisor
+NS-A5F93620D1,2,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2025-02-12,SYN-8ec59b,Facility Engineer
+NS-C80594B698,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2025-02-25,SYN-3de8ec,Maintenance Supervisor
+NS-591B13B4C7,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2025-03-14,SYN-ccfb30,Production Foreman
+NS-2988EEAF31,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2025-02-10,SYN-194be5,HSE Advisor
+NS-2988EEAF31,2,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2025-02-13,SYN-73aeeb,Marine Coordinator
+NS-2EADE30878,1,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2025-02-15,SYN-365bb0,Operations Superintendent
+NS-2EADE30878,2,Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.,,,,,,,2025-02-16,SYN-3794ef,Operations Superintendent
+NS-B7D96898F3,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2025-02-19,SYN-f27df1,Marine Coordinator
+NS-EA4B8760CA,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2025-03-10,SYN-66045d,Production Foreman
+NS-BC7702D23C,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2025-03-19,SYN-48f5da,Maintenance Supervisor
+NS-B15E122247,1,Require chemical-splash goggles for personnel handling glycol during startup operations.,,,,,,,2025-02-24,SYN-04fbeb,Operations Superintendent
+NS-A827E94C53,1,Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.,,,,,,,2025-03-30,SYN-521f90,Facility Engineer
+NS-A3A2CC413A,1,"Reposition the flare vent outlet so prevailing gas flow is directed clear of any nearby ignition sources, including engine exhaust stacks.",,,,,,,2025-05-06,SYN-515432,Facility Engineer
+NS-A3A2CC413A,2,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2025-04-04,SYN-466b97,Production Foreman
+NS-9A16DDBEB8,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2025-04-20,SYN-486791,Operations Superintendent
+NS-8D881CE7A3,1,Replace the local-only alarm panel with a remote-annunciating alarm system so the compressor alarm no longer requires a manual silence step at the unit.,,,,,,,2025-06-17,SYN-cbd1c3,Production Foreman
+NS-42A93CE5CE,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2025-06-02,SYN-4845f9,Production Foreman
+NS-83D90CEBE2,1,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2025-05-04,SYN-53db45,Operations Superintendent
+NS-83D90CEBE2,2,"Replace the compressor discharge run with piping rated for current operating pressure and service conditions, retiring the original carbon-steel section entirely.",,,,,,,2025-06-05,SYN-c6df3e,Marine Coordinator
+NS-2563BBDAC6,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2025-05-19,SYN-621919,HSE Advisor
+NS-2563BBDAC6,2,Remove the requirement for an operator to stand under the traveling block during pickup by relocating the spotting position clear of the load path.,,,,,,,2025-05-29,SYN-c85da2,HSE Advisor
+NS-8270F9EBC0,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2025-07-02,SYN-4a8f9c,Marine Coordinator
+NS-DCE1F6BD18,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2025-06-28,SYN-7026da,Facility Engineer
+NS-4E37058A71,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2025-08-07,SYN-06a11c,HSE Advisor
+NS-452D2E6293,1,Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.,,,,,,,2025-06-30,SYN-3e3558,Facility Engineer
+NS-E6A5889822,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2025-08-12,SYN-b5dd77,Marine Coordinator
+NS-131EC1A6C3,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2025-08-09,SYN-177ba8,Marine Coordinator
+NS-984CECC249,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2025-09-09,SYN-ede75d,HSE Advisor
+NS-984CECC249,2,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2025-09-07,SYN-182ae0,Facility Engineer
+NS-BE81998EF7,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2025-08-27,SYN-ef350c,Marine Coordinator
+NS-BEE8652DCA,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2025-09-28,SYN-e47698,Production Foreman
+NS-0F1E2D6799,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2025-09-23,SYN-b96056,Facility Engineer
+NS-BC99657275,1,Require high-visibility outerwear for personnel working near the crane's blind-lift zone.,,,,,,,2025-09-05,SYN-d5c034,Maintenance Supervisor
+NS-902934F9C9,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2025-09-24,SYN-306560,Marine Coordinator
+NS-E957DD093F,1,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2025-12-03,SYN-3d3a4c,Marine Coordinator
+NS-02F1D120A1,1,Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.,,,,,,,2025-11-20,SYN-274ae8,Operations Superintendent
+NS-02F1D120A1,2,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2025-12-24,SYN-ef9b0a,Maintenance Supervisor
+NS-7B812BCFFF,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2025-12-11,SYN-ff181c,Operations Superintendent
+NS-95631D807D,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2025-11-27,SYN-69c710,Facility Engineer
+NS-8FFCB3592A,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2026-01-01,SYN-94c303,Facility Engineer
+NS-8FFCB3592A,2,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2026-02-20,SYN-54f0ca,Marine Coordinator
+NS-B7A62CF973,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2026-03-12,SYN-079774,Facility Engineer

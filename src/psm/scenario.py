@@ -16,7 +16,7 @@ from pathlib import Path
 
 import yaml
 
-from psm.quantiles import draw_days
+from psm.quantiles import analytic_overdue_rate, draw_days
 
 REPO = Path(__file__).resolve().parents[2]
 REAL = REPO / "data" / "processed" / "e19" / "real_only"
@@ -657,3 +657,110 @@ def write_company(result: dict, out_dir: Path) -> None:
                 w = csv.DictWriter(fh, fieldnames=cols)
                 w.writeheader()
                 w.writerows(data)
+
+
+import json
+import sys
+
+
+def build_manifest(company: str, result: dict) -> dict:
+    cfg = result["cfg"]
+    tables = result["tables"]
+    planted = [list(p) for p in result["planted_pairs"]]
+    detected = detect_recurrence_pairs(tables["incidents"][1],
+                                       tables["causes"][1],
+                                       cfg["recurrence"]["window_days"])
+    coincidence = len([p for p in detected if list(p) not in planted])
+    donors_hs_blank = sum(
+        1 for d in donor_partition(company)
+        if not (donor_incidents()[d]["Health & Safety - Risk Score"] or "").strip()
+    ) / 150
+    plants: list[dict] = []
+    negative: list[str] = []
+    # kpi_map: which analytic expectation covers which KPI (manifest-consistency
+    # test requires every KPI asserted as plant, analytic, or negative control)
+    analytic = {
+        "overdue_rate": analytic_overdue_rate(
+            cfg["closeout"]["median_days"], cfg["closeout"]["sigma"],
+            cfg["agreed_offset"]["min_days"], cfg["agreed_offset"]["max_days"]),
+        "hs_blank_baseline": donors_hs_blank,
+        "recurrence_coincidence": coincidence,
+        "kpi_map": {"overdue_rate": "overdue_rate",
+                    "hs_completeness": "hs_blank_baseline",
+                    "recurrence_rate": "recurrence_coincidence"},
+    }
+    if company == "meridian":
+        plants = [
+            {"pathology": "report_lag", "kpi": "median_report_lag",
+             "expected": {"op": ">", "ref": "northstar", "factor": 3.0},
+             "affected_ids": None},
+            {"pathology": "closeout_decay", "kpi": "median_closeout_days",
+             "expected": {"op": ">", "ref": "northstar", "factor": 2.0},
+             "affected_ids": None},
+            {"pathology": "recurrence_after_closure", "kpi": "recurrence_rate",
+             "expected": {"op": ">=", "count": 8},
+             "affected_ids": [list(p) for p in result["planted_pairs"]]},
+        ]
+        negative = ["skip_rate(near-baseline)", "root_cause_depth(near-baseline)",
+                    "admin_ppe_share(=northstar)", "owner_completeness(near-baseline)",
+                    "hs_completeness(=baseline)"]
+    elif company == "coastal":
+        plants = [
+            {"pathology": "investigation_skip", "kpi": "skip_rate",
+             "expected": {"op": ">", "ref": "northstar", "factor": 5.0},
+             "affected_ids": None},
+            {"pathology": "shallow_investigation", "kpi": "root_cause_depth",
+             "expected": {"op": "<", "ref": "northstar", "factor": 0.5},
+             "affected_ids": None},
+            {"pathology": "weak_controls", "kpi": "admin_ppe_share",
+             "expected": {"op": ">", "ref": "northstar", "delta_pts": 25},
+             "affected_ids": None},
+            {"pathology": "missing_owners", "kpi": "owner_completeness",
+             "expected": {"op": "<", "ref": "northstar", "delta_pts": -25},
+             "affected_ids": None},
+            {"pathology": "hs_data_decay", "kpi": "hs_completeness",
+             "expected": {"op": "<", "ref": "baseline", "delta_pts": -15},
+             "affected_ids": None},
+            {"pathology": "recurrence_after_closure", "kpi": "recurrence_rate",
+             "expected": {"op": ">=", "count": 6},
+             "affected_ids": [list(p) for p in result["planted_pairs"]]},
+        ]
+        negative = ["median_report_lag(=northstar)",
+                    "median_closeout_days(fast-on-paper)"]
+    else:  # northstar and meridian_nt: the all-negative-control baseline
+        negative = ["median_report_lag(baseline)", "skip_rate(baseline)",
+                    "root_cause_depth(baseline)", "median_closeout_days(baseline)",
+                    "admin_ppe_share(baseline)", "owner_completeness(baseline)",
+                    "hs_completeness(baseline)"]
+    return {
+        "company": company,
+        "scenario_sha256": scenario_sha256(company),
+        "donor_partition": donor_partition(company),
+        "window": {"start": WINDOW_START.isoformat(),
+                   "end": WINDOW_END.isoformat()},
+        "resolved_knobs": cfg,
+        "plants": plants,
+        "analytic_expectations": analytic,
+        "negative_controls": negative,
+    }
+
+
+def main(argv: list[str]) -> int:
+    company = argv[0]
+    if company == "meridian_nt":
+        print("meridian_nt is TEST-ONLY and is never written under data/companies/")
+        return 2
+    assert company in COMPANY_ORDER, f"unknown company {company!r}"
+    result = generate(company)
+    out = OUT_ROOT / company
+    write_company(result, out)
+    manifest = build_manifest(company, result)
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    n = {k: len(v[1]) for k, v in result["tables"].items()}
+    print(f"wrote {out}: {n}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
