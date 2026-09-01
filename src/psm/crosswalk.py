@@ -32,6 +32,8 @@ from pathlib import Path
 
 import yaml
 
+from psm.provenance import provenance_row
+
 REPO = Path(__file__).resolve().parents[2]
 E19 = REPO / "data" / "processed" / "e19"
 SPINE = REPO / "data" / "processed" / "investigations_index.csv"
@@ -235,7 +237,7 @@ def enrich_causes(causes: list[dict], spec: dict, qual: dict) -> tuple[list[dict
 
     for row in causes:
         e = dict(row)
-        p = {c: ("src" if (row.get(c) or "").strip() else "") for c in cols}
+        p = provenance_row(row, cols)
         st = parse_statement(row.get("Cause Description", "") or "")
         raw = getattr(st, "category", None)
         if not raw:
@@ -421,7 +423,7 @@ def main(argv=None) -> int:
         if got:
             xw["What was the outcome?"] = got
         e = dict(row)
-        p = {c: ("src" if (row.get(c) or "").strip() else "") for c in cols}
+        p = provenance_row(row, cols)
         for col, val in xw.items():
             if not (e.get(col) or "").strip():   # verbatim always wins
                 e[col] = val

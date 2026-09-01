@@ -153,3 +153,44 @@ def test_fill_column_manifest_matches_columns_actually_marked_syn():
         f"fill.py stamps a new syn token into these columns but they are "
         f"declared in neither FILL_COLUMN_MANIFEST nor SYN_FALLBACK_COLUMNS: "
         f"{undeclared}")
+
+
+from psm.provenance import PSEUD_COLUMNS
+
+
+class TestConstructedIdentifierProvenance:
+    @pytest.mark.parametrize("table,prov", [
+        ("incidents.csv", "provenance.csv"),
+        ("causes.csv", "causes_provenance.csv"),
+    ])
+    def test_incident_number_is_key_wherever_populated(self, table, prov):
+        rows = _rows(FILLED / table)
+        provs = _rows(FILLED / prov)
+        for r, p in zip(rows, provs):
+            if (r.get("Incident Number") or "").strip():
+                assert p["Incident Number"] == "key", r["Incident Number"]
+
+    def test_pseudonym_columns_are_pseud_wherever_populated(self):
+        # Scoped to INV-/SUP- tokens per the interface contract ("every
+        # non-empty INV-/SUP- name cell is pseud"). SYN-Investigator-* cells
+        # are a separate, pre-existing, deliberate fabrication path
+        # (crosswalk.py's synth-fill precedence, untouched by this task) and
+        # are correctly `syn`, not `pseud` -- there is no real name behind
+        # them to pseudonymize.
+        rows = _rows(FILLED / "incidents.csv")
+        provs = _rows(FILLED / "provenance.csv")
+        for col in PSEUD_COLUMNS:
+            for r, p in zip(rows, provs):
+                val = (r.get(col) or "").strip()
+                if val and not val.startswith("SYN-"):
+                    assert p[col] == "pseud", (col, r[col])
+
+    def test_filled_never_lags_enriched_on_key_or_pseud(self):
+        # the stale-layer failure mode: enriched fixed, filled re-exported stale
+        for name in ("provenance.csv", "causes_provenance.csv"):
+            enr = _rows(ENRICHED / name)
+            fil = _rows(FILLED / name)
+            for e, f in zip(enr, fil):
+                for col in set(e) & set(f):
+                    if e[col] in ("key", "pseud"):
+                        assert f[col] == e[col], col
