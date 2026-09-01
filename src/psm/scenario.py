@@ -418,3 +418,60 @@ def build_incident_row(plan: IncidentPlan, donor_row: dict) -> tuple[dict, dict]
             put(name_col, name, "syn")
             put(pos_col, pos, "syn")
     return row, prov
+
+
+def cause_fieldnames() -> list[str]:
+    return list(_real_table("causes.csv")[0])
+
+
+@lru_cache(maxsize=None)
+def donor_causes() -> dict[str, list[dict]]:
+    out: dict[str, list[dict]] = {}
+    for r in _real_table("causes.csv")[1]:
+        out.setdefault(r["Incident Number"], []).append(r)
+    for rows in out.values():
+        rows.sort(key=lambda r: int(r["Cause number"] or 0))
+    return out
+
+
+_CHAIN = ("Immediate", "Underlying", "Root")
+
+
+def build_cause_rows(plan: IncidentPlan,
+                     donor_row: dict) -> tuple[list[dict], list[dict]]:
+    if plan.skipped:
+        return [], []
+    delta = donor_delta(plan)
+    donors = donor_causes().get(plan.donor_id, [])
+    rows, provs = [], []
+    for i in range(plan.chain_len):
+        row = {c: "" for c in cause_fieldnames()}
+        prov = dict(row)
+
+        def put(col, value, token):
+            row[col] = value
+            prov[col] = token if value.strip() else ""
+
+        put("Incident Number", plan.sid, "key")
+        put("Cause number", str(i + 1), "syn")
+        put("Cause type", _CHAIN[i], "syn")
+        if donors:
+            src = donors[i % len(donors)]
+            put("Cause Description",
+                shift_prose_dates(src.get("Cause Description") or "", delta), "src")
+            put("Risk Management Cause", src.get("Risk Management Cause") or "", "src")
+            put("Human Factors  Cause", src.get("Human Factors  Cause") or "", "src")
+            put(" Failed PSM Framework Element",
+                (src.get(" Failed PSM Framework Element") or "").strip(), "src")
+        else:  # 4 donors have zero cause rows: fall back to the incident text
+            put("Cause Description",
+                shift_prose_dates(donor_row.get("Description") or "", delta), "src")
+        if plan.element_override and i == 0:
+            put(" Failed PSM Framework Element", plan.element_override, "syn")
+        rows.append(row)
+        provs.append(prov)
+    if not donors and len(rows) > 1:
+        # a donor-less chain longer than 1 would just repeat the fallback
+        # text -- truncate to a single Immediate row instead
+        rows, provs = rows[:1], provs[:1]
+    return rows, provs
