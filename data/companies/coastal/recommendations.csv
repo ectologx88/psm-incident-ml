@@ -1,0 +1,146 @@
+Incident Number,Recommendation Number,Recommendation Description,Unmittigated Risk - Score,Unmittigated Risk - Consequence,Unmittigated Risk - Likelihood,Mittigated Risk - Score,Mittigated Risk - Consequence,Mittigated Risk - Likelihood,Agreed Completion Date,Responsible Owner - Name,Responsible Owner - Position
+CP-BF2EE5947A,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2021-03-21,SYN-991d23,Marine Coordinator
+CP-D5270111A8,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2021-04-29,,
+CP-9E1D15576D,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2021-04-04,,
+CP-4B15C3DC3B,1,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2021-06-15,SYN-aeef31,Maintenance Supervisor
+CP-3B79FD9E11,1,Require arc-rated clothing for personnel working inside the switch gear room.,,,,,,,2021-07-12,,
+CP-E8CD75BF8D,1,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2021-07-08,SYN-b3e0e1,Marine Coordinator
+CP-FC86518082,1,Require chemical-splash goggles for personnel handling glycol during startup operations.,,,,,,,2021-07-14,,
+CP-FC86518082,2,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2021-08-07,SYN-e76a91,Production Foreman
+CP-02C26650DB,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2021-07-27,,
+CP-6027395E36,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2021-08-17,,
+CP-E25A5F1EF9,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2021-10-02,,
+CP-C3BE94F691,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2021-09-10,SYN-3fdd3f,Operations Superintendent
+CP-8EF558598C,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2021-10-31,SYN-126941,Facility Engineer
+CP-A54C179A20,1,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2021-11-01,SYN-be81d0,Marine Coordinator
+CP-68FE7B4E5E,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2021-12-19,SYN-f1bf02,Facility Engineer
+CP-B2A240DFA2,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2022-01-03,SYN-5db635,Facility Engineer
+CP-5791A4827D,1,Require insulated gloves for personnel adjusting the compressor discharge cooler piping during operation.,,,,,,,2022-01-16,SYN-4860b2,Production Foreman
+CP-5791A4827D,2,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2021-12-14,,
+CP-6A3B6A17BD,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2022-02-20,SYN-119793,Production Foreman
+CP-6FBA9BECDE,1,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2022-01-25,,
+CP-98B7510218,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2022-03-05,SYN-599989,Marine Coordinator
+CP-98B7510218,2,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2022-02-14,,
+CP-96EAF2138B,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-03-24,SYN-424c3f,Maintenance Supervisor
+CP-B092285F66,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2022-03-26,,
+CP-AF65344437,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2022-04-27,,
+CP-3AED37EBF4,1,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2022-04-29,SYN-58c514,Marine Coordinator
+CP-046ACB062E,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2022-04-21,,
+CP-3D7A1B48AC,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2022-05-21,,
+CP-6E609FE29C,1,Shield the reboiler exhaust stack with thermal insulation so its surface temperature can no longer ignite glycol vapor released nearby.,,,,,,,2022-05-30,,
+CP-99AE614DE1,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-06-28,SYN-7df336,Marine Coordinator
+CP-9534B48819,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-06-22,SYN-199f60,Operations Superintendent
+CP-D330F37F05,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2022-06-23,SYN-0156d4,HSE Advisor
+CP-F5097143EF,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2022-08-22,SYN-27416d,HSE Advisor
+CP-57D88C9DD8,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2022-07-24,SYN-6df2f5,Facility Engineer
+CP-9D63C7E5D6,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2022-07-15,,
+CP-AF101CEEE5,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2022-08-19,SYN-5082ee,Maintenance Supervisor
+CP-AF101CEEE5,2,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2022-07-15,SYN-ec6986,HSE Advisor
+CP-9F92249E10,1,Fit the load hook with a self-latching mechanism so a hand is never needed to hold slack chain in place at the throat.,,,,,,,2022-09-08,SYN-523b85,Facility Engineer
+CP-9F92249E10,2,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2022-10-05,,
+CP-28BCE26628,1,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2022-08-20,SYN-cbee20,HSE Advisor
+CP-C7C9B9694D,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2022-10-08,,
+CP-23ED7A0BF3,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2022-09-05,SYN-76e290,Operations Superintendent
+CP-215260714B,1,Require insulated gloves for personnel adjusting the compressor discharge cooler piping during operation.,,,,,,,2022-10-26,SYN-d81010,HSE Advisor
+CP-872326FC4E,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2022-10-16,SYN-0ccb82,Operations Superintendent
+CP-F883ABFF3A,1,Require chemical-splash goggles for personnel handling glycol during startup operations.,,,,,,,2022-10-02,SYN-572c7a,HSE Advisor
+CP-F883ABFF3A,2,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2022-09-19,SYN-ba02ed,Maintenance Supervisor
+CP-2674FB26E1,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2022-11-19,SYN-498ae9,Maintenance Supervisor
+CP-754AE9C18C,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2022-11-16,,
+CP-C733A576BA,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-10-11,,
+CP-C733A576BA,2,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2022-11-03,SYN-ed6929,Operations Superintendent
+CP-5067563F49,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2022-12-09,,
+CP-58E98FEEFD,1,Require face shields in addition to safety glasses for all sandblasting operations.,,,,,,,2022-11-10,,
+CP-2868D67F34,1,Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.,,,,,,,2022-11-24,SYN-3a3e64,Marine Coordinator
+CP-09636DAF8E,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2023-01-16,,
+CP-09636DAF8E,2,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2022-12-20,,
+CP-CE0CA4123B,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2022-12-28,SYN-8e183f,Production Foreman
+CP-FEEB73F805,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2022-12-20,,
+CP-CF338020AE,1,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2023-01-22,SYN-4d6226,Production Foreman
+CP-CF338020AE,2,Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.,,,,,,,2023-02-24,,
+CP-A0F413DEA6,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2023-03-12,SYN-d0be2f,Operations Superintendent
+CP-0D19E3D5BC,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2023-04-05,SYN-1dd6d0,HSE Advisor
+CP-3C356856A7,1,Require a documented stop work authority briefing at the start of every shift changeover.,,,,,,,2023-05-11,SYN-d16e4f,Facility Engineer
+CP-3C356856A7,2,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2023-04-08,SYN-76f34e,HSE Advisor
+CP-EB037DCDDA,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2023-04-07,,
+CP-19F338C9DF,1,Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.,,,,,,,2023-05-13,,
+CP-19F338C9DF,2,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2023-05-25,SYN-8c9ee6,Maintenance Supervisor
+CP-889FB976D8,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2023-06-18,SYN-d63f27,Production Foreman
+CP-AF26AE8FD9,1,Require hearing protection for personnel working near running cooling fans on control panel enclosures.,,,,,,,2023-06-02,,
+CP-96BE7D6D00,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2023-10-06,SYN-7477d0,Operations Superintendent
+CP-E34F6FA176,1,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2023-11-13,SYN-9e2f9a,Operations Superintendent
+CP-F154929E4F,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2023-11-17,,
+CP-DA8B8BA200,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2023-12-01,SYN-faf8d3,Marine Coordinator
+CP-DBE3F957D9,1,"Fit the drawworks with an independent anti-collision system that halts hoisting before the traveling assembly reaches the crown block, separate from the primary control system.",,,,,,,2023-10-29,SYN-02847d,Facility Engineer
+CP-842BEE84F9,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2023-12-15,SYN-b3f7a2,Operations Superintendent
+CP-842BEE84F9,2,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2023-12-23,,
+CP-F33EB85E55,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2023-12-19,,
+CP-600B617E24,1,Require high-visibility outerwear for personnel working near the crane's blind-lift zone.,,,,,,,2024-02-02,,
+CP-2F1992912D,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-01-25,SYN-20e331,Production Foreman
+CP-A55DEBBD97,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2024-01-09,,
+CP-A8413831E1,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2024-02-06,SYN-662951,Facility Engineer
+CP-7D02588F5C,1,Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.,,,,,,,2024-01-21,SYN-99247c,Facility Engineer
+CP-F05811403B,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-02-20,,
+CP-3692EFDD2C,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2024-02-21,SYN-c31bb1,Marine Coordinator
+CP-60B0C6B839,1,Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.,,,,,,,2024-03-24,,
+CP-EE305E50DE,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2024-04-21,SYN-486200,HSE Advisor
+CP-EE305E50DE,2,Require a self-contained breathing apparatus on standby for personnel entering the control room during gas testing.,,,,,,,2024-03-14,,
+CP-4A8977A114,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2024-05-05,,
+CP-FE4D05FCE3,1,Install gas detection sensors inside the control room to alarm before combustible gas can accumulate.,,,,,,,2024-05-23,,
+CP-5A16E091A7,1,Upgrade the switch gear enclosure with forced ventilation sized for the unit's full duty cycle.,,,,,,,2024-05-16,SYN-98a8a3,Marine Coordinator
+CP-AAEC0F5FC5,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-05-29,SYN-c82276,Facility Engineer
+CP-0D35A2BD08,1,Add a mechanical stop that halts the traveling block before it can strike the crown block.,,,,,,,2024-07-05,,
+CP-BD12A5BAEA,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2024-07-06,SYN-27e724,Marine Coordinator
+CP-D10A5C8CAF,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2024-08-26,SYN-b0cd0e,HSE Advisor
+CP-DD880048AA,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2024-09-15,,
+CP-13A8820D4B,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2024-08-22,,
+CP-11BFCC2E3F,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2024-08-27,SYN-54002c,Marine Coordinator
+CP-5AB375533E,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2024-09-28,,
+CP-B81BC32135,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2024-09-23,SYN-66ca2c,Production Foreman
+CP-B81BC32135,2,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2024-11-01,,
+CP-EF12925A15,1,Require chemical-splash goggles for personnel handling glycol during startup operations.,,,,,,,2024-10-03,SYN-948345,Maintenance Supervisor
+CP-2243618BFC,1,Require high-visibility outerwear for personnel working near the crane's blind-lift zone.,,,,,,,2024-10-18,SYN-035d6a,Marine Coordinator
+CP-6E7C2B257D,1,Install remote valve-position instrumentation on the elevated-platform valve so its status can be confirmed from the control room without a manual climb.,,,,,,,2024-10-09,SYN-97252d,Production Foreman
+CP-340FA64A38,1,Require a documented hazard and operability review before commissioning any change to the ballast or bilge system.,,,,,,,2024-11-22,,
+CP-05E0194B4E,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2025-01-01,SYN-3d9ba4,Facility Engineer
+CP-6185519FB7,1,Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.,,,,,,,2025-02-20,,
+CP-21A51CBCFA,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2024-12-29,,
+CP-21A51CBCFA,2,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2025-02-19,,
+CP-99B5FE53E5,1,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2025-01-04,,
+CP-F68B93C2BB,1,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2025-01-27,,
+CP-004E1BF2AC,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2025-02-16,SYN-115d4e,HSE Advisor
+CP-4357E9CAB7,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2025-03-01,SYN-02e742,Maintenance Supervisor
+CP-94D2604374,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2025-02-08,SYN-01f3cd,Facility Engineer
+CP-586DF68FF1,1,Add a corrosion-monitoring checkpoint that requires inspection of internal weld seams each time the fire tube comes out for service.,,,,,,,2025-03-08,SYN-10be7c,HSE Advisor
+CP-0183D1A1BF,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2025-03-14,SYN-77eb97,Production Foreman
+CP-24132264B3,1,"Upgrade the chain-handling hardware to a wider-jaw style that increases contact area and reduces slippage under load, removing the need for a hand in the pinch zone.",,,,,,,2025-04-18,SYN-bd517f,Production Foreman
+CP-24132264B3,2,Add a maintenance program requirement that specifies inspection frequency for control panel enclosures.,,,,,,,2025-04-15,SYN-448806,Marine Coordinator
+CP-6A8DC9AF27,1,Require arc-rated clothing for personnel working inside the switch gear room.,,,,,,,2025-03-17,SYN-37f181,Maintenance Supervisor
+CP-D6CA82ECCB,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2025-05-23,,
+CP-D6CA82ECCB,2,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2025-06-17,SYN-c8f3e7,Maintenance Supervisor
+CP-DAA226FBAE,1,Require arc-rated clothing for personnel working inside the switch gear room.,,,,,,,2025-05-26,SYN-66339e,Maintenance Supervisor
+CP-77EC5E32E6,1,Require cut-resistant gloves for personnel handling wire rope during high-frequency crane operations.,,,,,,,2025-06-25,SYN-dcd881,Production Foreman
+CP-333C0E1191,1,Require a full-face respirator for personnel performing coating removal near non-destructive inspection work.,,,,,,,2025-06-01,,
+CP-985A475390,1,"Give the compressor blowdown discharge its own dedicated relief path to atmosphere, isolated from other plant piping, so back-pressure from elsewhere cannot reach it.",,,,,,,2025-07-06,SYN-1efc6b,Production Foreman
+CP-985A475390,2,"Install a secondary rupture disc downstream of the primary relief device on the compressor discharge cooler, calibrated to activate before the primary device reaches its rated pressure.",,,,,,,2025-06-16,SYN-80cc35,Marine Coordinator
+CP-150683939C,1,Replace the local-only alarm panel with a remote-annunciating alarm system so the compressor alarm no longer requires a manual silence step at the unit.,,,,,,,2025-06-07,,
+CP-5004608A74,1,Require a second qualified person to independently verify that lifting slings are rated for the calculated load before each pick.,,,,,,,2025-09-16,,
+CP-F5A151FC3D,1,Require flame-resistant coveralls for all personnel working near the reboiler stack during startup.,,,,,,,2025-08-31,SYN-75e0be,Marine Coordinator
+CP-F5A151FC3D,2,Upgrade the pipe-spinning tool used on the rig floor to a jaw design that cannot close unless a tubular is actually seated between the jaws.,,,,,,,2025-10-16,SYN-e5d372,Marine Coordinator
+CP-D36DCDB2B7,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2025-09-15,,
+CP-FFCFEC9F13,1,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2025-09-25,SYN-1ebed8,Maintenance Supervisor
+CP-FFCFEC9F13,2,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2025-08-30,SYN-b6e16c,Production Foreman
+CP-C45C57A1CF,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2025-08-30,,
+CP-219E2BD122,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2025-09-24,SYN-9e04f2,Operations Superintendent
+CP-0799BDD27E,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2025-10-07,SYN-a1785e,HSE Advisor
+CP-F8EC8FB423,1,"Put a written open hole work procedure in place, and make sure platform crews know where to find it before starting that task.",,,,,,,2025-11-15,,
+CP-46FB188BB1,1,Retrain riggers on proper hook inspection and load chart limitations and document completion.,,,,,,,2025-11-02,SYN-64414d,Facility Engineer
+CP-E38FA6EFB8,1,Require steel-toed boots rated for wet deck conditions during all fluid transfer work.,,,,,,,2025-10-26,SYN-e3c831,Operations Superintendent
+CP-3EAAF529AA,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2025-11-30,,
+CP-E46253EDAD,1,Require supervisors to conduct a documented pre-lift briefing that reviews the rigging plan and load chart before any lift begins.,,,,,,,2026-01-08,SYN-caf611,Operations Superintendent
+CP-1CE2872E60,1,Require fall-protection harnesses with full tie-off for all scaffold work above the deck.,,,,,,,2026-01-23,,
+CP-49E8044B52,1,Revise the job safety analysis template to require a documented review of hazard controls before work begins.,,,,,,,2026-01-15,SYN-69aa2d,Production Foreman
+CP-E267A319DC,1,"Add the still column to the facility's periodic internal-inspection rotation, with a defined maximum interval between inspections.",,,,,,,2026-02-03,,
+CP-E267A319DC,2,Update the pre-job checklist to require confirmation of valve alignment before the fluid transfer sequence starts.,,,,,,,2026-01-31,,
+CP-683FF38E7B,1,Establish a training program for glycol handling personnel that covers how hazards change as the material shifts from its liquid state to its vapor state.,,,,,,,2026-02-20,SYN-2d2422,Production Foreman
+CP-80C3B52DBD,1,Wire the emergency shutdown valve into the SCADA system so its open or closed state is visible in the control room without a field check.,,,,,,,2026-02-06,,

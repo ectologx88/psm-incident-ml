@@ -205,3 +205,51 @@ def test_manifest_leaves_no_kpi_unasserted(company, manifests):
                | set(m["analytic_expectations"].get("kpi_map", {}))
                | {c.split("(")[0] for c in m["negative_controls"]})
     assert KPIS <= covered, KPIS - covered
+
+
+# ---- planted vs measured: Coastal (bundle-level attribution) ------------
+# Coastal's pathologies co-move by design; this suite claims bundle-level
+# detection for Coastal, NOT per-pathology attribution (parked in the spec).
+
+def test_coastal_skip_planted(kpis):
+    kn, kc = kpis["northstar"], kpis["coastal"]
+    assert kc["skip_rate"] > 5 * kn["skip_rate"]
+
+
+def test_coastal_shallow_investigation_planted(kpis):
+    assert kpis["coastal"]["root_cause_depth"] < 0.5 * kpis["northstar"]["root_cause_depth"]
+
+
+def test_coastal_weak_controls_planted(kpis):
+    assert kpis["coastal"]["admin_ppe_share"] > kpis["northstar"]["admin_ppe_share"] + 0.25
+
+
+def test_coastal_missing_owners_planted(kpis):
+    assert kpis["coastal"]["owner_completeness"] < kpis["northstar"]["owner_completeness"] - 0.25
+
+
+def test_coastal_hs_decay_planted_and_baseline_adjusted(kpis, manifests):
+    # ADJUDICATED correction (plan-text error, same class as the 3x->2x ruling):
+    # the brief's "< baseline - 0.15" is unsatisfiable IN EXPECTATION -- the
+    # coastal donor partition is already 49.33% HS-blank (74/150), and
+    # extra_hs_blank_rate (0.25, scenarios/coastal.yaml) is OR-composed on top,
+    # so max expected decay = 0.5067 * 0.25 = 12.7pt < 15pt. Claim reduced to
+    # (a) consistency with the analytic expectation, (b) a meaningful decay
+    # direction floor (absent the plant, decay is exactly 0 -- donors are fixed).
+    baseline = 1 - manifests["coastal"]["analytic_expectations"]["hs_blank_baseline"]
+    expected = baseline * (1 - 0.25)          # OR-semantics: survivors * (1-extra)
+    measured = kpis["coastal"]["hs_completeness"]
+    assert abs(measured - expected) <= tol(expected, 150, 0.05)
+    assert measured < baseline - 0.05
+
+
+def test_coastal_recurrence_planted(kpis):
+    assert kpis["coastal"]["recurrence_rate"] >= 6
+
+
+def test_coastal_negative_controls(kpis):
+    kn, kc = kpis["northstar"], kpis["coastal"]
+    assert abs(kc["median_report_lag"] - kn["median_report_lag"]) <= \
+        max(1.0, 0.3 * kn["median_report_lag"])          # spec: within +/-30%
+    # fast-on-paper: coastal closeout must NOT trip the decay direction
+    assert kc["median_closeout_days"] < 2 * kn["median_closeout_days"]

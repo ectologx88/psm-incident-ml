@@ -719,7 +719,8 @@ def build_manifest(company: str, result: dict) -> dict:
              "expected": {"op": "<", "ref": "northstar", "delta_pts": -25},
              "affected_ids": None},
             {"pathology": "hs_data_decay", "kpi": "hs_completeness",
-             "expected": {"op": "<", "ref": "baseline", "delta_pts": -15},
+             # -5 not -15: max expected decay = base_comp*0.25 ~= 12.7pt; see test_coastal_hs_decay...
+             "expected": {"op": "<", "ref": "baseline", "delta_pts": -5},
              "affected_ids": None},
             {"pathology": "recurrence_after_closure", "kpi": "recurrence_rate",
              "expected": {"op": ">=", "count": 6},
