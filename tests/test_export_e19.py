@@ -45,12 +45,15 @@ def _tiny_filled(tmp_path):
     return filled
 
 
-def test_export_builds_three_sheets_with_provenance_shading(tmp_path):
+def test_export_builds_five_sheets_with_provenance_shading(tmp_path):
     out = tmp_path / "out.xlsx"
     export(_tiny_filled(tmp_path), out)
 
     wb = load_workbook(out)
-    assert wb.sheetnames == ["About", "Incidents", "Causes"]
+    assert wb.sheetnames == [
+        "About", "Incidents", "Causes",
+        "Incidents Provenance", "Causes Provenance",
+    ]
     inc = wb["Incidents"]
     assert inc["A1"].value == "Incident Number"
     assert inc["B2"].value == "Drilling"
@@ -58,6 +61,63 @@ def test_export_builds_three_sheets_with_provenance_shading(tmp_path):
     causes = wb["Causes"]
     assert causes["C2"].fill.start_color.rgb == "00" + PROVENANCE_FILLS["llm"]
     assert "not a real" in str(wb["About"]["A4"].value).lower()
+
+
+def test_provenance_sheets_mirror_data_sheets_cell_for_cell(tmp_path):
+    out = tmp_path / "out.xlsx"
+    export(_tiny_filled(tmp_path), out)
+    wb = load_workbook(out)
+
+    inc = wb["Incidents"]
+    inc_prov = wb["Incidents Provenance"]
+    causes = wb["Causes"]
+    causes_prov = wb["Causes Provenance"]
+
+    # Identical headers, byte-exact, same order.
+    inc_headers = [c.value for c in inc[1]]
+    assert [c.value for c in inc_prov[1]] == inc_headers
+    causes_headers = [c.value for c in causes[1]]
+    assert [c.value for c in causes_prov[1]] == causes_headers
+
+    # Token cell matches the fixture's provenance.csv / causes_provenance.csv.
+    assert inc_prov["B2"].value == "syn"          # Incidents!B2 == "Drilling"
+    assert causes_prov["C2"].value == "llm"        # Causes!C2 == 17
+
+    # A cell whose token is empty in the CSV is genuinely None, not "".
+    assert inc["D3"].value is None                 # Time of Incident, row A-2
+    assert inc_prov["D3"].value is None
+
+    assert inc_prov.freeze_panes == "B2"
+    assert causes_prov.freeze_panes == "B2"
+
+
+def test_header_cells_carry_provenance_comments(tmp_path):
+    out = tmp_path / "out.xlsx"
+    export(_tiny_filled(tmp_path), out)
+    wb = load_workbook(out)
+
+    inc = wb["Incidents"]
+    b1 = inc["B1"].comment
+    assert b1 is not None
+    assert "syn" in b1.text and "corresponds to nothing real" in b1.text
+
+    a1 = inc["A1"].comment
+    assert a1 is not None
+    assert "src" in a1.text
+
+    for ws in (wb["Incidents"], wb["Causes"]):
+        for header_cell in ws[1]:
+            assert header_cell.comment is not None, (
+                f"{ws.title}!{header_cell.coordinate} has no header comment"
+            )
+
+
+def test_about_names_provenance_sheets_and_warns_of_ai_extraction():
+    text = "\n".join(ABOUT_LINES)
+    assert "Incidents Provenance" in text and "Causes Provenance" in text
+    assert "AI" in text
+    assert "does not survive" in text
+    assert "copy" in text and "export" in text
 
 
 def test_dates_times_and_scores_are_typed_cells_not_text(tmp_path):
