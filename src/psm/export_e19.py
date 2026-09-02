@@ -13,12 +13,13 @@ Run:  uv run python -m psm.export_e19
 from __future__ import annotations
 
 import csv
+import datetime
 import re
 from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Alignment, Font, PatternFill
 
 from psm.fill import FILLED
 from psm.provenance import FILL_COLORS as PROVENANCE_FILLS
@@ -35,7 +36,9 @@ ABOUT_LINES = [
     "filled E19 worksheet: it demonstrates what an auto-populated register looks",
     "like. Cell colours state where every value came from:",
     "",
-    "  no colour  - verbatim from a BSEE source document",
+    "  no colour  - verbatim from a BSEE source document, or genuinely empty",
+    "               (BSEE recorded nothing and this repo declined to invent",
+    "               it -- the blank is the deliverable)",
     "  blue       - deterministic crosswalk from a BSEE category (an opinion,",
     "               recorded in schema/crosswalk.yaml)",
     "  amber      - assigned by a language model (3-pass self-consistency,",
@@ -46,29 +49,58 @@ ABOUT_LINES = [
     "               nothing real.",
     "  green      - constructed identifier: BSEE publishes no incident id,",
     "               so this repo builds the key (area-block-date-time, some",
-    "               with content-hash parts). Consistent, but corresponds to",
-    "               no source field.",
+    "               with content-hash parts; rows where those parts are",
+    "               unavailable carry an UNKEYED-<hash> token). Consistent,",
+    "               but corresponds to no source field.",
     "  lilac      - salted pseudonym of a real name (INV-/SUP- tokens).",
     "               Same person, same token, corpus-wide. De-amplification",
     "               of public documents, not fabrication.",
     "",
     "Model-assigned labels are unvalidated. On the 524 statements where the",
     "crosswalk also holds an opinion, the model agreed on 25.4% (133) and",
-    "abstained entirely on 109; counting only the 415 where both produced a",
-    "label, agreement is 32.0%. The corpus also skews heavily to one category.",
-    "Treat every amber/grey cell as a proposal to evaluate, not a finding.",
-    "Full provenance: data/processed/e19/filled/ in the psm-incident-ml",
-    "repository.",
+    "produced no label on 109 (107 abstentions, 2 parse failures); counting",
+    "only the 415 where both produced a label, agreement is 32.0%. The corpus",
+    "also skews heavily to one category. Treat every amber/grey cell as a",
+    "proposal to evaluate, not a finding. Full provenance:",
+    "data/processed/e19/filled/ in the psm-incident-ml repository.",
     "",
     "The Cause type column reflects ordinal position in the source list",
     "(cause #1 is always 'Immediate'), not causal analysis. Do not read",
     "root-cause depth from it.",
     "",
-    "A few cause descriptions contain control characters left by PDF",
-    "extraction that xlsx cannot store; each is rendered here as a single",
-    "space. The committed CSVs in data/processed/e19/filled/ keep the",
-    "original bytes.",
+    "Disclosures:",
+    "- Structured name fields are SYN-/INV-/SUP- tokens; narrative and",
+    "  cause text is verbatim public BSEE report text and names the real",
+    "  operators, vessels, facilities and -- occasionally -- the",
+    "  individuals involved, including injured or implicated parties.",
+    "- A pseudonym (lilac) can sit in the same row as a verbatim position",
+    "  title, and the pairing narrows who a token could refer to. The",
+    "  tokens de-amplify public documents; they are not anonymisation.",
+    "- Column headers reproduce the E19 template byte-exact, including its",
+    "  own irregularities: 'Incident Classificatioin' (sic) and stray",
+    "  spaces are the template's, not transcription errors made here.",
+    "- Incident Classification appears three times by template design",
+    "  (columns C, AC and AE); all three carry the same value on every row.",
+    "- Dates, times, risk scores, likelihoods and cause/element codes are",
+    "  written as typed date/time/number cells so sorting and Number",
+    "  Filters behave; the committed CSVs remain the textual record.",
+    "- A few narrative and cause-description cells (on both sheets) contain",
+    "  control characters left by PDF extraction that xlsx cannot store;",
+    "  each run is rendered here as a single space. The committed CSVs in",
+    "  data/processed/e19/filled/ keep the original bytes.",
 ]
+
+# The About legend's coloured lines get a swatch cell in column B, filled
+# with the actual PatternFill the data sheets use -- so the legend cannot
+# drift from the real colours, and a reader who cannot distinguish the hues
+# by name can match swatch to cell directly.
+_LEGEND_SWATCHES = {
+    "  blue": "xw",
+    "  amber": "llm",
+    "  grey": "syn",
+    "  green": "key",
+    "  lilac": "pseud",
+}
 
 
 def _rows(path: Path) -> tuple[list[str], list[dict]]:
@@ -102,21 +134,74 @@ def _xlsx_safe(value: str) -> str:
     return _ILLEGAL_RUN_RE.sub(" ", value)
 
 
+# Columns written as typed cells rather than text. Text-typed digits sort
+# lexicographically ('20' < '4') and draw Text Filters instead of Number
+# Filters -- silently wrong for exactly the sort-by-risk-score move a
+# reviewer makes first. The lists are explicit rather than inferred from the
+# data so a schema change cannot silently retype a column; a value that does
+# not parse raises instead of falling back to text (a mixed-type column is
+# worse than either).
+INT_COLS = frozenset({
+    "Health & Safety - Risk Score",
+    "Health & Safety - Likelihood",
+    "Environment & Reputation - Risk Score",
+    "Environment & Reputation - Likelihood",
+    "Financial Cost & Business Interruption - Risk Score",
+    "Financial Cost & Business Interruption - Likelihood",
+    "Cause number",
+    " Failed PSM Framework Element",
+})
+DATE_COLS = frozenset({
+    "Date of Incident", "Date of Report", "Approval Date", "Close out Date",
+})
+TIME_COLS = frozenset({"Time of Incident"})
+
+# Narrative columns whose content routinely exceeds one screen-width; they
+# get wrap_text so a row's prose is readable in place instead of overflowing
+# into (or hiding behind) its neighbours.
+_WRAP_MIN_CHARS = 80
+
+
+def _typed(col: str, raw: str) -> object:
+    """Parse ``raw`` for a typed column; text columns pass through _xlsx_safe.
+
+    A blank in a typed column becomes None -- a genuinely empty cell -- so
+    AutoFilter offers (Blanks) and arithmetic skips it, rather than an
+    empty-string text cell that reads as a value.
+    """
+    if col in INT_COLS:
+        return int(raw) if raw.strip() else None
+    if col in DATE_COLS:
+        return datetime.date.fromisoformat(raw) if raw.strip() else None
+    if col in TIME_COLS:
+        return datetime.time.fromisoformat(raw) if raw.strip() else None
+    return _xlsx_safe(raw)
+
+
 def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int:
     """Returns the number of cells whose value was sanitised by _xlsx_safe."""
     assert len(rows) == len(prov), "value/provenance row count mismatch"
     ws.append(cols)
     for cell in ws[1]:
         cell.font = Font(bold=True)
+    typed = INT_COLS | DATE_COLS | TIME_COLS
+    wrap_cols = {
+        c for c in cols
+        if c not in typed and any(len(r[c]) > _WRAP_MIN_CHARS for r in rows)
+    }
+    wrap = Alignment(wrap_text=True, vertical="top")
     sanitised = 0
     for row, prow in zip(rows, prov):
         values = []
         for c in cols:
             raw = row[c]
-            safe = _xlsx_safe(raw)
-            if safe != raw:
+            try:
+                value = _typed(c, raw)
+            except ValueError as exc:
+                raise ValueError(f"{c!r}: cannot type value {raw!r}") from exc
+            if isinstance(value, str) and value != raw:
                 sanitised += 1
-            values.append(safe)
+            values.append(value)
         ws.append(values)
         for j, c in enumerate(cols, start=1):
             token = prow.get(c, "")
@@ -125,11 +210,28 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int
                     f"{c!r}: unknown provenance token {token!r} -- "
                     "not in PROVENANCE_FILLS and not in UNSHADED"
                 )
+            cell = ws.cell(row=ws.max_row, column=j)
             if token in PROVENANCE_FILLS:
-                ws.cell(row=ws.max_row, column=j).fill = PatternFill(
-                    "solid", start_color=PROVENANCE_FILLS[token]
-                )
-    ws.freeze_panes = "A2"
+                cell.fill = PatternFill("solid", start_color=PROVENANCE_FILLS[token])
+            if c in DATE_COLS:
+                cell.number_format = "yyyy-mm-dd"
+            elif c in TIME_COLS:
+                cell.number_format = "hh:mm"
+            elif c in wrap_cols:
+                cell.alignment = wrap
+    # Post-write assertion: every populated cell of a typed column really is
+    # typed. If _typed ever regresses to passing strings through, this fails
+    # the export rather than shipping a silently text-typed workbook.
+    for j, c in enumerate(cols, start=1):
+        if c not in typed:
+            continue
+        for cell in next(ws.iter_cols(min_col=j, max_col=j, min_row=2)):
+            assert cell.value is None or cell.data_type in ("n", "d"), (
+                f"{c!r}: cell {cell.coordinate} is {cell.data_type!r}, not typed"
+            )
+    # B2, not A2: keep the header row AND the Incident Number column in view
+    # while a reviewer scrolls the 40-odd columns to the right.
+    ws.freeze_panes = "B2"
     ws.auto_filter.ref = ws.dimensions
     for j, c in enumerate(cols, start=1):
         width = min(max(len(c) + 2, 12), 60)
@@ -144,9 +246,15 @@ def export(filled_dir: Path, out_path: Path) -> int:
     wb = Workbook()
     about = wb.active
     about.title = "About"
-    for line in ABOUT_LINES:
+    for i, line in enumerate(ABOUT_LINES, start=1):
         about.append([line])
+        for prefix, token in _LEGEND_SWATCHES.items():
+            if line.startswith(prefix + " "):
+                about.cell(row=i, column=2).fill = PatternFill(
+                    "solid", start_color=PROVENANCE_FILLS[token]
+                )
     about.column_dimensions["A"].width = 90
+    about.column_dimensions["B"].width = 4
 
     icols, irows = _rows(filled_dir / "incidents.csv")
     _, iprov = _rows(filled_dir / "provenance.csv")

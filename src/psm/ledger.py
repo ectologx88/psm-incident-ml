@@ -125,6 +125,45 @@ def measure() -> dict[str, dict[str, tuple[int, int]]]:
     return out
 
 
+# The tables that carry a per-cell provenance file. recommendations/closeout
+# do not; their cells count under the column's *declared* disposition, and the
+# render says so.
+PROV_FILES = {"incidents": "provenance.csv", "causes": "causes_provenance.csv"}
+REAL_TOKENS = ("src", "xw")
+FAB_TOKENS = ("syn", "llm", "key")
+
+
+def measure_provenance() -> dict[str, dict[str, dict[str, int]]]:
+    """Per provenanced table, per column: cells counted by what their token
+    says they are -- real (src/xw), pseud, fabricated (syn/llm/key).
+
+    This is the 2026-09-01 correction: `measure()` counts presence, and
+    rendering presence as "real" reported a column of 1,147 pseudonyms as
+    100.0% real. "Real" must mean what the headline defines it to mean, and
+    only the token files know that per cell.
+    """
+    csv.field_size_limit(10 ** 9)
+    out: dict[str, dict[str, dict[str, int]]] = {}
+    for table, name in PROV_FILES.items():
+        path = E19 / "enriched" / name
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        if not rows:
+            continue
+        cols: dict[str, dict[str, int]] = {}
+        for c in rows[0]:
+            tokens = [r[c] for r in rows]
+            cols[c] = {
+                "real": sum(tokens.count(t) for t in REAL_TOKENS),
+                "pseud": tokens.count("pseud"),
+                "fab": sum(tokens.count(t) for t in FAB_TOKENS),
+            }
+        out[table] = cols
+    return out
+
+
 def load_disposition() -> dict:
     return yaml.safe_load(DISPOSITION.read_text(encoding="utf-8"))
 
@@ -146,18 +185,23 @@ def reconcile(spec: dict, seen: dict) -> tuple[list[str], list[str]]:
     return sorted(missing), sorted(orphan)
 
 
-def tally(spec: dict, seen: dict) -> dict:
-    """Field counts, and the cell-level real/fabricated split.
+def tally(spec: dict, seen: dict, prov: dict | None = None) -> dict:
+    """Field counts, and the cell-level real/pseud/fabricated split.
 
-    "Fabricated" is projected, not measured: the synth layer is not yet wired,
-    so today those cells are empty. Reporting the projection is the honest
-    choice -- it is what the dataset WILL be, and hiding it behind a temporary
-    zero would flatter the current state.
+    Where a table has a per-cell provenance file (``prov`` from
+    `measure_provenance`), every count is MEASURED from the tokens: real is
+    src/xw, pseud is its own class (a salted token derived from a real value
+    is neither real nor invented), fabricated is syn/llm/key. Without one
+    (recommendations/closeout), cells count under the column's declared
+    disposition -- presence for `real` columns, the projected total for
+    synthetic ones -- which is a claim, not a measurement, and the render
+    says so.
     """
     counts = {d: 0 for d in ALL_DISPOSITIONS}
-    real_cells = fabricated_cells = total_cells = honest_blanks = 0
+    real_cells = fabricated_cells = pseud_cells = total_cells = honest_blanks = 0
     targets = []
     for table, cols in seen.items():
+        pcols = (prov or {}).get(table)
         for col, (n, total) in cols.items():
             entry = spec["fields"].get(table, {}).get(col)
             if not entry:
@@ -165,12 +209,19 @@ def tally(spec: dict, seen: dict) -> dict:
             d = entry["disposition"]
             counts[d] += 1
             total_cells += total
-            if d == "real":
+            pc = pcols.get(col) if pcols else None
+            if pc is not None:
+                real_cells += pc["real"]
+                pseud_cells += pc["pseud"]
+                fabricated_cells += pc["fab"]
+                # `leave_blank` gaps fall through to unfilled_cells. That is
+                # the whole point of the policy: the blank is the deliverable,
+                # and counting it as fabrication would misreport the dataset
+                # as more invented than it is.
+                if d == "real" and entry.get("gap_policy") == "leave_blank":
+                    honest_blanks += total - n
+            elif d == "real":
                 real_cells += n
-                # `leave_blank` gaps fall through to unfilled_cells. That is the
-                # whole point of the policy: the blank is the deliverable, and
-                # counting it as fabrication would misreport the dataset as
-                # more invented than it is.
                 if entry.get("gap_policy") == "fabricate":
                     fabricated_cells += total - n
                 elif entry.get("gap_policy") == "leave_blank":
@@ -178,23 +229,26 @@ def tally(spec: dict, seen: dict) -> dict:
             else:
                 fabricated_cells += total
             if entry.get("modelling_target"):
-                targets.append((table, col, n, total))
+                targets.append((table, col, pc["real"] if pc else n, total))
     return {
         "counts": counts,
         "total_fields": sum(counts.values()),
         "real_cells": real_cells,
+        "pseud_cells": pseud_cells,
         "fabricated_cells": fabricated_cells,
-        "unfilled_cells": total_cells - real_cells - fabricated_cells,
+        "unfilled_cells": total_cells - real_cells - pseud_cells - fabricated_cells,
         "total_cells": total_cells,
         "targets": sorted(targets, key=lambda x: -x[2] / x[3]),
         "honest_blanks": honest_blanks,
     }
 
 
-def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
+def render(spec: dict, seen: dict, stats: dict, val: dict | None = None,
+           prov: dict | None = None) -> str:
     L: list[str] = []
     A = L.append
     r, f, t = stats["real_cells"], stats["fabricated_cells"], stats["total_cells"]
+    p = stats.get("pseud_cells", 0)
     A("# E19 field ledger\n")
     A("Generated by `psm.ledger`. Do not edit by hand -- edit "
       "`schema/e19_disposition.yaml` and regenerate.\n")
@@ -202,8 +256,11 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
     A("## The headline\n")
     A(f"**{100 * r / t:.0f}% of this dataset is real.** {r:,} of {t:,} cells carry "
       f"a value read from a BSEE report (`src`) or derived from one by a "
-      f"versioned rule (`xw`). The remaining {f:,} ({100 * f / t:.0f}%) are "
-      "fabricated under a `syn` mark.\n")
+      f"versioned rule (`xw`), counted from the per-cell provenance files. "
+      f"{f:,} ({100 * f / t:.0f}%) are fabricated or model-assigned "
+      f"(`syn`/`llm`/`key`), and {p:,} ({100 * p / t:.1f}%) are salted "
+      "pseudonyms of real names (`pseud`) -- derived from a real value but "
+      "not verbatim, so counted as neither real nor fabricated.\n")
     A("This is a synthetic dataset built on a real public corpus, and that ratio "
       "is the fact a stranger most needs. It is not a completeness score: the "
       "sheet is dense by construction, so 'percent complete' would read 100% and "
@@ -216,9 +273,11 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
           "columns -- the modelling task itself. The blank is information: it "
           "says BSEE recorded nothing, and that silence is strongly non-random "
           "by era.\n")
-    A(f"Fabrication is projected, not yet measured -- the synth layer is written "
-      f"but not wired into the projection, so those {f:,} cells are currently "
-      "empty. The projection is reported because it is what the dataset will be.\n")
+    A("For the incidents and causes tables every count above is measured from "
+      "the per-cell provenance files. The recommendations and closeout tables "
+      "carry no such file; their cells count under each column's declared "
+      "disposition -- a claim rather than a measurement -- and their sections "
+      "below are marked accordingly.\n")
 
     A(f"Of {stats['total_fields']} columns:\n")
     for d in ALL_DISPOSITIONS:
@@ -261,9 +320,17 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
         cols = seen.get(table)
         if not cols:
             continue
+        pcols = (prov or {}).get(table)
         A(f"## `{table}`\n")
-        A("| real | disposition | gap policy | column | note |")
-        A("|---|---|---|---|---|")
+        if pcols:
+            A("| real | filled | disposition | gap policy | column | note |")
+            A("|---|---|---|---|---|---|")
+        else:
+            A("_No per-cell provenance file for this table: 'filled' is "
+              "presence, and realness rests on the column's **declared** "
+              "disposition -- a claim rather than a measurement._\n")
+            A("| filled | disposition | gap policy | column | note |")
+            A("|---|---|---|---|---|")
         entries = spec["fields"].get(table, {})
 
         def key(item):
@@ -283,7 +350,15 @@ def render(spec: dict, seen: dict, stats: dict, val: dict | None = None) -> str:
                          if e.get("generator") else " **No generator yet.**")
             if e and e.get("modelling_target"):
                 note = "**Modelling target.** " + note
-            A(f"| {100 * n / total:.1f}% | {d} | {gp} | `{col}` | {note.strip()} |")
+            pc = pcols.get(col) if pcols else None
+            if pc is not None:
+                if pc["pseud"]:
+                    note = (f"{pc['pseud']:,} cells are `pseud` tokens "
+                            "(salted pseudonyms of real names). " + note)
+                A(f"| {100 * pc['real'] / total:.1f}% | {100 * n / total:.1f}% "
+                  f"| {d} | {gp} | `{col}` | {note.strip()} |")
+            else:
+                A(f"| {100 * n / total:.1f}% | {d} | {gp} | `{col}` | {note.strip()} |")
         A("")
 
     missing, orphan = reconcile(spec, seen)
@@ -394,15 +469,18 @@ def main(argv=None) -> int:
     if not seen:
         print("no E19 tables found -- run `python -m psm.project` first")
         return 1
-    stats = tally(spec, seen)
+    prov = measure_provenance()
+    stats = tally(spec, seen, prov)
     val = validity(spec)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(spec, seen, stats, val), encoding="utf-8")
+    args.out.write_text(render(spec, seen, stats, val, prov), encoding="utf-8")
 
     r, f, t = stats["real_cells"], stats["fabricated_cells"], stats["total_cells"]
     print(f"wrote {args.out}")
     print(f"  real cells        : {r:,}/{t:,} = {100 * r / t:.1f}%")
-    print(f"  fabricated (proj.): {f:,} = {100 * f / t:.1f}%")
+    print(f"  fabricated/model  : {f:,} = {100 * f / t:.1f}%")
+    print(f"  pseudonyms        : {stats['pseud_cells']:,} = "
+          f"{100 * stats['pseud_cells'] / t:.1f}%")
     hb = stats["honest_blanks"]
     print(f"  deliberately blank: {hb:,} = {100 * hb / t:.1f}%")
     checked = sum(c["checked"] for tb in val.values() for c in tb.values())

@@ -24,6 +24,7 @@ from psm.ledger import (
     REPO,
     load_disposition,
     measure,
+    measure_provenance,
     reconcile,
     render,
     tally,
@@ -42,6 +43,11 @@ def spec() -> dict:
 @pytest.fixture(scope="module")
 def seen() -> dict:
     return measure()
+
+
+@pytest.fixture(scope="module")
+def prov() -> dict:
+    return measure_provenance()
 
 
 def _entries(spec):
@@ -88,10 +94,10 @@ class TestTheRenderedFileMatchesItsSource:
     closes that gap: it is the render step itself, so it cannot drift from
     what `uv run python -m psm.ledger` would produce."""
 
-    def test_committed_ledger_is_freshly_regenerated(self, spec, seen):
-        stats = tally(spec, seen)
+    def test_committed_ledger_is_freshly_regenerated(self, spec, seen, prov):
+        stats = tally(spec, seen, prov)
         val = validity(spec)
-        rendered = render(spec, seen, stats, val)
+        rendered = render(spec, seen, stats, val, prov)
         committed = DEFAULT_OUT.read_text(encoding="utf-8")
         assert rendered == committed, (
             "docs/e19_field_ledger.md does not match schema/e19_disposition.yaml "
@@ -208,26 +214,72 @@ class TestModellingTargetsAreFlagged:
 
 
 class TestTheHeadlineIsWellFormed:
-    def test_the_cell_accounting_is_exhaustive(self, spec, seen):
-        s = tally(spec, seen)
-        assert s["real_cells"] + s["fabricated_cells"] + s["unfilled_cells"] \
-            == s["total_cells"]
+    def test_the_cell_accounting_is_exhaustive(self, spec, seen, prov):
+        s = tally(spec, seen, prov)
+        assert s["real_cells"] + s["pseud_cells"] + s["fabricated_cells"] \
+            + s["unfilled_cells"] == s["total_cells"]
 
-    def test_the_dataset_is_not_claimed_to_be_all_real(self, spec, seen):
+    def test_the_dataset_is_not_claimed_to_be_all_real(self, spec, seen, prov):
         """A denominator quietly narrowed to the real columns would report 100%
         real and be worthless. If this ever passes vacuously, the ledger has
         stopped counting the fabricated majority."""
-        s = tally(spec, seen)
+        s = tally(spec, seen, prov)
         assert s["fabricated_cells"] > 0
         assert s["real_cells"] < s["total_cells"]
 
-    def test_a_meaningful_share_is_real(self, spec, seen):
+    def test_a_meaningful_share_is_real(self, spec, seen, prov):
         """The other direction. A dataset that drifted to almost entirely
         fabricated would still pass every test above while being useless; this
         is the floor below which the corpus has stopped being the point."""
-        s = tally(spec, seen)
+        s = tally(spec, seen, prov)
         assert s["real_cells"] / s["total_cells"] > 0.25, (
             f"only {100 * s['real_cells'] / s['total_cells']:.1f}% of cells are real")
+
+
+class TestRealMeansProvenanceReal:
+    """The 2026-09-01 adversarial review's data-quality finding.
+
+    `measure()` counts presence, and the render labelled that count "real":
+    a column of 1,147 pseudonyms and 67 synthetic fills read as "100.0%
+    real", and syn gap-fill inside declared-real columns inflated the
+    headline the same way. "Real" in this ledger means what the headline
+    says it means -- src or xw per the cell's provenance token -- so the
+    numbers must come from the provenance files wherever one exists.
+    """
+
+    def test_pseudonymised_cells_are_not_counted_real(self, prov):
+        pc = prov["incidents"]["Investigation leader - Name"]
+        assert pc["real"] == 0, pc
+        assert pc["pseud"] > 1000, pc
+
+    def test_syn_gap_fill_is_not_counted_real(self, seen, prov):
+        """Owner-Position is 1,074 src + 138 syn; the old ledger reported
+        99.8% real because the syn fills are non-empty."""
+        pc = prov["incidents"]["Investigation Acceptor/Approver (Owner)- Position"]
+        n, total = seen["incidents"]["Investigation Acceptor/Approver (Owner)- Position"]
+        assert pc["real"] < n, "provenance-real should exclude the syn fills"
+        assert pc["real"] + pc["fab"] == n, (pc, n)
+
+    def test_the_rendered_row_tells_the_truth(self, spec, seen, prov):
+        stats = tally(spec, seen, prov)
+        rendered = render(spec, seen, stats, validity(spec), prov)
+        row = next(l for l in rendered.splitlines()
+                   if "`Investigation leader - Name`" in l)
+        assert row.startswith("| 0.0% |"), row
+
+    def test_headline_real_matches_the_token_files(self, spec, seen, prov):
+        """The tally must equal a direct count over the provenance files for
+        the provenanced tables, plus presence for declared-real columns of
+        the tables that have none."""
+        s = tally(spec, seen, prov)
+        direct = sum(c["real"] for t in prov.values() for c in t.values()
+                     if c is not None)
+        unprov = sum(
+            n for table, cols in seen.items() if table not in prov
+            for col, (n, _) in cols.items()
+            if (spec["fields"].get(table, {}).get(col) or {}).get("disposition") == "real"
+        )
+        assert s["real_cells"] == direct + unprov
 
 
 @pytest.fixture(scope="module")
