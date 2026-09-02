@@ -1,12 +1,18 @@
 """Export the filled/ E19 layer to one xlsx for SME review.
 
-Three sheets: About (what this is and is not), Incidents, Causes. Every cell
-whose provenance token is xw/llm/syn/key/pseud carries a fill colour so a
-reviewer can see at a glance which values are real, mapped, model-assigned,
-synthetic, a constructed identifier, or a pseudonym (legend on the About
-sheet). The workbook is a DELIVERABLE, not a dataset of record —
-deliverables/ is gitignored; the committed record is
-data/processed/e19/filled/*.csv plus the parallel provenance files.
+Five sheets: About (what this is and is not), Incidents, Causes, Incidents
+Provenance, Causes Provenance. Every cell whose provenance token is
+xw/llm/syn/key/pseud carries a fill colour on the data sheets so a reviewer
+can see at a glance which values are real, mapped, model-assigned, synthetic,
+a constructed identifier, or a pseudonym (legend on the About sheet). Colour
+does not survive copy/paste, CSV export, or an AI analyst reading the file,
+so the two Provenance sheets mirror the data sheets cell-for-cell with the
+plain-text token instead of a fill -- provenance that travels with the data
+even once the colours are gone. Header cells on the data sheets also carry a
+comment with per-column token counts and meanings, for the same reason. The
+workbook is a DELIVERABLE, not a dataset of record — deliverables/ is
+gitignored; the committed record is data/processed/e19/filled/*.csv plus the
+parallel provenance files.
 
 Run:  uv run python -m psm.export_e19
 """
@@ -19,6 +25,7 @@ from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
+from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Font, PatternFill
 
 from psm.fill import FILLED
@@ -88,6 +95,18 @@ ABOUT_LINES = [
     "  control characters left by PDF extraction that xlsx cannot store;",
     "  each run is rendered here as a single space. The committed CSVs in",
     "  data/processed/e19/filled/ keep the original bytes.",
+    "",
+    "Provenance sheets:",
+    "- 'Incidents Provenance' and 'Causes Provenance' mirror the Incidents",
+    "  and Causes sheets cell-for-cell: identical headers, identical row",
+    "  order, and each cell holds the provenance token (src/xw/llm/syn/key/",
+    "  pseud) for the matching data cell -- blank where the data cell is",
+    "  blank or unprovenanced.",
+    "- If you extract values out of this workbook into another tool --",
+    "  copy-paste, a CSV export, or an AI/LLM analyst reading the data --",
+    "  the colour coding does not survive. Carry the Provenance sheets with",
+    "  the data, or synthetic dates and values will read as real",
+    "  operational data.",
 ]
 
 # The About legend's coloured lines get a swatch cell in column B, filled
@@ -239,6 +258,83 @@ def _write_sheet(ws, cols: list[str], rows: list[dict], prov: list[dict]) -> int
     return sanitised
 
 
+# Token meaning groups for header comments, in display order. src and xw
+# share one line ("real BSEE-derived data") because to a reviewer skimming a
+# column they mean the same thing: not invented. Grouped rather than
+# hard-coded per-token so a column carrying only one of the two still gets
+# an accurate, non-misleading label.
+_TOKEN_MEANING_GROUPS = [
+    (("src", "xw"), "real BSEE-derived data"),
+    (("syn",), "synthetic filler, corresponds to nothing real"),
+    (("llm",), "model-assigned label, unvalidated"),
+    (("key",), "constructed key"),
+    (("pseud",), "pseudonym"),
+]
+_TOKEN_ORDER = ["src", "xw", "llm", "syn", "key", "pseud"]
+
+_COMMENT_FOOTER = (
+    "Colour coding does not survive copy or export — see the About sheet "
+    "and the Provenance sheets."
+)
+
+
+def _column_token_counts(col: str, prov_rows: list[dict]) -> tuple[dict[str, int], int]:
+    """Per-column tally of provenance tokens plus a blank count, computed
+    from the token grid (not guessed/hard-coded) so it can never drift from
+    the workbook it describes."""
+    counts: dict[str, int] = {}
+    blank = 0
+    for prow in prov_rows:
+        token = prow.get(col, "")
+        if not token:
+            blank += 1
+        else:
+            counts[token] = counts.get(token, 0) + 1
+    return counts, blank
+
+
+def _header_comment_text(col: str, prov_rows: list[dict]) -> str:
+    counts, blank = _column_token_counts(col, prov_rows)
+    count_parts = [f"{tok} {counts[tok]}" for tok in _TOKEN_ORDER if tok in counts]
+    count_parts.append(f"blank {blank}")
+    lines = [col, " · ".join(count_parts), ""]
+    for tokens, meaning in _TOKEN_MEANING_GROUPS:
+        if any(t in counts for t in tokens):
+            lines.append(f"{'/'.join(tokens)} = {meaning}")
+    lines.append("")
+    lines.append(_COMMENT_FOOTER)
+    return "\n".join(lines)
+
+
+def _add_header_comments(ws, cols: list[str], prov_rows: list[dict]) -> None:
+    """Attach a comment to every header cell (row 1) with that column's
+    token counts, the meaning of each token it actually contains, and a
+    pointer to the Provenance sheets -- so the provenance story survives
+    even a screenshot of just the header row."""
+    for j, col in enumerate(cols, start=1):
+        comment = Comment(_header_comment_text(col, prov_rows), "provenance")
+        comment.width = 340
+        comment.height = 170
+        ws.cell(row=1, column=j).comment = comment
+
+
+def _write_provenance_sheet(wb, name: str, cols: list[str], prov_rows: list[dict]) -> None:
+    """Plain-text mirror of a data sheet: same headers, same row order, each
+    cell the provenance token for the matching data cell (None, not '',
+    where that cell is blank/unprovenanced). No fills -- this sheet exists
+    precisely because fills don't survive extraction."""
+    ws = wb.create_sheet(name)
+    ws.append(cols)
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+    for prow in prov_rows:
+        ws.append([prow.get(c) or None for c in cols])
+    ws.freeze_panes = "B2"
+    for j, c in enumerate(cols, start=1):
+        width = min(max(len(c) + 2, 12), 60)
+        ws.column_dimensions[ws.cell(row=1, column=j).column_letter].width = width
+
+
 def export(filled_dir: Path, out_path: Path) -> int:
     """Builds the workbook and returns the number of cells sanitised by
     _xlsx_safe, so callers can observe (and log/print) how many cells were
@@ -259,10 +355,15 @@ def export(filled_dir: Path, out_path: Path) -> int:
     icols, irows = _rows(filled_dir / "incidents.csv")
     _, iprov = _rows(filled_dir / "provenance.csv")
     sanitised = _write_sheet(wb.create_sheet("Incidents"), icols, irows, iprov)
+    _add_header_comments(wb["Incidents"], icols, iprov)
 
     ccols, crows = _rows(filled_dir / "causes.csv")
     _, cprov = _rows(filled_dir / "causes_provenance.csv")
     sanitised += _write_sheet(wb.create_sheet("Causes"), ccols, crows, cprov)
+    _add_header_comments(wb["Causes"], ccols, cprov)
+
+    _write_provenance_sheet(wb, "Incidents Provenance", icols, iprov)
+    _write_provenance_sheet(wb, "Causes Provenance", ccols, cprov)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
