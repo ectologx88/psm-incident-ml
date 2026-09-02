@@ -3400,3 +3400,60 @@ mismatches under typed-aware comparison; swatch RGBs equal
 Deferred by design (not defects): NER pseudonymization of narrative text,
 recommendations/closeout sheets in the filled layer (BSEE publishes
 neither), PSM element name lookup column.
+
+## 2026-09-01 — Naive-consumer case study: an external LLM analyst measures the generator
+
+`deliverables/e19_filled.xlsx` (1,214 incidents; per-cell provenance rendered
+as fill colours + About legend; synthetic filler from `src/psm/synth.py` per
+`schema/synth_rules.yaml`) was handed to an external LLM analyst (Gemini) in
+two passes, values only — no colour layer, the only place provenance lived
+before this branch.
+
+**Pass 1 (executive summary).** Arithmetic flawless throughout; provenance-
+blind throughout. It presented, without distinction, (a) genuinely real
+signals — severity mix, outcome-category mix, geography (`src`/`xw`
+columns) — alongside (b) generator artifacts: a "balanced work-group
+distribution" (Work Group is 100% `syn`, near-uniform by construction:
+Maintenance 219, Construction 213, Drilling 209, Well Services 203,
+Production Operations 187, Marine 183), a financial-severity split (100%
+`syn`: Unknown 735, Minor 193, Moderate 191, Major 59), and a "99.4-day
+average close-out with striking consistency" (all workflow dates 100%
+`syn`). Three operational recommendations followed, partly grounded in the
+artifacts.
+
+**Pass 2 (drill-down on close-out timelines).** It decomposed the close-out
+interval into phases averaging 10.1 / 29.6 / 59.6 days and reported these as
+operational benchmarks. Those numbers are a one-decimal readback of the
+generator spec, not a measurement of anything operational:
+`synth_rules.yaml` date_offsets draw uniform hash-deterministic offsets —
+5-15 days (incident→report), 14-45 (report→approval), 30-90
+(approval→close-out), 30-180 (approval→action-due) — implemented in
+`synth.py` as `offset = low + hash(report_id) % span`. Re-measured against
+the shipped data this session (n=1,178 per interval): incident→report min 5
+/ max 15 / mean 10.1; report→approval min 14 / max 45 / mean 29.6 / median
+30; approval→close-out min 30 / max 90 / mean 59.6 / median 60 — an exact
+match to the analyst's figures. It additionally reported "severity
+invariance" of the timelines as a finding; this is tautological, since the
+generator never conditions timeline offsets on severity. Its record-level
+citations mixed real keys and real incident dates with synthetic workflow
+dates in the same sentence; every synthetic cell it cited is grey-shaded in
+the workbook.
+
+**Forensic note.** The distribution shape alone falsifies the operational
+reading, independent of knowing the generator: median equal to mean, hard
+min/max bounds, no right tail. No real approval or close-out process
+produces that signature. A provenance-blind analyst with flawless
+arithmetic confidently measured the generator instead of the process.
+
+**What it got right matters as much as what it got wrong.** The real-column
+findings (severity mix, outcome mix, geography) were sound. The failure is
+not analyst competence; it is that provenance lived only in cell colours
+and repo-side CSVs, and neither survives value extraction — an analyst
+reading values off the sheet has no way to tell `syn` from `src`.
+
+**Consequence (same day, this branch).** This case study is the motivation
+for making provenance portable inside the workbook itself: embedded
+`Incidents Provenance` / `Causes Provenance` sheets mirroring the data grids
+token-per-cell, per-column provenance-count comments on every header cell,
+and an About-sheet warning addressed to extraction/AI consumers —
+implemented concurrently in `src/psm/export_e19.py`.
